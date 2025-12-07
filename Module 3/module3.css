@@ -1,0 +1,60 @@
+/* === Vertical Sidebar === */
+.sidebar {
+    height: 100%;               /* full height */
+    width: 250px;               /* sidebar width */
+    position: fixed;            /* stick to left */
+    top: 0;
+    left: 0;
+    background-color: #7fffd6;
+    padding-top: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar a {
+    padding: 15px 25px;
+    text-decoration: none;
+    font-size: 18px;
+    color: black;
+    display: block;
+}
+
+
+
+
+.logo{
+    width: 100px;
+    height: auto;
+    
+}
+
+.horizontal {
+    height: 130px;
+    width: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    background-color: #7fffd6;
+    padding: 0px;
+    
+    display: flex;
+    flex-direction: row;          /* horizontal direction */
+    justify-content: flex-end;    /* move items to the right */
+    align-items: center;          /* vertically center */
+}
+
+
+.horizontal a{
+     padding: 15px 25px;
+    text-decoration: none;
+    font-size: 18px;
+    color: black;
+    display: block;
+}
+
+body{
+    background-image:url("../photo/background.png");
+    background-size: cover;
+    background-repeat: no-repeat;
+   
+}
