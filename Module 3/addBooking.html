@@ -1,6 +1,74 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="../studentDashboard.css">
+
+    </head>
     <body>
-        <h1>NEW PROJECT</h1>
-    </body>
+       
+        <div class="horizontal">
+             
+     <a href="#">Home</a>
+    <a href="#">Register Vehicle</a>
+    <a href="#">Profile</a>
+
+    
+        </div>
+
+    <div class="sidebar">
+     <a href="#home"><img class="logo" src="../photo/logoUmpsa.png"></a>
+    <a class="sidebar2" href="#">Parking</a>
+    <a class="sidebar2" href="Module 3/viewBooking.html">Booking</a>
+    <a class="sidebar2" href="sidebar2">Traffic Summons</a>
+    </div>
+
+     <div class="main-content">
+        <h1>Book Your Parking</h1>
+        <form>
+            <table>
+                <tr>
+                    <td>Name</td>
+                    <td><input type="text" name="name"></td>
+                </tr>
+                <td>Vehicle Plate Number</td>
+                <td><input type="text" name="plate_number"></td>
+
+                <tr>
+                    <td>Start Time</td>
+                    <td><input type="time" name="start_time"></td>
+
+                </tr>
+
+                <tr>
+                    <td>End Time</td>
+                    <td><input type="time" name="end_time"></td>
+                </tr>
+                <tr>
+                    <td>Date</td>
+                    <td><input type="date" name="booking_date"></td>
+                </tr>
+                <tr>
+                    <td>Parking Area</td>
+                    <td><select name="area" id="area">
+                        <option value="A">A</option>
+                        <option value="B">B</option>
+</select>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Parking Space</td>
+                    <td>
+                        <input name="space" type="number">
+                    </td>
+                </tr>
+            </table>
+        </form>
+        <button type="submit" name="submit">Submit</button>
+        <table></table>
+     </div>
+
+
+
+</body>
+
 </html>
