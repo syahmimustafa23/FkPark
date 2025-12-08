@@ -51,6 +51,7 @@ $user_id = $_SESSION['user_id'];
         <div class="buttons">
             <a href="../logout.php" class="logout-btn">Logout</a>
         </div>
+        
     </div>
 </body>
 </html>
