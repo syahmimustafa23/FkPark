@@ -30,7 +30,7 @@ $user_id = $_SESSION['user_id'];
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Dashboard | FKPark</title>
+    <title>Admin Dashboard | FKPark</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
