@@ -1,21 +1,3 @@
-<?php
-/**
- * FKPark Student Dashboard
- * Simple student interface with no animations
- */
-
-require_once '../config.php';
-requireLogin();
-
-if ($_SESSION['role'] !== 'student') {
-    header("Location: ../login.php");
-    exit();
-}
-
-$username = htmlspecialchars($_SESSION['username']);
-$user_id = $_SESSION['user_id'];
-?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -27,7 +9,7 @@ $user_id = $_SESSION['user_id'];
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
-        header { background: #28a745; color: white; padding: 30px; margin-bottom: 30px; border-radius: 4px; }
+        header { background: #667eea; color: white; padding: 30px; margin-bottom: 30px; border-radius: 4px; }
         header h1 { font-size: 24px; }
         .container { max-width: 400px; margin: 0 auto; background: white; padding: 30px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         .welcome h2 { font-size: 20px; color: #333; margin-bottom: 10px; }
@@ -46,7 +28,7 @@ text-align: center;
 }
 
 .navbar1 a:hover{
-    background-color: black;
+    background-color: #555555;
   color: white;
 }
   .sidebar {
@@ -74,7 +56,7 @@ text-align: center;
 }
 
 .sidebar a:hover{
-    background-color:black;
+    background-color: #555555;
   color: white;
 }
 
@@ -100,36 +82,77 @@ td{
         
         <div class="navbar1">
             <a href="student_dashboard.php">Home</a>
-            <a href="register.php">Register Vehicle</a>
             <a href="profile.php">Profile</a>
     </div>
     </header>
     <div class="sidebar">
-         <a href="#home"><img class="logo" src="photo/logoUmpsa.png"></a>
-    <a class="sidebar2" href="#">View Parking</a>
-    <a class="sidebar2" href="Module/viewBooking.html">Booking Parking</a>
-    <a class="sidebar2" href="sidebar2">Traffic Summons</a>
+         <a href="#home"><img class="logo" src="../photo/logoUmpsa.png"></a>
+    <a class="sidebar2" href="#">Manage Parking</a>
+    <a class="sidebar2" href="Module/parkingReport.html">Parking Report</a>
+    <a class="sidebar2" href="sidebar2">Manage User</a>
     </div>
 
     </div>
    
     <div class="container">
-        <div class="welcome">
-            <h2>Welcome, <?php echo $username; ?>!</h2>
-            <p>You are logged in as Student</p>
-        </div>
-        <div class="user-info">
-            <strong>User ID:</strong> <?php echo htmlspecialchars($user_id); ?> |
-            <strong>Role:</strong> Student
-        </div>
-        <p>Student dashboard ready for development. Future features: booking management, parking availability.</p>
-        <div class="buttons">
-            <a href="../logout.php" class="logout-btn">Logout</a>
-        </div>
+        <canvas id="myChart" style="width:100%;max-width:600px"></canvas>
+
+<script>
+const xValues = ["Booked Parking Area A", "Available Parking Area A", "Booked Parking Area B", "Available Parking Area B"];
+const yValues = [0, 100, 0, 50];
+const barColors = [
+  "#b91d47",
+  "#00aba9",
+  "#2b5797",
+  "#e8c3b9",
+ 
+];
+
+const ctx = document.getElementById('myChart');
+
+new Chart(ctx, {
+  type: "pie",
+  data: {
+    labels: xValues,
+    datasets: [{
+      backgroundColor: barColors,
+      data: yValues
+    }]
+  },
+  options: {
+    plugins: {
+      legend: {display:true},
+      title: {
+        display: true,
+        text: "FK Parking Availability",
+        font: {size:16}
+      }
+    }
+  }
+});
+</script>
+        
+    </div>
+    <div class="container">
+        <table border="1">
+            <tr>
+            <td>Parking Area</td>
+            <td>A</td>
+            <td>B</td>
+            </tr>
+            <tr>
+                <td>Total Free Parking Space</td>
+                <td>100</td>
+                <td>50</td>
+            </tr>
+            <tr>
+                <td>Total Booked Parking Space</td>
+                <td>0</td>
+                <td>0</td>
+            </tr>
+        </table>
+
     </div>
      
 </body>
 </html>
-
-
-
