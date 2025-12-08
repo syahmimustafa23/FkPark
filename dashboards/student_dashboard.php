@@ -1,3 +1,20 @@
+<?php
+/**
+ * FKPark Student Dashboard
+ * Simple student interface with no animations
+ */
+
+require_once '../config.php';
+requireLogin();
+
+if ($_SESSION['role'] !== 'student') {
+    header("Location: ../login.php");
+    exit();
+}
+
+$username = htmlspecialchars($_SESSION['username']);
+$user_id = $_SESSION['user_id'];
+?>
 
 <!DOCTYPE html>
 <html lang="en">
