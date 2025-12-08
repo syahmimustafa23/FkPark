@@ -1,20 +1,4 @@
-<?php
-/**
- * FKPark Student Dashboard
- * Simple student interface with no animations
- */
 
-require_once '../config.php';
-requireLogin();
-
-if ($_SESSION['role'] !== 'student') {
-    header("Location: ../login.php");
-    exit();
-}
-
-$username = htmlspecialchars($_SESSION['username']);
-$user_id = $_SESSION['user_id'];
-?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -32,12 +16,70 @@ $user_id = $_SESSION['user_id'];
         .user-info { margin-bottom: 30px; padding: 10px; background: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 4px; font-size: 14px; color: #555; }
         .buttons { margin-top: 30px; text-align: center; }
         .logout-btn { background: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 4px; text-decoration: none; cursor: pointer; font-size: 14px; }
+        img{width: 100px; }
+        .navbar1{text-decoration-line: none;text-decoration: none; float: right; overflow: hidden; list-style-type: none; display: flex; text-align: center; padding: 0px; margin:0px;}
+        .navbar1 a{ 
+            display: block;
+  color: black;
+  padding: 40px 50px;
+  text-decoration: none;
+text-align: center;
+}
+  .sidebar {
+    height: 100%;               /* full height */
+    width: 250px;               /* sidebar width */
+    width: 200px;               /* sidebar width */
+    position: fixed;            /* stick to left */
+    top: 20px;
+    left: 20px;
+    background-color: #7fffd6;
+    padding-top: 20px;
+    background-color: #FFFFFF;
+    
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar a {
+    padding: 15px 25px;
+    padding:0px 0px;
+    text-decoration: none;
+    font-size: 18px;
+    color: black;
+    display: block;
+}
+
+a.sidebar2{
+    padding: 15px 20px;
+}
+
+.logo{
+    width: 200px;
+    height: auto;
+}
+
+
+
     </style>
 </head>
 <body>
     <header>
-        <h1>FKPark - Student Dashboard</h1>
+        <img src="photo/logoUmpsa.png">
+        <div class="navbar1">
+            <a href="student_dashboard.php">Home</a>
+            <a href="register.php">Register Vehicle</a>
+            <a href="profile.php">Profile</a>
+    </div>
     </header>
+    <div class="sidebar">
+         <a href="#home"><img class="logo" src="photo/logoUmpsa.png"></a>
+    <a class="sidebar2" href="#">View Parking</a>
+    <a class="sidebar2" href="Module/viewBooking.html">Booking Parking</a>
+    <a class="sidebar2" href="sidebar2">Traffic Summons</a>
+    </div>
+
+    </div>
+   
     <div class="container">
         <div class="welcome">
             <h2>Welcome, <?php echo $username; ?>!</h2>
@@ -53,5 +95,6 @@ $user_id = $_SESSION['user_id'];
         </div>
         
     </div>
+     
 </body>
 </html>
