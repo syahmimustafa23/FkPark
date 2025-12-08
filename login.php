@@ -151,7 +151,7 @@ if (isset($_GET['success'])) {
  * 
  * Date: December 2025
  */
-
+session_start();
 require_once 'config.php';
 
 // Redirect to dashboard if already logged in

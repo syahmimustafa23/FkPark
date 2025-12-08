@@ -9,7 +9,7 @@
  * 
  * No JavaScript, no dynamic UI
  */
-
+session_start();
 require_once 'config.php';
 
 // Only process POST requests
