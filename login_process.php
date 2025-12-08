@@ -12,6 +12,7 @@
 session_start();
 require_once 'config.php';
 
+
 // Only process POST requests
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header("Location: login.php");
