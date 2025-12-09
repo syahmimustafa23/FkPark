@@ -1,4 +1,4 @@
-/* ========== GENERAL ========= */
+/* ==== general ==== */
 * {
     box-sizing: border-box;
     font-family: Arial, Helvetica, sans-serif;
@@ -18,7 +18,7 @@ body {
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
-/* ========== HEADER ========= */
+/* ==== header untuk semua page ==== */
 .header {
     display: flex;
     justify-content: space-between;
@@ -56,7 +56,7 @@ body {
     background: #fff;
 }
 
-/* ========== SIDEBAR ========= */
+/* ==== side bar untuk semua page ==== */
 .layout {
     display: flex;
     margin-top: 20px;
@@ -90,13 +90,13 @@ body {
     border-color: #0b7051;
 }
 
-/* ========== MAIN CONTENT ========= */
+/* ==== main content ==== */
 .main-content {
     flex: 1;
     padding: 0 20px;
 }
 
-/* ========== SELECT DROPDOWN ========= */
+/* ==== dropdown untuk page view ==== */
 select#vehicleSelect {
     width: 280px;
     padding: 10px;
@@ -110,7 +110,7 @@ select#vehicleSelect:focus {
     background: white;
 }
 
-/* ========== INFO BOX ========= */
+/* ==== box info page view ==== */
 .info-box {
     width: 260px;
     border: 2px solid #bbb;
@@ -131,7 +131,7 @@ select#vehicleSelect:focus {
     font-size: 14px;
 }
 
-/* ========== STATUS COLORS ========= */
+/* ==== status tukar warna ==== */
 .status-label {
     display: inline-block;
     padding: 6px 12px;
@@ -164,7 +164,7 @@ select#vehicleSelect:focus {
     color: white;
 }
 
-/* ========== INPUT FIELDS ========= */
+/* ==== input dekat page manage ==== */
 label {
     font-size: 14px;
     font-weight: 600;
@@ -186,7 +186,7 @@ input:focus, select:focus, textarea:focus {
     background: #ffffff;
 }
 
-/* ========== BUTTONS ========= */
+/* ==== semua button ==== */
 button {
     padding: 10px 20px;
     border: none;
@@ -225,7 +225,7 @@ button[type="submit"]:hover {
     background: #0b7051;
 }
 
-/* ========== TABLE ========= */
+/* ==== table dekat page view dan dashboard ==== */
 table {
     width: 100%;
     border-collapse: collapse;
