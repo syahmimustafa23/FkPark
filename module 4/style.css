@@ -14,7 +14,6 @@ body {
     margin: 20px auto;
     background: #ffffff;
     padding: 20px;
-    border-radius: 12px;
     border: 1px solid #e3e3e3;
     box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
@@ -39,7 +38,6 @@ body {
 .top-links a {
     text-decoration: none;
     padding: 8px 27px;
-    border-radius: 6px;
     background: #13ca91;
     color: white;
     border: 1px solid #13ca91;
@@ -55,7 +53,6 @@ body {
 .search-box {
     border: 1px solid #aaa;
     padding: 6px 60px;
-    border-radius: 6px;
     background: #fff;
 }
 
@@ -75,7 +72,6 @@ body {
     display: block;
     margin-bottom: 15px;
     padding: 12px;
-    border-radius: 6px;
     background: #13ca91;
     color: white;
     text-decoration: none;
@@ -106,7 +102,6 @@ select#vehicleSelect {
     padding: 10px;
     background: #f9fafb;
     border: 1px solid #bbb;
-    border-radius: 6px;
     transition: 0.2s;
 }
 
@@ -120,7 +115,6 @@ select#vehicleSelect:focus {
     width: 260px;
     border: 2px solid #bbb;
     background: #fafafa;
-    border-radius: 8px;
     padding: 12px;
     margin-bottom: 20px;
 }
@@ -129,7 +123,6 @@ select#vehicleSelect:focus {
     width: 160px;
     height: 180px;
     border: 1px solid #bbb;
-    border-radius: 6px;
     margin-bottom: 10px;
     display: flex;
     align-items: center;
@@ -142,7 +135,6 @@ select#vehicleSelect:focus {
 .status-label {
     display: inline-block;
     padding: 6px 12px;
-    border-radius: 6px;
     font-weight: bold;
     font-size: 14px;
     margin-top: 8px;
@@ -184,7 +176,6 @@ input, select, textarea {
     width: 100%;
     padding: 10px;
     border: 1px solid #bbb;
-    border-radius: 6px;
     background: #f9fafb;
     margin-bottom: 15px;
     transition: 0.2s;
@@ -198,7 +189,6 @@ input:focus, select:focus, textarea:focus {
 /* ========== BUTTONS ========= */
 button {
     padding: 10px 20px;
-    border-radius: 6px;
     border: none;
     cursor: pointer;
     transition: 0.2s ease;
@@ -229,7 +219,6 @@ button[type="submit"]:hover {
     background: #13ca91;
     color: white;
     text-decoration: none;
-    border-radius: 6px;
 }
 
 .btn-back:hover {
@@ -241,7 +230,6 @@ table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
-    border-radius: 6px;
     overflow: hidden;
 }
 
@@ -254,10 +242,6 @@ th, td {
 th {
     background: #13ca91;
     color: white;
-}
-
-tr:hover {
-    background: #e7fff4;
 }
 
 /* Table stripes */
