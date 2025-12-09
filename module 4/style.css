@@ -1,0 +1,267 @@
+/* ========== GENERAL ========= */
+* {
+    box-sizing: border-box;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+    margin: 0;
+    background: #f4f6f9;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 20px auto;
+    background: #ffffff;
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid #e3e3e3;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+/* ========== HEADER ========= */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo-img {
+    max-width: 16%;
+    object-fit: contain;
+}
+
+.top-links {
+    display: flex;
+    gap: 12px;
+}
+
+.top-links a {
+    text-decoration: none;
+    padding: 8px 27px;
+    border-radius: 6px;
+    background: #13ca91;
+    color: white;
+    border: 1px solid #13ca91;
+    transition: 0.2s;
+}
+
+.top-links a:hover {
+    background: #aaf7df;
+    color: black;
+    border-color: #0b7051;
+}
+
+.search-box {
+    border: 1px solid #aaa;
+    padding: 6px 60px;
+    border-radius: 6px;
+    background: #fff;
+}
+
+/* ========== SIDEBAR ========= */
+.layout {
+    display: flex;
+    margin-top: 20px;
+}
+
+.sidebar {
+    width: 220px;
+    border-right: 1px solid #ccc;
+    padding-right: 20px;
+}
+
+.sidebar a {
+    display: block;
+    margin-bottom: 15px;
+    padding: 12px;
+    border-radius: 6px;
+    background: #13ca91;
+    color: white;
+    text-decoration: none;
+    border: 1px solid #13ca91;
+    transition: 0.2s ease;
+}
+
+.sidebar a:hover {
+    background: #aaf7df;
+    color: black;
+    border-color: #0b7051;
+}
+
+.sidebar a.active {
+    background: #0b7051;
+    border-color: #0b7051;
+}
+
+/* ========== MAIN CONTENT ========= */
+.main-content {
+    flex: 1;
+    padding: 0 20px;
+}
+
+/* ========== SELECT DROPDOWN ========= */
+select#vehicleSelect {
+    width: 280px;
+    padding: 10px;
+    background: #f9fafb;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+    transition: 0.2s;
+}
+
+select#vehicleSelect:focus {
+    border-color: #13ca91;
+    background: white;
+}
+
+/* ========== INFO BOX ========= */
+.info-box {
+    width: 260px;
+    border: 2px solid #bbb;
+    background: #fafafa;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 20px;
+}
+
+.profile-img {
+    width: 160px;
+    height: 180px;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e8e8e8;
+    font-size: 14px;
+}
+
+/* ========== STATUS COLORS ========= */
+.status-label {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 14px;
+    margin-top: 8px;
+}
+
+/* LESS THAN 20 */
+.status-warning {
+    background: #fff2b3;
+    color: #8a6d00;
+}
+
+/* LESS THAN 50 */
+.status-revoke1 {
+    background: #ffd9cc;
+    color: #cc3300;
+}
+
+/* LESS THAN 80 */
+.status-revoke2 {
+    background: #ffb3b3;
+    color: #b30000;
+}
+
+/* ABOVE 80 */
+.status-permanent {
+    background: #ff8080;
+    color: white;
+}
+
+/* ========== INPUT FIELDS ========= */
+label {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 5px;
+    display: block;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #bbb;
+    border-radius: 6px;
+    background: #f9fafb;
+    margin-bottom: 15px;
+    transition: 0.2s;
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: #13ca91;
+    background: #ffffff;
+}
+
+/* ========== BUTTONS ========= */
+button {
+    padding: 10px 20px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+button[type="reset"] {
+    background: #ffffff;
+    border: 1px solid #999;
+}
+
+button[type="reset"]:hover {
+    background: #e5e7eb;
+}
+
+button[type="submit"] {
+    background: #13ca91;
+    color: white;
+}
+
+button[type="submit"]:hover {
+    background: #0b7051;
+}
+
+.btn-back {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 16px;
+    background: #13ca91;
+    color: white;
+    text-decoration: none;
+    border-radius: 6px;
+}
+
+.btn-back:hover {
+    background: #0b7051;
+}
+
+/* ========== TABLE ========= */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+th, td {
+    border-bottom: 1px solid #13ca91;
+    padding: 12px;
+    text-align: left;
+}
+
+th {
+    background: #13ca91;
+    color: white;
+}
+
+tr:hover {
+    background: #e7fff4;
+}
+
+/* Table stripes */
+table tbody tr:nth-child(even) {
+    background: #f7fffb;
+}
+

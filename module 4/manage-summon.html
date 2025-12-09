@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Traffic Summon</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+
+    <!-- HEADER -->
+    <div class="header">
+
+	<img src="umpsa-logo-png.png" alt="UMPSA Logo" class="logo-img">
+
+        <div class="top-links">
+            <a href="#">Homepage</a>
+            <a href="#">Profile</a>
+            <a href="#">Dashboard</a>
+        </div>
+
+        <div class="search-box">Search</div>
+    </div>
+
+    <!-- LAYOUT -->
+    <div class="layout">
+
+        <!-- LEFT SIDEBAR -->
+        <div class="sidebar">
+            <a href="manage-summon.html" class="active">Manage Traffic Summon</a>
+            <a href="view-status.html">View Update Point & Status</a>
+            <a href="dashboard.html">Manage Dashboard</a>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+
+            <h3>Manage Traffic Summon</h3>
+
+            <label>Violation type</label>
+            <select id="violationType">
+                <option>Parking violation</option>
+                <option>Traffic regulation breach</option>
+                <option>Cause accident</option>
+            </select>
+
+            <label>Vehicle number</label>
+            <input id="vehicleNo" type="text" placeholder="Enter vehicle number">
+
+            <label>Date and time</label>
+            <input id="dateTime" type="datetime-local">
+
+            <label>Area of violation issued</label>
+            <input id="area" type="text" placeholder="Enter area">
+
+            <div class="btn-row">
+                <button type="reset">Reset</button>
+                <button type="button" id="submitBtn">Submit</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+document.getElementById("submitBtn").addEventListener("click", () => {
+
+    let violationType = document.getElementById("violationType").value;
+    let vehicleNo = document.getElementById("vehicleNo").value.trim();
+    let dateTime = document.getElementById("dateTime").value;
+    let area = document.getElementById("area").value.trim();
+
+    if (!vehicleNo || !dateTime || !area) {
+        alert("Please fill all fields.");
+        return;
+    }
+
+    const record = {
+        violation: violationType,
+        vehicle: vehicleNo,
+        datetime: dateTime,
+        area: area
+    };
+
+    let history = JSON.parse(localStorage.getItem("summonHistory")) || [];
+
+    history.push(record);
+
+    localStorage.setItem("summonHistory", JSON.stringify(history));
+
+    window.location.href = "dashboard.html";
+});
+</script>
+
+</body>
+</html>
