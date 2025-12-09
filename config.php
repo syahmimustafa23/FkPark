@@ -58,15 +58,15 @@ if (session_status() === PHP_SESSION_NONE) {
     ini_set('session.use_strict_mode', 1);
     ini_set('session.use_only_cookies', 1);
     ini_set('session.cookie_httponly', 1);
-    ini_set('session.cookie_lifetime', 3600);      // 1 hour session timeout
+    ini_set('session.cookie_lifetime', 60);      // 1 minute session timeout
     // Align server-side session storage lifetime with cookie lifetime
-    ini_set('session.gc_maxlifetime', 3600);       // 1 hour (seconds)
+    ini_set('session.gc_maxlifetime', 60);       // 1 minute (seconds)
 
     session_start();
 
     // Application-wide session timeout constant (seconds)
     if (!defined('SESSION_TIMEOUT')) {
-        define('SESSION_TIMEOUT', 3600);
+        define('SESSION_TIMEOUT', 60);
     }
 }
 
