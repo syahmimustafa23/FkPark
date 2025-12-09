@@ -1,20 +1,16 @@
 <?php
-// Simple, minimal login page for FKPark
-// - No JavaScript
-// - Clean, centered form
-// - Plain error messages via GET parameters
+// Minimal, single-version login page for FKPark
+// No JavaScript, no duplicated content. Form posts to login_process.php
 
-// Read optional error/success message from query string
+// Read optional error/success messages from query string
 $error = '';
 $success = '';
-
 if (isset($_GET['error'])) {
     $error = htmlspecialchars($_GET['error'], ENT_QUOTES, 'UTF-8');
 }
 if (isset($_GET['success'])) {
     $success = htmlspecialchars($_GET['success'], ENT_QUOTES, 'UTF-8');
 }
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -22,71 +18,24 @@ if (isset($_GET['success'])) {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Login | FKPark</title>
-    <!-- Minimal Bootstrap for basic styling (optional) -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        /* Center the form vertically and horizontally */
-        html, body {
-            height: 100%;
-            margin: 0;
-            background: #f5f5f5;
-            font-family: Arial, Helvetica, sans-serif;
-        }
-        .login-container {
-            min-height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .login-card {
-            width: 100%;
-            max-width: 420px;
-            background: #ffffff;
-            padding: 24px;
-            border: 1px solid #e0e0e0;
-            border-radius: 6px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-        }
-        .login-title {
-            margin-bottom: 18px;
-            font-size: 20px;
-            font-weight: 600;
-            color: #333333;
-        }
-        .form-label {
-            font-size: 14px;
-            color: #333333;
-            margin-bottom: 6px;
-        }
-        .btn-primary {
-            width: 100%;
-        }
-        .error-msg {
-            margin-bottom: 12px;
-            color: #b00020;
-            background: #fff0f0;
-            padding: 8px 10px;
-            border: 1px solid #f2c0c0;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-        .small-note {
-            margin-top: 12px;
-            font-size: 13px;
-            color: #666666;
-        }
+        html, body { height: 100%; margin: 0; font-family: Arial, Helvetica, sans-serif; background: #f5f5f5; }
+        .login-container { min-height: 100%; display:flex; align-items:center; justify-content:center; padding:20px; }
+        .card { background:#fff; padding:24px; border:1px solid #e0e0e0; border-radius:6px; width:100%; max-width:420px; }
+        h1 { margin:0 0 12px 0; font-size:20px; color:#333; }
+        label { display:block; margin-bottom:6px; color:#333; font-size:14px }
+        input[type="text"], input[type="password"] { width:100%; padding:10px; border:1px solid #ccc; border-radius:4px; margin-bottom:12px }
+        .btn { display:block; width:100%; padding:10px; background:#2b6cb0; color:white; border:none; border-radius:4px; text-align:center }
+        .error { background:#fff0f0; color:#b00020; padding:8px; border:1px solid #f2c0c0; border-radius:4px; margin-bottom:12px }
+        .success { background:#f0fdf4; color:#065f46; padding:8px; border:1px solid #bbf7d0; border-radius:4px; margin-bottom:12px }
     </style>
 </head>
 <body>
     <div class="login-container">
-        <div class="login-card">
-            <div class="login-title">FKPark — Login</div>
-
+        <div class="card">
+            <h1>FKPark — Login</h1>
             <?php if (!empty($error)): ?>
-                <div class="error-msg" role="alert">
-                    <?php
-                    // Map error codes to user-friendly messages
+                <div class="error"><?php
                     $error_messages = [
                         'empty_fields' => 'Username and password are required.',
                         'invalid_credentials' => 'Invalid username or password.',
@@ -94,170 +43,27 @@ if (isset($_GET['success'])) {
                         'session_expired' => 'Your session has expired. Please login again.',
                         'invalid_role' => 'User role is invalid.'
                     ];
-                    
-                    $message = $error_messages[$error] ?? htmlspecialchars($error);
-                    echo $message;
-                    ?>
-                </div>
+                    echo $error_messages[$error] ?? htmlspecialchars($error);
+                ?></div>
             <?php endif; ?>
 
             <?php if (!empty($success)): ?>
-                <div style="margin-bottom: 12px; color: #065f46; background: #f0fdf4; padding: 8px 10px; border: 1px solid #bbf7d0; border-radius: 4px; font-size: 14px;" role="alert">
-                    You have been logged out successfully.
-                </div>
+                <div class="success">You have been logged out successfully.</div>
             <?php endif; ?>
 
             <form method="post" action="login_process.php" novalidate>
-                <!-- Username -->
-                <div class="mb-3">
-                    <label for="username" class="form-label">Username</label>
-                    <input type="text" id="username" name="username" class="form-control" maxlength="150" required>
-                </div>
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" maxlength="150" required>
 
-                <!-- Password -->
-                <div class="mb-3">
-                    <label for="password" class="form-label">Password</label>
-                    <input type="password" id="password" name="password" class="form-control" required>
-                </div>
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required>
 
-                <!-- Submit -->
-                <div class="d-grid">
-                    <button type="submit" class="btn btn-primary">Login</button>
-                </div>
+                <button type="submit" class="btn">Login</button>
             </form>
-
-            
         </div>
     </div>
-
-    <!-- No JavaScript included as requested -->
 </body>
 </html>
-<?php
-/**
- * FKPark - Parking Management System
- * Module 1: Login Page
- * 
- * This page displays the login form for all user roles
- * - Admin (FK Staff)
- * - Student (Car/Motorcycle Owner)
- * - Security (Safety Management Unit)
- * 
- * Features:
- * - Bootstrap responsive design
- * - Session validation (logged-in users cannot see this page)
- * - Form validation messages
- * - Secure password input
- * 
- * Date: December 2025
- */
-session_start();
-require_once 'config.php';
-
-// Redirect to dashboard if already logged in
-redirectIfLoggedIn();
-
-// Get error message from URL if login failed
-$error_message = '';
-if (isset($_GET['error'])) {
-    switch($_GET['error']) {
-        case 'invalid_credentials':
-            $error_message = "Invalid username or password. Please try again.";
-            break;
-        case 'empty_fields':
-            $error_message = "Username and password are required.";
-            break;
-        case 'session_error':
-            $error_message = "Session error. Please try again.";
-            break;
-        default:
-            $error_message = "An error occurred. Please try again.";
-    }
-}
-
-// Get success message if redirected from registration
-$success_message = '';
-if (isset($_GET['success'])) {
-    if ($_GET['success'] === 'user_created') {
-        $success_message = "User account created successfully. Please log in.";
-    }
-}
-
-?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FKPark - Login | Parking Management System</title>
-    
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="assets/css/style.css">
-    
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <style>
-        /* Additional inline styles for login page */
-        .login-container {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        
-        .login-card {
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-            padding: 40px;
-            max-width: 400px;
-            width: 100%;
-        }
-        
-        .login-header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .login-header h1 {
-            color: #667eea;
-            font-size: 28px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        
-        .login-header p {
-            color: #6c757d;
-            font-size: 14px;
-        }
-        
-        .form-label {
-            color: #333;
-            font-weight: 500;
-            margin-bottom: 8px;
-        }
-        
-        .form-control {
-            border: 2px solid #e9ecef;
-            border-radius: 8px;
-            padding: 12px 15px;
-            font-size: 14px;
-            transition: border-color 0.3s;
-        }
-        
-        .form-control:focus {
-            border-color: #667eea;
-            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
         
         .btn-login {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

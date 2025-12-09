@@ -121,7 +121,8 @@ $stmt->close();
 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 
 // Prepare INSERT statement
-$stmt = $conn->prepare("INSERT INTO users (username, password, role) VALUES (?, ?, ?)");
+// Database `users` table uses `user_type` column for role
+$stmt = $conn->prepare("INSERT INTO users (username, password, user_type) VALUES (?, ?, ?)");
 
 if (!$stmt) {
     error_log("Database Prepare Error: " . $conn->error);

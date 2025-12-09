@@ -9,7 +9,7 @@
  * 
  * No JavaScript, no dynamic UI
  */
-session_start();
+
 require_once 'config.php';
 
 
@@ -30,7 +30,10 @@ if (empty($username) || empty($password)) {
 }
 
 // Prepare SQL statement to prevent SQL injection
-$stmt = $conn->prepare("SELECT user_id, username, password, role FROM users WHERE username = ?");
+// Use a safe SELECT that does not assume a specific role column name
+// (some DBs use `user_type`, others use `role`). We'll SELECT the whole row
+// and detect the column name at runtime to avoid "unknown column" errors.
+$stmt = $conn->prepare("SELECT * FROM users WHERE username = ? LIMIT 1");
 
 if (!$stmt) {
     error_log("Database Prepare Error: " . $conn->error);
@@ -60,6 +63,20 @@ if ($result->num_rows === 0) {
 // Fetch user record
 $user = $result->fetch_assoc();
 
+// Determine role column dynamically to be compatible with different schemas
+if (isset($user['user_type']) && !empty($user['user_type'])) {
+    $detectedRole = $user['user_type'];
+} elseif (isset($user['role']) && !empty($user['role'])) {
+    $detectedRole = $user['role'];
+} else {
+    // No standard role column found — treat as invalid role
+    error_log("Login failed: No role column found for user - " . $username);
+    $stmt->close();
+    $conn->close();
+    header("Location: login.php?error=invalid_role");
+    exit();
+}
+
 // Verify password
 if (!password_verify($password, $user['password'])) {
     error_log("Login failed: Invalid password for username - " . $username);
@@ -73,20 +90,20 @@ if (!password_verify($password, $user['password'])) {
 session_regenerate_id(true);
 $_SESSION['user_id'] = $user['user_id'];
 $_SESSION['username'] = $user['username'];
-$_SESSION['role'] = $user['role'];
+$_SESSION['role'] = $detectedRole;
 $_SESSION['login_time'] = time();
 
-error_log("Successful login: " . $username . " (Role: " . $user['role'] . ")");
+error_log("Successful login: " . $username . " (Role: " . $detectedRole . ")");
 
 $stmt->close();
 $conn->close();
 
 // Redirect to dashboard based on role
-if ($user['role'] === 'admin') {
+if ($detectedRole === 'admin') {
     header("Location: dashboards/admin_dashboard.php");
-} elseif ($user['role'] === 'student') {
+} elseif ($detectedRole === 'student') {
     header("Location: dashboards/student_dashboard.php");
-} elseif ($user['role'] === 'security') {
+} elseif ($detectedRole === 'security') {
     header("Location: dashboards/security_dashboard.php");
 } else {
     header("Location: login.php?error=invalid_role");
