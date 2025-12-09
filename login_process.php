@@ -1,14 +1,5 @@
 <?php
-/**
- * FKPark Login Process
- * 
- * Handles form submission from login.php
- * - Validates credentials server-side
- * - Creates session if valid
- * - Redirects with error message if invalid
- * 
- * No JavaScript, no dynamic UI
- */
+
 
 require_once 'config.php';
 
