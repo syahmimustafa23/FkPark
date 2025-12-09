@@ -103,7 +103,7 @@ td{
     <div class="sidebar">
          <a href="#home"><img class="logo" src="../photo/logoUmpsa.png"></a>
     <a class="sidebar2" href="">View Parking</a>
-    <a class="sidebar2" href="Module 3/viewBooking.html">Booking Parking</a>
+    <a class="sidebar2" href="../Module 3/viewBooking.html">Booking Parking</a>
     <a class="sidebar2" href="sidebar2">Traffic Summons</a>
      <a class="sidebar2" href="sidebar2">Traffic Summons</a>
     </div>
