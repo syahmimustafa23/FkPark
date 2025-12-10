@@ -125,7 +125,7 @@ if (isset($_GET['success'])) {
         
         .role-item i {
             width: 20px;
-            color: #667eea;
+            color: #2c345cff;
         }
     </style>
 </head>
