@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 08, 2025 at 09:21 PM
+-- Generation Time: Dec 19, 2025 at 02:45 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -24,6 +24,20 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `approval`
+--
+
+CREATE TABLE `approval` (
+  `approval_id` int(11) NOT NULL,
+  `vehicle_id` int(11) NOT NULL,
+  `staff_id` int(11) NOT NULL,
+  `status` enum('Pending','Approved','Rejected') DEFAULT 'Pending',
+  `approval_date` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `booking`
 --
 
@@ -31,23 +45,9 @@ CREATE TABLE `booking` (
   `Booking_id` int(11) NOT NULL,
   `User_id` int(11) NOT NULL,
   `Space_id` int(11) NOT NULL,
-  `start_time` time DEFAULT NULL,
-  `end_time` time DEFAULT NULL,
-  `booking_date` date DEFAULT NULL,
-  `booking_qrCode` text DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `demerit_record`
---
-
-CREATE TABLE `demerit_record` (
-  `Record_id` int(11) NOT NULL,
-  `Total_points` int(11) DEFAULT NULL,
-  `Enforcement_status` varchar(20) DEFAULT NULL,
-  `Last_updated` datetime DEFAULT NULL
+  `booking_date` date NOT NULL,
+  `start_time` time NOT NULL,
+  `end_time` time NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -58,9 +58,8 @@ CREATE TABLE `demerit_record` (
 
 CREATE TABLE `parking_area` (
   `Area_id` int(11) NOT NULL,
-  `Area_name` varchar(10) DEFAULT NULL,
-  `Capacity` int(11) DEFAULT NULL,
-  `Status` varchar(255) DEFAULT NULL
+  `Area_name` varchar(50) NOT NULL,
+  `Category` enum('Staff','Student') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -72,9 +71,9 @@ CREATE TABLE `parking_area` (
 CREATE TABLE `parking_space` (
   `Space_id` int(11) NOT NULL,
   `Area_id` int(11) NOT NULL,
-  `Space_num` int(11) DEFAULT NULL,
+  `Space_num` varchar(10) NOT NULL,
   `Space_qrCode` text DEFAULT NULL,
-  `Current_status` varchar(10) DEFAULT NULL
+  `Current_status` enum('Available','Occupied','Maintenance') DEFAULT 'Available'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -85,8 +84,10 @@ CREATE TABLE `parking_space` (
 
 CREATE TABLE `parking_usage` (
   `Usage_id` int(11) NOT NULL,
-  `booking_id` int(11) NOT NULL,
-  `duration` time DEFAULT NULL
+  `Space_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `entry_time` datetime DEFAULT current_timestamp(),
+  `usage_type` enum('Parking','Maintenance') DEFAULT 'Parking'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -97,11 +98,10 @@ CREATE TABLE `parking_usage` (
 
 CREATE TABLE `traffic_summon` (
   `Summon_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
   `Violation_id` int(11) NOT NULL,
   `Area_id` int(11) NOT NULL,
-  `Record_id` int(11) DEFAULT NULL,
-  `Summon_qrCode` text DEFAULT NULL,
-  `Datetime_issued` datetime DEFAULT NULL
+  `Datetime_issued` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -114,21 +114,18 @@ CREATE TABLE `users` (
   `user_id` int(11) NOT NULL,
   `username` varchar(50) NOT NULL,
   `password` varchar(255) NOT NULL,
-  `user_type` enum('admin','student','security') NOT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `email` varchar(100) NOT NULL DEFAULT current_timestamp()
+  `user_type` enum('Admin','Student','Safety_Staff') NOT NULL,
+  `full_name` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`user_id`, `username`, `password`, `user_type`, `created_at`, `updated_at`, `email`) VALUES
-(1, 'admin', '$2y$10$6iH.KLVR7.WcMDvSvnGfFuLWpL1M8KNzUKqJKHZ5P7YWZbKnVhfne', 'admin', '2025-12-08 17:20:41', '2025-12-08 17:20:41', ''),
-(2, 'student1', '$2y$10$JN4cG.xL5vNKzB2mK9pDHexLzb.WqKzK5dxL7cWqMzL5dxL7cWqMz', 'student', '2025-12-08 17:20:41', '2025-12-08 17:20:41', ''),
-(3, 'security1', '$2y$10$9gL4pP5qR6sT7uV8wX9yZaAbCdEfGhIjKlMnOpQrStUvWxYzAbCdEf', 'security', '2025-12-08 17:20:41', '2025-12-08 17:20:41', ''),
-(7, 'student2', '$2y$10$YJzTiYd5XDFEG3dqJ8QFWeQrq0Cc80gKeZn2bGoqYzZgZYcW6OOTO', 'student', '2025-12-08 17:29:01', '2025-12-08 17:29:01', '');
+INSERT INTO `users` (`user_id`, `username`, `password`, `user_type`, `full_name`) VALUES
+(1, 'admin1', '$2y$10$.xCnwMk9FUeVSqgF0o7HZ.KGQZ8Xyd13jtdjZH8BqmW7GLOzL3yka', 'Admin', 'System Administrator'),
+(2, 'student1', '$2y$10$Dgm/0e1sQRMWWDSJva90auUY83lr81w9YZUUjQ5VIuowF3N6TvwS2', 'Student', 'Ahmad Bin Zaid'),
+(3, 'staff1', '$2y$10$4/Sr47z3rLJpbLM4SCRYw.hY4UzbolnAcWIK288Lg.o9U7pgcEFsy', 'Safety_Staff', 'Officer Razak');
 
 -- --------------------------------------------------------
 
@@ -138,14 +135,11 @@ INSERT INTO `users` (`user_id`, `username`, `password`, `user_type`, `created_at
 
 CREATE TABLE `vehicle` (
   `vehicle_id` int(11) NOT NULL,
-  `user_id` int(11) DEFAULT NULL,
+  `user_id` int(11) NOT NULL,
   `vehicle_type` enum('car','motorcycle') NOT NULL,
-  `vehicle_model` varchar(20) NOT NULL,
   `license_plate` varchar(20) NOT NULL,
-  `grant_document` blob NOT NULL,
-  `Approval_status` tinyint(1) DEFAULT 0,
-  `Approval_date` date DEFAULT NULL,
-  `Approval_by` varchar(50) DEFAULT NULL
+  `vehicle_model` varchar(50) DEFAULT NULL,
+  `grant_document` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -156,13 +150,30 @@ CREATE TABLE `vehicle` (
 
 CREATE TABLE `violation_type` (
   `Violation_id` int(11) NOT NULL,
-  `Violation_name` varchar(20) DEFAULT NULL,
-  `Violation_points` int(11) DEFAULT NULL
+  `Violation_name` varchar(100) NOT NULL,
+  `Points` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `violation_type`
+--
+
+INSERT INTO `violation_type` (`Violation_id`, `Violation_name`, `Points`) VALUES
+(1, 'Parking Violation', 10),
+(2, 'Regulation Non-compliance', 15),
+(3, 'Accident Caused', 20);
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `approval`
+--
+ALTER TABLE `approval`
+  ADD PRIMARY KEY (`approval_id`),
+  ADD KEY `vehicle_id` (`vehicle_id`),
+  ADD KEY `staff_id` (`staff_id`);
 
 --
 -- Indexes for table `booking`
@@ -171,12 +182,6 @@ ALTER TABLE `booking`
   ADD PRIMARY KEY (`Booking_id`),
   ADD KEY `User_id` (`User_id`),
   ADD KEY `Space_id` (`Space_id`);
-
---
--- Indexes for table `demerit_record`
---
-ALTER TABLE `demerit_record`
-  ADD PRIMARY KEY (`Record_id`);
 
 --
 -- Indexes for table `parking_area`
@@ -196,16 +201,17 @@ ALTER TABLE `parking_space`
 --
 ALTER TABLE `parking_usage`
   ADD PRIMARY KEY (`Usage_id`),
-  ADD KEY `booking_id` (`booking_id`);
+  ADD KEY `Space_id` (`Space_id`),
+  ADD KEY `user_id` (`user_id`);
 
 --
 -- Indexes for table `traffic_summon`
 --
 ALTER TABLE `traffic_summon`
   ADD PRIMARY KEY (`Summon_id`),
+  ADD KEY `user_id` (`user_id`),
   ADD KEY `Violation_id` (`Violation_id`),
-  ADD KEY `Area_id` (`Area_id`),
-  ADD KEY `Record_id` (`Record_id`);
+  ADD KEY `Area_id` (`Area_id`);
 
 --
 -- Indexes for table `users`
@@ -233,16 +239,16 @@ ALTER TABLE `violation_type`
 --
 
 --
+-- AUTO_INCREMENT for table `approval`
+--
+ALTER TABLE `approval`
+  MODIFY `approval_id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `booking`
 --
 ALTER TABLE `booking`
   MODIFY `Booking_id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT for table `demerit_record`
---
-ALTER TABLE `demerit_record`
-  MODIFY `Record_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `parking_area`
@@ -272,17 +278,30 @@ ALTER TABLE `traffic_summon`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `vehicle`
+--
+ALTER TABLE `vehicle`
+  MODIFY `vehicle_id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `violation_type`
 --
 ALTER TABLE `violation_type`
-  MODIFY `Violation_id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `Violation_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `approval`
+--
+ALTER TABLE `approval`
+  ADD CONSTRAINT `approval_ibfk_1` FOREIGN KEY (`vehicle_id`) REFERENCES `vehicle` (`vehicle_id`),
+  ADD CONSTRAINT `approval_ibfk_2` FOREIGN KEY (`staff_id`) REFERENCES `users` (`user_id`);
 
 --
 -- Constraints for table `booking`
@@ -295,27 +314,28 @@ ALTER TABLE `booking`
 -- Constraints for table `parking_space`
 --
 ALTER TABLE `parking_space`
-  ADD CONSTRAINT `parking_space_ibfk_1` FOREIGN KEY (`Area_id`) REFERENCES `parking_area` (`Area_id`);
+  ADD CONSTRAINT `parking_space_ibfk_1` FOREIGN KEY (`Area_id`) REFERENCES `parking_area` (`Area_id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `parking_usage`
 --
 ALTER TABLE `parking_usage`
-  ADD CONSTRAINT `parking_usage_ibfk_1` FOREIGN KEY (`booking_id`) REFERENCES `booking` (`Booking_id`);
+  ADD CONSTRAINT `parking_usage_ibfk_1` FOREIGN KEY (`Space_id`) REFERENCES `parking_space` (`Space_id`),
+  ADD CONSTRAINT `parking_usage_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
 
 --
 -- Constraints for table `traffic_summon`
 --
 ALTER TABLE `traffic_summon`
-  ADD CONSTRAINT `traffic_summon_ibfk_1` FOREIGN KEY (`Violation_id`) REFERENCES `violation_type` (`Violation_id`),
-  ADD CONSTRAINT `traffic_summon_ibfk_2` FOREIGN KEY (`Area_id`) REFERENCES `parking_area` (`Area_id`),
-  ADD CONSTRAINT `traffic_summon_ibfk_3` FOREIGN KEY (`Record_id`) REFERENCES `demerit_record` (`Record_id`);
+  ADD CONSTRAINT `traffic_summon_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`),
+  ADD CONSTRAINT `traffic_summon_ibfk_2` FOREIGN KEY (`Violation_id`) REFERENCES `violation_type` (`Violation_id`),
+  ADD CONSTRAINT `traffic_summon_ibfk_3` FOREIGN KEY (`Area_id`) REFERENCES `parking_area` (`Area_id`);
 
 --
 -- Constraints for table `vehicle`
 --
 ALTER TABLE `vehicle`
-  ADD CONSTRAINT `vehicle_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`);
+  ADD CONSTRAINT `vehicle_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

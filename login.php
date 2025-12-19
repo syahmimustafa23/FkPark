@@ -1,231 +1,266 @@
 <?php
-// Minimal, single-version login page for FKPark
-// No JavaScript, no duplicated content. Form posts to login_process.php
+require_once 'config.php';
 
-// Read optional error/success messages from query string
 $error = '';
-$success = '';
-if (isset($_GET['error'])) {
-    $error = htmlspecialchars($_GET['error'], ENT_QUOTES, 'UTF-8');
-}
-if (isset($_GET['success'])) {
-    $success = htmlspecialchars($_GET['success'], ENT_QUOTES, 'UTF-8');
+if (isset($_POST['login'])) {
+    $username = mysqli_real_escape_string($conn, $_POST['username']);
+    $password = $_POST['password'];
+
+    $query = "SELECT * FROM users WHERE username = '$username'";
+    $result = mysqli_query($conn, $query);
+
+    if ($user = mysqli_fetch_assoc($result)) {
+        if (password_verify($password, $user['password'])) {
+            // SET SESSIONS
+            $_SESSION['user_id'] = $user['user_id'];
+            $_SESSION['username'] = $user['username'];
+
+            // Redirect based on type to the /dashboards/ folder
+            if ($user['user_type'] == 'Admin') {
+                $_SESSION['role'] = 'admin';
+                header("Location: dashboards/admin_dashboard.php");
+            } elseif ($user['user_type'] == 'Student') {
+                $_SESSION['role'] = 'student';
+                header("Location: dashboards/student_dashboard.php");
+            } elseif ($user['user_type'] == 'Safety_Staff') {
+                $_SESSION['role'] = 'security';
+                header("Location: dashboards/security_dashboard.php");
+            }
+            exit();
+        }
+    }
+    $error = "Invalid Login Credentials";
 }
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Login | FKPark</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FKPark — Login</title>
     <style>
-        html, body { height: 100%; margin: 0; font-family: Arial, Helvetica, sans-serif; background: #f5f5f5; }
-        .login-container { min-height: 100%; display:flex; align-items:center; justify-content:center; padding:20px; }
-        .card { background:#fff; padding:24px; border:1px solid #e0e0e0; border-radius:6px; width:100%; max-width:420px; }
-        h1 { margin:0 0 12px 0; font-size:20px; color:#333; }
-        label { display:block; margin-bottom:6px; color:#333; font-size:14px }
-        input[type="text"], input[type="password"] { width:100%; padding:10px; border:1px solid #ccc; border-radius:4px; margin-bottom:12px }
-        .btn { display:block; width:100%; padding:10px; background:#2b6cb0; color:white; border:none; border-radius:4px; text-align:center }
-        .error { background:#fff0f0; color:#b00020; padding:8px; border:1px solid #f2c0c0; border-radius:4px; margin-bottom:12px }
-        .success { background:#f0fdf4; color:#065f46; padding:8px; border:1px solid #bbf7d0; border-radius:4px; margin-bottom:12px }
-    </style>
-</head>
-<body>
-    <div class="login-container">
-        <div class="card">
-            <h1>FKPark — Login</h1>
-            <?php if (!empty($error)): ?>
-                <div class="error"><?php
-                    $error_messages = [
-                        'empty_fields' => 'Username and password are required.',
-                        'invalid_credentials' => 'Invalid username or password.',
-                        'database_error' => 'Database error. Please try again later.',
-                        'session_expired' => 'Your session has expired. Please login again.',
-                        'invalid_role' => 'User role is invalid.'
-                    ];
-                    echo $error_messages[$error] ?? htmlspecialchars($error);
-                ?></div>
-            <?php endif; ?>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-            <?php if (!empty($success)): ?>
-                <div class="success">You have been logged out successfully.</div>
-            <?php endif; ?>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-image: url('./images/fkbackground.png');
+            background-attachment: fixed;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: hidden;
+        }
 
-            <form method="post" action="login_process.php" novalidate>
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" maxlength="150" required>
+        /* Dark overlay for better form visibility */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.3);
+            z-index: 1;
+            pointer-events: none;
+        }
 
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
+        .login-wrapper {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 420px;
+            padding: 20px;
+        }
 
-                <button type="submit" class="btn">Login</button>
-            </form>
-        </div>
-    </div>
-</body>
-</html>
-       <style>
-        .btn-login {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            color: white;
-            font-weight: 600;
+        .login-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h1 {
+            font-size: 32px;
+            color: #222;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .login-header p {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .error-message {
+            background-color: #fee;
+            color: #c33;
             padding: 12px;
             border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            border-left: 4px solid #c33;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input {
             width: 100%;
-            transition: transform 0.3s, box-shadow 0.3s;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            background-color: #f9f9f9;
+            color: #333;
+            font-family: inherit;
         }
-        
-        .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+
+        .form-group input::placeholder {
+            color: #aaa;
+            font-weight: 400;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #2b6cb0;
+            background-color: #fff;
+            box-shadow: 0 0 0 3px rgba(43, 108, 176, 0.1);
+        }
+
+        .form-group input:hover:not(:focus) {
+            border-color: #bbb;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 13px;
+            background: linear-gradient(135deg, #2b6cb0 0%, #1e4d7f 100%);
             color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 15px rgba(43, 108, 176, 0.3);
+            margin-top: 12px;
         }
-        
+
+        .login-btn:hover {
+            background: linear-gradient(135deg, #1e4d7f 0%, #153657 100%);
+            box-shadow: 0 6px 20px rgba(43, 108, 176, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 8px rgba(43, 108, 176, 0.3);
+        }
+
         .login-footer {
             text-align: center;
             margin-top: 20px;
-            font-size: 13px;
-            color: #6c757d;
+            font-size: 12px;
+            color: #888;
         }
-        
-        .login-footer a {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 600;
-        }
-        
-        .login-footer a:hover {
-            text-decoration: underline;
-        }
-        
-        .alert-dismissible .btn-close {
-            padding: 0.5rem;
-        }
-        
-        .user-roles-info {
-            background: #f8f9fa;
-            border-left: 4px solid #667eea;
-            padding: 15px;
-            margin-bottom: 25px;
-            border-radius: 5px;
-            font-size: 13px;
-        }
-        
-        .user-roles-info strong {
-            color: #667eea;
-            display: block;
-            margin-bottom: 8px;
-        }
-        
-        .role-item {
-            margin-bottom: 6px;
-            color: #555;
-        }
-        
-        .role-item i {
-            width: 20px;
-            color: #2c345cff;
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 30px 20px;
+            }
+
+            .login-header h1 {
+                font-size: 26px;
+            }
+
+            .form-group input {
+                padding: 11px 14px;
+                font-size: 14px;
+            }
+
+            .login-btn {
+                padding: 12px;
+                font-size: 15px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
+    <div class="login-wrapper">
         <div class="login-card">
-            <!-- Header -->
             <div class="login-header">
-                <h1><i class="fas fa-parking"></i> FKPark</h1>
+                <h1>FKPark</h1>
                 <p>Parking Management System</p>
             </div>
-            
-            <!-- Success Message -->
-            <?php if (!empty($success_message)): ?>
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <i class="fas fa-check-circle"></i> <?php echo $success_message; ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
+
+            <?php if (!empty($error)): ?>
+                <div class="error-message"><?php echo htmlspecialchars($error); ?></div>
             <?php endif; ?>
-            
-            <!-- Error Message -->
-            <?php if (!empty($error_message)): ?>
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <i class="fas fa-exclamation-circle"></i> <?php echo $error_message; ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                </div>
-            <?php endif; ?>
-            
-            <!-- User Roles Information -->
-            <div class="user-roles-info">
-                <strong><i class="fas fa-info-circle"></i> Test Credentials</strong>
-                <div class="role-item"><i class="fas fa-user-tie"></i> <strong>Admin:</strong> admin / admin123</div>
-                <div class="role-item"><i class="fas fa-user-graduate"></i> <strong>Student:</strong> student1 / student123</div>
-                <div class="role-item"><i class="fas fa-user-shield"></i> <strong>Security:</strong> security1 / security123</div>
-            </div>
-            
-            <!-- Login Form -->
-            <form action="login_process.php" method="POST" novalidate>
-                <!-- Username Field -->
+
+            <form method="POST" action="">
                 <div class="form-group">
-                    <label for="username" class="form-label">
-                        <i class="fas fa-user"></i> Username
-                    </label>
+                    <label for="username">Username</label>
                     <input 
                         type="text" 
-                        class="form-control" 
                         id="username" 
                         name="username" 
-                        placeholder="Enter your username"
-                        required
+                        required 
                         autocomplete="username"
+                        placeholder="Enter your username"
                     >
                 </div>
-                
-                <!-- Password Field -->
+
                 <div class="form-group">
-                    <label for="password" class="form-label">
-                        <i class="fas fa-lock"></i> Password
-                    </label>
+                    <label for="password">Password</label>
                     <input 
                         type="password" 
-                        class="form-control" 
                         id="password" 
                         name="password" 
-                        placeholder="Enter your password"
-                        required
+                        required 
                         autocomplete="current-password"
+                        placeholder="Enter your password"
                     >
                 </div>
-                
-                <!-- Submit Button -->
-                <button type="submit" class="btn btn-login">
-                    <i class="fas fa-sign-in-alt"></i> Login
-                </button>
+
+                <button type="submit" name="login" class="login-btn">Login</button>
             </form>
-            
-            <!-- Footer Information -->
+
             <div class="login-footer">
-                <p>Need an account? <a href="#"><i class="fas fa-question-circle"></i> Contact Admin</a></p>
+                <p>© 2025 FKPark. All rights reserved.</p>
             </div>
         </div>
     </div>
-    
-    <!-- Bootstrap JS -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
-    <script>
-        // Auto-dismiss alerts after 5 seconds
-        document.addEventListener('DOMContentLoaded', function() {
-            const alerts = document.querySelectorAll('.alert');
-            alerts.forEach(alert => {
-                setTimeout(() => {
-                    const bsAlert = new bootstrap.Alert(alert);
-                    bsAlert.close();
-                }, 5000);
-            });
-            
-            // Focus on username field on page load
-            document.getElementById('username').focus();
-        });
-    </script>
 </body>
 </html>

@@ -108,6 +108,7 @@ td{
         <div class="navbar1">
             <a href="student_dashboard.php">Home</a>
             <a href="profile.php">Profile</a>
+            <a href="../logout.php">Logout</a>
     </div>
     </header>
     <div class="sidebar">

@@ -1,27 +1,14 @@
 <?php
-/**
- * FKPark Logout
- * Destroys session and redirects to login page
- */
+// 1. Initialize the session
+session_start();
 
-require_once 'config.php';
+// 2. Unset all session variables (clears the data in memory)
+session_unset();
 
-// Log logout if user was logged in
-if (isLoggedIn()) {
-    error_log("User logged out: " . $_SESSION['username'] . " (ID: " . $_SESSION['user_id'] . ")");
-}
+// 3. Destroy the session (deletes the session file on the server)
+session_destroy();
 
-// Destroy session
-$_SESSION = array();
-if (session_status() === PHP_SESSION_ACTIVE) {
-    session_destroy();
-}
-
-// Cache control headers
-header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-header("Pragma: no-cache");
-header("Expires: 0");
-
-// Redirect to login
-header("Location: login.php?success=logged_out");
+// 4. Redirect to the login page with a logout message
+header("Location: login.php?status=success");
 exit();
+?>
