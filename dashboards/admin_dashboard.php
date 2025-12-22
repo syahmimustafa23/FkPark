@@ -19,6 +19,7 @@ if ($_SESSION['role'] !== 'admin') {
 }
 
 $username = htmlspecialchars($_SESSION['username']);
+
 $user_id = $_SESSION['user_id'];
 
 ?>
@@ -106,16 +107,16 @@ td{
     <header>
         
         <div class="navbar1">
-            <a href="student_dashboard.php">Home</a>
-            <a href="profile.php">Profile</a>
-            <a href="../logout.php">Logout</a>
+            
     </div>
     </header>
     <div class="sidebar">
          <a href="#home"><img class="logo" src="../photo/logoUmpsa.png"></a>
-    <a class="sidebar2" href="#">Manage Parking</a>
+    <a class="sidebar2" href="../Module 2/admin_list_area.php">List of Parking</a>
+    <a class="sidebar2" href="../Module 2/admin_view.php">Parking Availability</a>
     <a class="sidebar2" href="../Module 3/parkingReport.html">Parking Report</a>
-    <a class="sidebar2" href="sidebar2">Manage User</a>
+    <a class="sidebar2" href="../Module1/admin_list_users.php">Manage User</a>
+   
     </div>
 
     </div>
@@ -125,7 +126,9 @@ td{
                 <p><strong>Role:</strong> Admin</p>
                 <p><strong>User ID:</strong> <?php echo htmlspecialchars($user_id); ?></p>
 
-                <a href="../logout.php" class="logout">Logout</a>
+<div class="buttons">
+        <a href="../logout.php" class="logout-btn">Logout</a>
+        </div>
     </div>
      
 </body>

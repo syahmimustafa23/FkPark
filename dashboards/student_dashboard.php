@@ -95,28 +95,30 @@ td{
     <header>
         
         <div class="navbar1">
-            <a href="student_dashboard.php">Home</a>
-            <a href="register.php">Register Vehicle</a>
-            <a href="profile.php">Profile</a>
+         
+            <a href="../Module1/student_profile.php">Profile</a>
                 <a href="../logout.php">Logout</a>
     </div>
     </header>
     <div class="sidebar">
          <a href="#home"><img class="logo" src="../photo/logoUmpsa.png"></a>
-    <a class="sidebar2" href="">View Parking</a>
-    <a class="sidebar2" href="../Module 3/viewBooking.html">Booking Parking</a>
+    <a class="sidebar2" href="../Module 2/student_view.php">View Parking</a>
+    <a class="sidebar2" href="../Module 3/viewBooking.php">View Booking</a>
+ 
     <a class="sidebar2" href="sidebar2">Traffic Summons</a>
-     <a class="sidebar2" href="sidebar2">Traffic Summons</a>
+ 
     </div>
 
-    </div>
+    
    
     <div class="container">
         <p>Welcome, <?php echo $username; ?>.</p>
         <p><strong>Role:</strong> Student</p>
         <p><strong>User ID:</strong> <?php echo htmlspecialchars($user_id); ?></p>
 
-        <a href="../logout.php" class="logout">Logout</a>
+        <div class="buttons">
+        <a href="../logout.php" class="logout-btn">Logout</a>
+        </div>
     </div>
      
 </body>
