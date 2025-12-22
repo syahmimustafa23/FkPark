@@ -14,6 +14,16 @@ if ($_SESSION['role'] !== 'security') {
 
 $username = htmlspecialchars($_SESSION['username']);
 $user_id = $_SESSION['user_id'];
+
+$areas_query = mysqli_query($conn, "SELECT * FROM parking_area");
+
+// Get selected area from filter, default to the first one found if not set
+$selected_area = $_GET['area_id'] ?? null;
+
+$spaces_query = null;
+if ($selected_area) {
+    $spaces_query = mysqli_query($conn, "SELECT * FROM parking_space WHERE Area_id = '$selected_area'");
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -89,14 +99,14 @@ a.sidebar2{
      
         <header>
         
-        <div class="navbar1">
+         <div class="navbar1">
             <a href="../Module1/security_profile.php">Profile</a>
                
     </div>
     </header>
     <div class="sidebar">
          <a href="#home"><img class="logo" src="../photo/logoUmpsa.png"></a>
-    <a class="sidebar2" href="../Module2/security_view.php">View Parking</a>
+    <a class="sidebar2" href="security_view.php">View Parking</a>
     <a class="sidebar2" href="../Module1/security/list_vehicles.php">Vehicle Approval</a>
      <a class="sidebar2" href="sidebar2">Traffic Summons</a>
     </div>
@@ -104,18 +114,38 @@ a.sidebar2{
     </div>
     </header>
     <div class="container">
-        <div class="welcome">
-            <h2>Welcome, <?php echo $username; ?>!</h2>
-            <p>You are logged in as Security Staff</p>
-        </div>
-        <div class="user-info">
-            <strong>User ID:</strong> <?php echo htmlspecialchars($user_id); ?> |
-            <strong>Role:</strong> Security
-        </div>
-        <p>Security dashboard ready for development. Future features: parking monitoring, violation management, vehicle verification.</p>
-        <div class="buttons">
-            <a href="../logout.php" class="logout-btn">Logout</a>
-        </div>
+       <h2>Live Parking Availability</h2>
+    
+    <form method="GET">
+        <select name="area_id" onchange="this.form.submit()">
+            <option value="">-- Select Area --</option>
+            <?php while($a = mysqli_fetch_assoc($areas_query)): ?>
+                <option value="<?php echo $a['Area_id']; ?>" <?php if($selected_area == $a['Area_id']) echo 'selected'; ?>>
+                    <?php echo $a['Area_name']; ?> (<?php echo $a['Category']; ?>)
+                </option>
+            <?php endwhile; ?>
+        </select>
+    </form>
+
+    <div class="parking-grid" style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 20px;">
+        <?php 
+        if ($spaces_query):
+            while($s = mysqli_fetch_assoc($spaces_query)): 
+                $color = ($s['Current_status'] == 'Available') ? '#28a745' : '#dc3545';
+        ?>
+            <div class="space-card" style="background: <?php echo $color; ?>; color: white; padding: 20px; border-radius: 8px; text-align: center; width: 100px;">
+                <strong><?php echo $s['Space_num']; ?></strong><br>
+                <small><?php echo $s['Current_status']; ?></small>
+                
+                
+            </div>
+        <?php 
+            endwhile; 
+        else:
+            echo "<p>Please select an area to view spaces.</p>";
+        endif; 
+        ?>
+    </div>
     </div>
 </body>
 </html>
