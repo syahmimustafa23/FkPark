@@ -1,197 +1,113 @@
-/* ==== general ==== */
+/* ================= RESET ================= */
 * {
+    margin: 0;
+    padding: 0;
     box-sizing: border-box;
     font-family: Arial, Helvetica, sans-serif;
 }
 
+/* ================= BODY ================= */
 body {
-    margin: 0;
     background: #f4f6f9;
 }
 
-.container {
-    max-width: 1100px;
-    margin: 20px auto;
-    background: #ffffff;
-    padding: 20px;
-    border: 1px solid #e3e3e3;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+/* ================= HEADER (HORIZONTAL) ================= */
+header {
+    background: #28a745;
+    padding: 30px;
+    margin: 20px;
 }
 
-/* ==== header untuk semua page ==== */
-.header {
+.navbar1 {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    justify-content: flex-end;
 }
 
-.logo-img {
-    max-width: 16%;
-    object-fit: contain;
-}
-
-.top-links {
-    display: flex;
-    gap: 12px;
-}
-
-.top-links a {
+.navbar1 a {
+    display: block;
+    padding: 0 20px;
     text-decoration: none;
-    padding: 8px 27px;
-    background: #13ca91;
-    color: white;
-    border: 1px solid #13ca91;
-    transition: 0.2s;
-}
-
-.top-links a:hover {
-    background: #aaf7df;
     color: black;
-    border-color: #0b7051;
+    font-size: 16px;
 }
 
-.search-box {
-    border: 1px solid #aaa;
-    padding: 6px 60px;
-    background: #fff;
+.navbar1 a:hover {
+    background-color: black;
+    color: white;
 }
 
-/* ==== side bar untuk semua page ==== */
-.layout {
+/* ================= SIDEBAR ================= */
+.sidebar {
+    height: 100%;
+    width: 200px;
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    background-color: #ffffff;
     display: flex;
+    flex-direction: column;
+}
+
+.logo {
+    width: 200px;
+    height: auto;
+}
+
+/* Sidebar links */
+.sidebar2 {
+    padding: 15px 20px;
+    text-decoration: none;
+    font-size: 18px;
+    color: black;
+    display: block;
+}
+
+.sidebar2:hover {
+    background-color: black;
+    color: white;
+}
+
+.sidebar2.active {
+    font-weight: bold;
+}
+
+/* ================= MAIN CONTENT ================= */
+.main-content {
+    margin-left: 260px;   /* sidebar width + gap */
+    padding: 40px;
+}
+
+/* ================= FORM ELEMENTS ================= */
+label {
+    display: block;
+    margin-top: 15px;
+    font-weight: bold;
+}
+
+input, select {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #bbb;
+    background: #f9fafb;
+}
+
+input:focus, select:focus {
+    border-color: #28a745;
+    outline: none;
+    background: #ffffff;
+}
+
+/* ================= BUTTONS ================= */
+.btn-row {
     margin-top: 20px;
 }
 
-.sidebar {
-    width: 220px;
-    border-right: 1px solid #ccc;
-    padding-right: 20px;
-}
-
-.sidebar a {
-    display: block;
-    margin-bottom: 15px;
-    padding: 12px;
-    background: #13ca91;
-    color: white;
-    text-decoration: none;
-    border: 1px solid #13ca91;
-    transition: 0.2s ease;
-}
-
-.sidebar a:hover {
-    background: #aaf7df;
-    color: black;
-    border-color: #0b7051;
-}
-
-.sidebar a.active {
-    background: #0b7051;
-    border-color: #0b7051;
-}
-
-/* ==== main content ==== */
-.main-content {
-    flex: 1;
-    padding: 0 20px;
-}
-
-/* ==== dropdown untuk page view ==== */
-select#vehicleSelect {
-    width: 280px;
-    padding: 10px;
-    background: #f9fafb;
-    border: 1px solid #bbb;
-    transition: 0.2s;
-}
-
-select#vehicleSelect:focus {
-    border-color: #13ca91;
-    background: white;
-}
-
-/* ==== box info page view ==== */
-.info-box {
-    width: 260px;
-    border: 2px solid #bbb;
-    background: #fafafa;
-    padding: 12px;
-    margin-bottom: 20px;
-}
-
-.profile-img {
-    width: 160px;
-    height: 180px;
-    border: 1px solid #bbb;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #e8e8e8;
-    font-size: 14px;
-}
-
-/* ==== status tukar warna ==== */
-.status-label {
-    display: inline-block;
-    padding: 6px 12px;
-    font-weight: bold;
-    font-size: 14px;
-    margin-top: 8px;
-}
-
-/* LESS THAN 20 */
-.status-warning {
-    background: #fff2b3;
-    color: #8a6d00;
-}
-
-/* LESS THAN 50 */
-.status-revoke1 {
-    background: #ffd9cc;
-    color: #cc3300;
-}
-
-/* LESS THAN 80 */
-.status-revoke2 {
-    background: #ffb3b3;
-    color: #b30000;
-}
-
-/* ABOVE 80 */
-.status-permanent {
-    background: #ff8080;
-    color: white;
-}
-
-/* ==== input dekat page manage ==== */
-label {
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 5px;
-    display: block;
-}
-
-input, select, textarea {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #bbb;
-    background: #f9fafb;
-    margin-bottom: 15px;
-    transition: 0.2s;
-}
-
-input:focus, select:focus, textarea:focus {
-    border-color: #13ca91;
-    background: #ffffff;
-}
-
-/* ==== semua button ==== */
 button {
     padding: 10px 20px;
     border: none;
     cursor: pointer;
-    transition: 0.2s ease;
+    font-size: 14px;
 }
 
 button[type="reset"] {
@@ -203,39 +119,26 @@ button[type="reset"]:hover {
     background: #e5e7eb;
 }
 
-button[type="submit"] {
-    background: #13ca91;
+button[type="button"] {
+    background: #007bff;
     color: white;
 }
 
-button[type="submit"]:hover {
-    background: #0b7051;
+button[type="button"]:hover {
+    background: #0056b3;
 }
 
-.btn-back {
-    display: inline-block;
-    margin-top: 20px;
-    padding: 10px 16px;
-    background: #13ca91;
-    color: white;
-    text-decoration: none;
-}
-
-.btn-back:hover {
-    background: #0b7051;
-}
-
-/* ==== table dekat page view dan dashboard ==== */
+/* ================= TABLE (DASHBOARD) ================= */
 table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
-    overflow: hidden;
+    background: white;
 }
 
 th, td {
-    border-bottom: 1px solid #13ca91;
     padding: 12px;
+    border: 1px solid #ccc;
     text-align: left;
 }
 
@@ -244,8 +147,42 @@ th {
     color: white;
 }
 
-/* Table stripes */
-table tbody tr:nth-child(even) {
+tbody tr:nth-child(even) {
     background: #f7fffb;
+}
+
+/* ================= BACK / ADD BUTTON ================= */
+.btn-back {
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 16px;
+    background: #13ca91;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+.btn-back:hover {
+    background: #0b7051;
+}
+
+/* ================= PROFILE BOX ================= */
+.profile-img {
+    width: 160px;
+    height: 180px;
+    border: 1px solid #bbb;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e8e8e8;
+    font-size: 14px;
+    overflow: hidden;
+}
+
+.profile-img img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: cover;
 }
 

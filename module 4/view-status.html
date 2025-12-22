@@ -7,76 +7,68 @@
 </head>
 <body>
 
-<div class="container">
-
-    <!-- HEADER -->
-    <div class="header">
-        <img src="umpsa-logo-png.png" alt="UMPSA Logo" class="logo-img">
-
-        <div class="top-links">
-            <a href="#">Homepage</a>
-            <a href="#">Profile</a>
-            <a href="dashboard.html">Dashboard</a>
-        </div>
-
-        <div class="search-box">Search</div>
+<!-- HORIZONTAL HEADER -->
+<header>
+    <div class="navbar1">
+        <a href="#">Homepage</a>
+        <a href="#">Profile</a>
+        <a href="dashboard.html">Dashboard</a>
     </div>
+</header>
 
-    <!-- LAYOUT -->
-    <div class="layout">
-
-        <!-- LEFT SIDEBAR -->
-        <div class="sidebar">
-            <a href="manage-summon.html">Manage Traffic Summon</a>
-            <a href="view-status.html" class="active">View Update Point & Status</a>
-            <a href="dashboard.html">Manage Dashboard</a>
-        </div>
-
-        <!-- MAIN CONTENT -->
-        <div class="main-content">
-
-	<div style="margin-bottom: 20px;">
-    		<label for="vehicleSelect"><strong>Select Vehicle:</strong></label>
-    		<select id="vehicleSelect" onchange="changeVehicle(this.value)">
-    		</select>
-	</div>
-
-
-            <h3>View Update Point & Status</h3>
-
-            <div class="info-box">
-                <div class="profile-img">Profile picture</div>
-
-                <div class="profile-details">
-                    <div><strong>Status of enforcement:</strong> <span id="statusText">Loading...</span></div>
-                </div>
-            </div>
-
-            <div class="details-panel">
-
-                <div><strong>Latest Violation:</strong> <span id="vehicleType">-</span></div>
-                <div><strong>Vehicle number:</strong> <span id="vehicleNumber">-</span></div>
-                <div><strong>Total demerit points:</strong> <span id="demeritPoints">0</span></div>
-
-                <h4 style="margin-top:20px;">History of Summons</h4>
-                <table id="historyTable">
-                    <thead>
-                        <tr>
-                            <th>Violation</th>
-                            <th>Vehicle</th>
-                            <th>Date & Time</th>
-                            <th>Area</th>
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-
-            </div>
-
-        </div>
-    </div>
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <a href="#"><img class="logo" src="umpsa-logo-png.png"></a>
+    <a class="sidebar2" href="manage-summon.html">Manage Traffic Summon</a>
+    <a class="sidebar2 active" href="view-status.html">View Update Point & Status</a>
+    <a class="sidebar2" href="dashboard.html">Manage Dashboard</a>
 </div>
 
+<!-- MAIN CONTENT -->
+<div class="main-content">
+
+    <div style="margin-bottom: 20px;">
+        <label for="vehicleSelect"><strong>Select Vehicle:</strong></label>
+        <select id="vehicleSelect" onchange="changeVehicle(this.value)"></select>
+    </div>
+
+    <h3>View Update Point & Status</h3>
+
+    <div class="info-box">
+    <div class="profile-img">
+        <img id="profilePic" src="profile-placeholder.png" alt="Profile Picture">
+    </div>
+
+        <div class="profile-details">
+            <div>
+                <strong>Status of enforcement:</strong>
+                <span id="statusText">Loading...</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="details-panel">
+
+        <div><strong>Latest Violation:</strong> <span id="vehicleType">-</span></div>
+        <div><strong>Vehicle number:</strong> <span id="vehicleNumber">-</span></div>
+        <div><strong>Total demerit points:</strong> <span id="demeritPoints">0</span></div>
+
+        <h4 style="margin-top:20px;">History of Summons</h4>
+
+        <table id="historyTable">
+            <thead>
+                <tr>
+                    <th>Violation</th>
+                    <th>Vehicle</th>
+                    <th>Date & Time</th>
+                    <th>Area</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+    </div>
+</div>
 
 <script>
 // Load summon history
@@ -126,7 +118,6 @@ function updateVehicleProfile(vehicle) {
 
     const records = vehicleData[vehicle] || [];
 
-    // No summons for this vehicle
     if (records.length === 0) {
         document.getElementById("statusText").textContent = "No summons for this vehicle";
         document.getElementById("vehicleNumber").textContent = vehicle;
@@ -135,13 +126,10 @@ function updateVehicleProfile(vehicle) {
         return;
     }
 
-    // Total violation points for THIS vehicle only
     let total = 0;
     records.forEach(r => total += getPoints(r.violation));
-
     document.getElementById("demeritPoints").textContent = total;
 
-    // Status rules
     let status = "";
     if (total < 20) status = "Warning given";
     else if (total < 50) status = "Revoke in-campus vehicle permission: 1 semester";
@@ -150,12 +138,10 @@ function updateVehicleProfile(vehicle) {
 
     document.getElementById("statusText").textContent = status;
 
-    // Latest record
     const latest = records[records.length - 1];
     document.getElementById("vehicleNumber").textContent = latest.vehicle;
     document.getElementById("vehicleType").textContent = latest.violation;
 
-    // Populate summon history table
     records.forEach(item => {
         const row = document.createElement("tr");
         row.innerHTML = `
@@ -169,18 +155,14 @@ function updateVehicleProfile(vehicle) {
 }
 
 // Initialize
-if (selectedVehicle) {
-    updateVehicleProfile(selectedVehicle);
-}
+if (selectedVehicle) updateVehicleProfile(selectedVehicle);
 
-// --- 4. Vehicle switching ---
+// Vehicle switching
 window.changeVehicle = function (vehicle) {
     localStorage.setItem("selectedVehicle", vehicle);
     updateVehicleProfile(vehicle);
 };
 </script>
 
-
 </body>
 </html>
-
