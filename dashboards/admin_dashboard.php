@@ -105,10 +105,10 @@ td{
 </head>
 <body>
     <header>
-        
         <div class="navbar1">
-               <a href="../logout.php">Logout</a>
-    </div>
+            <a href="../Module1/admin_view_profile.php">Profile</a>
+            <a href="../logout.php">Logout</a>
+        </div>
     </header>
     <div class="sidebar">
            <a href="#home"><img class="logo" src="../photo/logoUmpsa.png"></a>

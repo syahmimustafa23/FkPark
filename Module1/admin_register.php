@@ -140,8 +140,8 @@ td{
     </header>
     <div class="sidebar">
          <a href="#home"><img class="logo" src="../photo/logoUmpsa.png"></a>
-    <a class="sidebar2" href="../Module 2/admin_list_area.php">List of Parking</a>
-    <a class="sidebar2" href="../Module 2/admin_view.php">Parking Availability</a>
+    <a class="sidebar2" href="../Module2/admin_list_area.php">List of Parking</a>
+    <a class="sidebar2" href="../Module2/admin_view.php">Parking Availability</a>
     <a class="sidebar2" href="../Module 3/parkingReport.html">Parking Report</a>
     <a class="sidebar2" href="admin_list_users.php">Manage User</a>
     </div>
