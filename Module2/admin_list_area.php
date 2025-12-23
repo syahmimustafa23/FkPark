@@ -119,8 +119,7 @@ td{
     <header>
         
         <div class="navbar1">
-          
-          
+            <a href="../logout.php">Logout</a>
     </div>
     </header>
     <div class="sidebar">
