@@ -18,8 +18,6 @@ $user = require_role("Safety_Staff");
   <!-- HORIZONTAL HEADER -->
   <header>
     <div class="navbar1">
-      <a href="#">Homepage</a>
-      <a href="#">Profile</a>
       <a href="dashboard.php">Dashboard</a>
       <a href="../logout.php">Logout</a>
     </div>
