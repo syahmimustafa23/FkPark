@@ -2,8 +2,7 @@
 require_once '../config.php';
 session_start();
 
-require_once '../config.php';
-session_start();
+
 
 if (isset($_POST['confirm_parking'])) {
     $user_id = $_SESSION['user_id'];
@@ -42,10 +41,10 @@ if (isset($_POST['leave_parking'])) {
     $usage_id = mysqli_real_escape_string($conn, $_POST['usage_id']);
     $space_id = mysqli_real_escape_string($conn, $_POST['space_id']);
 
-    // 1. Update the booking status to 'Completed' 
+   
     $sql_usage = "UPDATE parking_usage SET status = 'Completed' WHERE Usage_id = '$usage_id'";
     
-    // 2. Record vacancy by making the physical space 'Available' again 
+  
     $sql_space = "UPDATE parking_space SET Current_status = 'Available' WHERE Space_id = '$space_id'";
 
     if (mysqli_query($conn, $sql_usage) && mysqli_query($conn, $sql_space)) {
