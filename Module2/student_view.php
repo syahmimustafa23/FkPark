@@ -111,8 +111,8 @@ td{
         <div class="sidebar">
             <a href="student_view.php"><img class="logo" src="../photo/logoUmpsa.png"></a>
             <a class="sidebar2" href="student_view.php">View Parking</a>
-            <a class="sidebar2" href="../Module3/viewBooking.php">View Booking</a>
-            <a class="sidebar2" href="../Module3/trafficSummons.php">Traffic Summons</a>
+            <a class="sidebar2" href="../Module 3/view_bookings.php">View Booking</a>
+            <a class="sidebar2" href="../Module4/view-status.php">Traffic Summons</a>
         </div>
     </div>
 

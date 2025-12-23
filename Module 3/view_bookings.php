@@ -104,7 +104,7 @@ td{
     </header>
     <div class="sidebar">
          <a href="#home"><img class="logo" src="../photo/logoUmpsa.png"></a>
-    <a class="sidebar2" href="../Module 2/student_view.php">View Parking</a>
+    <a class="sidebar2" href="../Module2/student_view.php">View Parking</a>
     <a class="sidebar2" href="../Module 3/view_bookings.php">View Booking</a>
 
     <a class="sidebar2" href="../Module4/view-status.php">Traffic Summons</a>
