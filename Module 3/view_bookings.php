@@ -97,7 +97,7 @@ td{
     <header>
         
         <div class="navbar1">
-         
+            <a href="../Module1/student_profile.php">Profile</a>
            <a href="../Module1/student_profile.php">Profile</a>
                 <a href="../logout.php">Logout</a>
     </div>
