@@ -99,6 +99,8 @@ a.sidebar2{
     <a class="sidebar2" href="../Module 2/security_view.php">View Parking</a>
     <a class="sidebar2" href="../Module1/security/list_vehicles.php">Vehicle Approval</a>
       <a class="sidebar2" href="../Module4/manage-summon.php">Traffic Summons</a>
+    <a class="sidebar2" href="../Module1/security_list_vehicles.php">Vehicle Approval</a>
+     <a class="sidebar2" href="sidebar2">Traffic Summons</a>
     </div>
 
     </div>

@@ -1,21 +1,24 @@
 <?php
 require_once 'config.php';
 
+
 $error = '';
 if (isset($_POST['login'])) {
     $username = mysqli_real_escape_string($conn, $_POST['username']);
     $password = $_POST['password'];
+    $selected_role = $_POST['user_type']; // From the dropdown
 
     $query = "SELECT * FROM users WHERE username = '$username'";
     $result = mysqli_query($conn, $query);
 
     if ($user = mysqli_fetch_assoc($result)) {
-        if (password_verify($password, $user['password'])) {
-            // SET SESSIONS
+        // Verify password and ensure the role matches the database 
+        if (password_verify($password, $user['password']) && $user['user_type'] == $selected_role) {
+            
             $_SESSION['user_id'] = $user['user_id'];
             $_SESSION['username'] = $user['username'];
 
-            // Redirect based on type to the /dashboards/ folder
+            // Redirect based on database role
             if ($user['user_type'] == 'Admin') {
                 $_SESSION['role'] = 'admin';
                 header("Location: dashboards/admin_dashboard.php");
@@ -27,9 +30,12 @@ if (isset($_POST['login'])) {
                 header("Location: dashboards/security_dashboard.php");
             }
             exit();
+        } else {
+            $error = "Invalid Credentials or Incorrect Role Selected";
         }
+    } else {
+        $error = "Invalid Login Credentials";
     }
-    $error = "Invalid Login Credentials";
 }
 ?>
 <!DOCTYPE html>
@@ -133,6 +139,18 @@ if (isset($_POST['login'])) {
         }
 
         .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            background-color: #f9f9f9;
+            color: #333;
+            font-family: inherit;
+        }
+
+        select{
             width: 100%;
             padding: 12px 16px;
             border: 2px solid #e0e0e0;
@@ -253,6 +271,15 @@ if (isset($_POST['login'])) {
                         placeholder="Enter your password"
                     >
                 </div>
+
+                <div class="form-group">
+    <label for="user_type">Role</label>
+    <select id="user_type" name="user_type" required>
+        <option value="Admin">Admin</option>
+        <option value="Safety_Staff">Safety Security Management Staff</option>
+        <option value="Student">Student</option>
+    </select>
+</div>
 
                 <button type="submit" name="login" class="login-btn">Login</button>
             </form>

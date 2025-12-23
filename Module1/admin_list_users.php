@@ -92,20 +92,37 @@ header {
     left: 20px;
     width: 200px;
     background: white;
-    padding: 20px;
+    padding: 0;
     border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    border: 1px solid #ddd;
 }
 
 .sidebar a {
     display: block;
-    padding: 10px;
+    padding: 15px;
     color: black;
     text-decoration: none;
+    border-bottom: 1px solid #eee;
+}
+
+.sidebar a:last-child {
+    border-bottom: none;
 }
 
 .sidebar a:hover {
-    background: #555;
+    background: #667eea;
     color: white;
+}
+
+.logo {
+    width: 100%;
+    height: auto;
+    display: block;
+    padding: 0;
+    margin: 0;
+    border-radius: 4px 4px 0 0;
+    border-bottom: 2px solid #667eea;
 }
 
 /* CONTENT */
@@ -129,12 +146,23 @@ th, td {
     text-align: center;
 }
 
+th {
+    background-color: #667eea;
+    color: white;
+}
+
 .btn-add {
     background: #219bff;
     color: white;
     padding: 8px 12px;
     text-decoration: none;
     border-radius: 4px;
+    margin-bottom: 15px;
+    display: inline-block;
+}
+
+.btn-add:hover {
+    background: #0078d4;
 }
 
 .search-btn {
@@ -143,6 +171,17 @@ th, td {
     padding: 6px 10px;
     border: none;
     border-radius: 4px;
+    cursor: pointer;
+}
+
+.search-btn:hover {
+    background: #222;
+}
+
+input[type="text"] {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
 }
 </style>
 </head>
@@ -150,7 +189,7 @@ th, td {
 <body>
 
 <header>
-    <h2>FKPark Admin Dashboard</h2>
+    <h2></h2>
 
     <div class="profile-menu" tabindex="0">
         <button>
@@ -167,8 +206,9 @@ th, td {
 </header>
 
 <div class="sidebar">
-    <a href="../Module 2/admin_list_area.php">List of Parking</a>
-    <a href="../Module 2/admin_view.php">Parking Availability</a>
+    <a href="#home"><img class="logo" src="../photo/logoUmpsa.png" alt="University Logo"></a>
+    <a href="../Module2/admin_list_area.php">List of Parking</a>
+    <a href="../Module2/admin_view.php">Parking Availability</a>
     <a href="../Module 3/parkingReport.html">Parking Report</a>
     <a href="admin_list_users.php">Manage User</a>
 </div>
