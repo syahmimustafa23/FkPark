@@ -100,45 +100,57 @@ if (isset($_POST['update'])) {
             border-radius: 4px;
         }
         .container {
-            max-width: 900px;
+            max-width: 600px;
             background: white;
-            padding: 30px;
-            border-radius: 4px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            margin: 0 auto;
         }
         h2 { 
-            margin-bottom: 20px; 
-            color: #333; 
+            margin-bottom: 30px; 
+            color: #333;
+            text-align: center;
         }
-        form {
-            background: #f9f9f9;
-            padding: 20px;
-            border-radius: 4px;
+        .form-group {
             margin-bottom: 20px;
         }
-        form input, form select {
-            padding: 10px;
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px;
             border: 1px solid #ddd;
             border-radius: 4px;
-            font-size: 14px;
-            width: 100%;
-            max-width: 400px;
-            margin-bottom: 15px;
-            display: block;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #667eea;
+            outline: none;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.5);
         }
         .buttons {
-            margin-top: 20px;
+            margin-top: 30px;
             display: flex;
-            gap: 10px;
+            gap: 15px;
+            justify-content: center;
         }
         .save {
             background: #28a745;
             color: white;
-            padding: 10px 20px;
+            padding: 12px 24px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 16px;
+            transition: background-color 0.3s;
         }
         .save:hover {
             background: #218838;
@@ -146,13 +158,14 @@ if (isset($_POST['update'])) {
         .cancel {
             background: #dc3545;
             color: white;
-            padding: 10px 20px;
+            padding: 12px 24px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 16px;
             text-decoration: none;
             display: inline-block;
+            transition: background-color 0.3s;
         }
         .cancel:hover {
             background: #c82333;
@@ -179,36 +192,27 @@ if (isset($_POST['update'])) {
     <div class="container">
         <h2>Update User</h2>
         <form method="POST" action="admin_update_user.php?id=<?= $id; ?>">
-    <a class="sidebar2" href="../Module2/admin_list_area.php">Manage Area</a>
-    <a class="sidebar2" href="../Module2/admin_manage_spaces.php">Manage Space</a>
-    <a class="sidebar2" href="../Module2/admin_view.php">Parking Availability</a>
-    <a class="sidebar2" href="../Module 3/admin_parking_report.php">Parking Report</a>
-    <a class="sidebar2" href="admin_list_users.php">Manage User</a>
-    </div>
-
-    </div>
-   
-    <div class="container">
-      <form method="POST">
-    <h2>Update User Profile</h2><br>
-    <label>Full Name:</label><br>
-    <input type="text" name="full_name" value="<?php echo $user['full_name']; ?>" required><br><br>
-
-    <label>Username:</label><br>
-    <input type="text" name="username" value="<?php echo $user['username']; ?>" required><br><br>
-
-    <label>Role:</label><br>
-    <select name="user_type">
-        <option value="Admin" <?php if($user['user_type'] == 'Admin') echo 'selected'; ?>>Admin</option>
-        <option value="Student" <?php if($user['user_type'] == 'Student') echo 'selected'; ?>>Student</option>
-        <option value="Safety_Staff" <?php if($user['user_type'] == 'Safety_Staff') echo 'selected'; ?>>Safety Staff</option>
-    </select><br><br>
-
-    <button class="save" type="submit" name="update">Save Changes</button>
-    <a href="admin_list_users.php" class="cancel">Cancel</a>
-</form>
-
-       
+            <div class="form-group">
+                <label for="full_name">Full Name:</label>
+                <input type="text" id="full_name" name="full_name" value="<?php echo htmlspecialchars($user['full_name']); ?>" required>
+            </div>
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" value="<?php echo htmlspecialchars($user['username']); ?>" required>
+            </div>
+            <div class="form-group">
+                <label for="user_type">Role:</label>
+                <select id="user_type" name="user_type">
+                    <option value="Admin" <?php if($user['user_type'] == 'Admin') echo 'selected'; ?>>Admin</option>
+                    <option value="Student" <?php if($user['user_type'] == 'Student') echo 'selected'; ?>>Student</option>
+                    <option value="Safety_Staff" <?php if($user['user_type'] == 'Safety_Staff') echo 'selected'; ?>>Safety Staff</option>
+                </select>
+            </div>
+            <div class="buttons">
+                <button class="save" type="submit" name="update">Save Changes</button>
+                <a href="admin_list_users.php" class="cancel">Cancel</a>
+            </div>
+        </form>
     </div>
      
 </body>

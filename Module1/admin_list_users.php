@@ -210,6 +210,7 @@ $result = mysqli_query($conn, $query);
                     <td><?= htmlspecialchars($row['full_name']); ?></td>
                     <td><?= htmlspecialchars($row['user_type']); ?></td>
                     <td>
+                        <a href="admin_view_user.php?id=<?= $row['user_id']; ?>">View</a>
                         <a href="admin_update_user.php?id=<?= $row['user_id']; ?>">Update</a>
                         <a href="admin_delete_user.php?id=<?= $row['user_id']; ?>" onclick="return confirm('Delete this user?')">Delete</a>
                     </td>

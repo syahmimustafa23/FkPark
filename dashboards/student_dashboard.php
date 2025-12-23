@@ -19,7 +19,7 @@ $check_parked = mysqli_query($conn, "
     SELECT u.*, s.Space_num 
     FROM parking_usage u 
     JOIN parking_space s ON u.Space_id = s.Space_id 
-    WHERE u.user_id = '$uid' AND u.status = 'Occupied'
+    WHERE u.user_id = '$uid' AND s.Current_status = 'Occupied'
     LIMIT 1
 ");
 

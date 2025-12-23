@@ -100,22 +100,37 @@ a.sidebar2{
 .bar {
     display: flex;
     align-items: center;
-    margin-bottom: 10px;
+    margin-bottom: 15px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    padding: 10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 .bar-label {
-    width: 100px;
+    width: 120px;
     font-weight: bold;
+    color: #333;
 }
 .bar-fill {
-    height: 30px;
-    background: #fd7e14;
-    margin-left: 10px;
+    height: 40px;
+    margin-left: 20px;
     border-radius: 4px;
     color: white;
     display: flex;
     align-items: center;
-    padding-left: 10px;
+    justify-content: center;
     font-size: 14px;
+    font-weight: bold;
+    transition: width 0.3s ease;
+}
+.bar-fill.pending {
+    background: linear-gradient(90deg, #ffc107, #ff8c00);
+}
+.bar-fill.approved {
+    background: linear-gradient(90deg, #28a745, #20c997);
+}
+.bar-fill.rejected {
+    background: linear-gradient(90deg, #dc3545, #c82333);
 }
 .stats {
     display: flex;
@@ -128,6 +143,7 @@ a.sidebar2{
     background: #f9f9f9;
     border-radius: 4px;
     border: 1px solid #e0e0e0;
+    margin-right: 20px;
 }
 .stat h3 {
     font-size: 24px;
@@ -182,15 +198,15 @@ a.sidebar2{
             <?php if ($total > 0): ?>
             <div class="bar">
                 <div class="bar-label">Pending</div>
-                <div class="bar-fill" style="width: <?php echo ($pending / $total) * 100; ?>%;"><?php echo $pending; ?></div>
+                <div class="bar-fill pending" style="width: <?php echo ($pending / $total) * 100; ?>%;"><?php echo $pending; ?> (<?php echo round(($pending / $total) * 100, 2); ?>%)</div>
             </div>
             <div class="bar">
                 <div class="bar-label">Approved</div>
-                <div class="bar-fill" style="width: <?php echo ($approved / $total) * 100; ?>%; background: #28a745;"><?php echo $approved; ?></div>
+                <div class="bar-fill approved" style="width: <?php echo ($approved / $total) * 100; ?>%;"><?php echo $approved; ?> (<?php echo round(($approved / $total) * 100, 2); ?>%)</div>
             </div>
             <div class="bar">
                 <div class="bar-label">Rejected</div>
-                <div class="bar-fill" style="width: <?php echo ($rejected / $total) * 100; ?>%; background: #dc3545;"><?php echo $rejected; ?></div>
+                <div class="bar-fill rejected" style="width: <?php echo ($rejected / $total) * 100; ?>%;"><?php echo $rejected; ?> (<?php echo round(($rejected / $total) * 100, 2); ?>%)</div>
             </div>
             <?php else: ?>
             <p>No data available.</p>

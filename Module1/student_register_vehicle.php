@@ -16,7 +16,7 @@ if (isset($_POST['submit_vehicle'])) {
     $model = mysqli_real_escape_string($conn, $_POST['vehicle_model']);
     $plate = mysqli_real_escape_string($conn, $_POST['license_plate']);
 
-    // File Upload Logic [cite: 55, 1168]
+    // File Upload Logic
     $target_dir = "uploads/grants/";
     if (!file_exists($target_dir)) { mkdir($target_dir, 0777, true); }
     
@@ -42,7 +42,6 @@ if (isset($_POST['submit_vehicle'])) {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Dashboard  | FKPark</title>
@@ -51,11 +50,11 @@ if (isset($_POST['submit_vehicle'])) {
         body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
         header { background: #28a745; color: white; padding: 30px; margin-bottom: 30px; border-radius: 4px; }
         header h1 { font-size: 24px; }
-        .container { max-width: 400px; margin: 0 auto; background: white; padding: 30px; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
         .welcome h2 { font-size: 20px; color: #333; margin-bottom: 10px; }
         .welcome { margin-bottom: 20px; }
         .user-info { margin-bottom: 30px; padding: 10px; background: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 4px; font-size: 14px; color: #555; }
-        .buttons { margin-top: 30px; text-align: center; }
+        .buttons { margin-top: 30px; display: flex; gap: 15px; justify-content: center; }
         .logout-btn { background: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 4px; text-decoration: none; cursor: pointer; font-size: 14px; }
         img{width: 100px; }
         .navbar1{text-decoration-line: none;text-decoration: none; float: right; overflow: hidden; list-style-type: none; display: flex; text-align: center; padding: 0px; margin:0px;}
@@ -108,19 +107,54 @@ a.sidebar2{
     width: 200px;
     height: auto;
 }
-td{
-    padding: 10px;
-    
+
+.form-group {
+    margin-bottom: 20px;
 }
 
-.btn-add{
-    text-decoration:  none; 
-    list-style-type: none;
-
-    background: #219bffff; color: white; padding: 10px 20px; border: none; border-radius: 4px; text-decoration: none; cursor: pointer; font-size: 14px; 
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #333;
 }
 
+.form-group input[type="text"],
+.form-group select,
+.form-group input[type="file"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
 
+.form-group input[type="file"] {
+    padding: 8px;
+}
+
+.btn-add {
+    background: #007bff;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    width: 100%;
+    transition: background-color 0.3s;
+}
+
+.btn-add:hover {
+    background: #0056b3;
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
 
     </style>
 </head>
@@ -145,36 +179,28 @@ td{
     
    
     <div class="container">
-        <h1>Register New Vehicle</h1><br>
+        <h1>Register New Vehicle</h1>
         <form method="POST" action="" enctype="multipart/form-data">
-        <table>
-            <tr>
-                <td>Vehicle Type:</td>
-                <td>
-                    <select name="vehicle_type" required>
-                        <option value="car">Car</option>
-                        <option value="motorcycle">Motorcycle</option>
-                    </select>
-                </td>
-            </tr>
-            <tr>
-                <td>Vehicle Model:</td>
-                <td><input type="text" name="vehicle_model" required></td>
-            </tr>
-            <tr>
-                <td>License Plate:</td>
-                <td><input type="text" name="license_plate" required></td>
-            </tr>
-            <tr>
-                <td>Grant Document:</td>
-                <td><input type="file" name="grant_document" accept=".pdf,.jpg,.png" required></td>
-            </tr>
-            <tr>
-                <td colspan="2" style="text-align:center;">
-                    <input class="btn-add" type="submit" name="submit_vehicle" value="Register Vehicle">
-                </td>
-            </tr>
-        </table>
+            <div class="form-group">
+                <label for="vehicle_type">Vehicle Type:</label>
+                <select name="vehicle_type" id="vehicle_type" required>
+                    <option value="car">Car</option>
+                    <option value="motorcycle">Motorcycle</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="vehicle_model">Vehicle Model:</label>
+                <input type="text" name="vehicle_model" id="vehicle_model" required>
+            </div>
+            <div class="form-group">
+                <label for="license_plate">License Plate:</label>
+                <input type="text" name="license_plate" id="license_plate" required>
+            </div>
+            <div class="form-group">
+                <label for="grant_document">Grant Document:</label>
+                <input type="file" name="grant_document" id="grant_document" accept=".pdf,.jpg,.png" required>
+            </div>
+            <button class="btn-add" type="submit" name="submit_vehicle">Register Vehicle</button>
         </form>
     </div>
      
