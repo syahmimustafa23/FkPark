@@ -144,6 +144,7 @@ td{
         </div>
     </header>
     <div class="sidebar">
+        <a href="../dashboards/student_dashboard.php">Home</a>
         <a href="#home"><img class="logo" src="../photo/logoUmpsa.png"></a>
         <a class="sidebar2" href="../Module2/student_view.php">View Parking</a>
         <a class="sidebar2" href="../Module 3/view_bookings.php">View Booking</a>
