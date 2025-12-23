@@ -42,42 +42,18 @@ header {
     border-radius: 4px;
 }
 
-/* PROFILE MENU */
-.profile-menu {
-    position: relative;
-}
-
-.profile-menu button {
-    background: none;
-    border: none;
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-.profile-menu:focus-within .dropdown {
+.navbar1{text-decoration-line: none;text-decoration: none; float: right; overflow: hidden; list-style-type: none; display: flex; text-align: center; padding: 0px; margin:0px;}
+.navbar1 a{ 
     display: block;
+  color: black;
+  padding: 0px 20px;
+  text-decoration: none;
+text-align: center;
 }
 
-.dropdown {
-    display: none;
-    position: absolute;
-    right: 0;
-    top: 120%;
-    background: white;
-    color: black;
-    min-width: 200px;
-    border-radius: 4px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-}
-
-.dropdown div {
-    padding: 10px;
-    border-bottom: 1px solid #eee;
-}
-
-.dropdown div:last-child {
-    border-bottom: none;
+.navbar1 a:hover{
+    background-color: black;
+  color: white;
 }
 
 .dropdown a {
@@ -191,17 +167,9 @@ input[type="text"] {
 <header>
     <h2></h2>
 
-    <div class="profile-menu" tabindex="0">
-        <button>
-            <?= htmlspecialchars($_SESSION['username']); ?>
-        </button>
-
-        <div class="dropdown">
-            <div><strong>Username:</strong> <?= htmlspecialchars($_SESSION['username']); ?></div>
-            <div><strong>Role:</strong> <?= htmlspecialchars($_SESSION['role']); ?></div>
-            <div><strong>User ID:</strong> <?= htmlspecialchars($_SESSION['user_id']); ?></div>
-            <div><a href="../logout.php">Logout</a></div>
-        </div>
+    <div class="navbar1">
+        <a href="admin_view_profile.php">Profile</a>
+        <a href="../logout.php">Logout</a>
     </div>
 </header>
 

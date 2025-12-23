@@ -101,7 +101,7 @@ a.sidebar2{
         
          <div class="navbar1">
             <a href="../Module1/security_profile.php">Profile</a>
-               
+            <a href="../logout.php">Logout</a>
     </div>
     </header>
     <div class="sidebar">
