@@ -22,6 +22,25 @@ $username = htmlspecialchars($_SESSION['username']);
 
 $user_id = $_SESSION['user_id'];
 
+$area_id = $_GET['area_id'];
+
+if (isset($_POST['bulk_generate'])) {
+    $count = (int)$_POST['num_spaces'];
+    $prefix = mysqli_real_escape_string($conn, $_POST['prefix']); // e.g., 'A'
+
+    for ($i = 1; $i <= $count; $i++) {
+        $space_num = $prefix . str_pad($i, 2, '0', STR_PAD_LEFT); // Results in A01, A02...
+        
+        // The QR Code is just a link to the parking view page for that space
+    $qr_content = "http://localhost/fkpark/Module3/scan_qr.php?id=" . $space_num;
+
+        $sql = "INSERT INTO parking_space (Area_id, Space_num, Space_qrCode, Current_status) 
+                VALUES ('$area_id', '$space_num', '$qr_content', 'Available')";
+        mysqli_query($conn, $sql);
+    }
+    header("Location: admin_list_area.php?msg=spaces_generated");
+}
+
 ?>
 
 
@@ -107,29 +126,31 @@ td{
     <header>
         
         <div class="navbar1">
-            <a href="../Module1/admin_view_profile.php">Profile</a>
-            <a href="../logout.php">Logout</a>
+           
+            
     </div>
     </header>
     <div class="sidebar">
          <a href="#home"><img class="logo" src="../photo/logoUmpsa.png"></a>
-    <a class="sidebar2" href="../Module2/admin_list_area.php">List of Parking</a>
-    <a class="sidebar2" href="../Module2/admin_view.php">Parking Availability</a>
+      <a class="sidebar2" href="admin_list_area.php">List of Parking</a>
+    <a class="sidebar2" href="admin_view.php">Parking Availability</a>
     <a class="sidebar2" href="../Module 3/parkingReport.html">Parking Report</a>
     <a class="sidebar2" href="../Module1/admin_list_users.php">Manage User</a>
-   
     </div>
 
     </div>
    
     <div class="container">
-        <p>Welcome, <?php echo $username; ?>.</p>
-                <p><strong>Role:</strong> Admin</p>
-                <p><strong>User ID:</strong> <?php echo htmlspecialchars($user_id); ?></p>
-
-<div class="buttons">
-        <a href="../logout.php" class="logout-btn">Logout</a>
-        </div>
+       <h2>Generate Spaces for Area ID: <?php echo $area_id; ?></h2>
+    <form method="POST">
+        <label>Prefix (e.g., A for Block A):</label>
+        <input type="text" name="prefix" required>
+        
+        <label>How many spaces to create?</label>
+        <input type="number" name="num_spaces" value="10" min="1" max="50">
+        
+        <button type="submit" name="bulk_generate">Generate Spaces Now</button>
+    </form>
     </div>
      
 </body>

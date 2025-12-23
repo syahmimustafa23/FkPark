@@ -18,10 +18,24 @@ if ($_SESSION['role'] !== 'admin') {
     exit();
 }
 
-$username = htmlspecialchars($_SESSION['username']);
+$id = mysqli_real_escape_string($conn, $_GET['id']);
 
-$user_id = $_SESSION['user_id'];
+// Process the Update
+if (isset($_POST['update_area'])) {
+    $name = mysqli_real_escape_string($conn, $_POST['area_name']);
+    $cat = $_POST['category'];
 
+    $sql = "UPDATE parking_area SET Area_name='$name', Category='$cat' WHERE Area_id='$id'";
+    
+    if (mysqli_query($conn, $sql)) {
+        header("Location: admin_list_area.php?msg=updated");
+        exit();
+    }
+}
+
+// Fetch current details
+$result = mysqli_query($conn, "SELECT * FROM parking_area WHERE Area_id = '$id'");
+$area = mysqli_fetch_assoc($result);
 ?>
 
 
@@ -107,29 +121,35 @@ td{
     <header>
         
         <div class="navbar1">
-            <a href="../Module1/admin_view_profile.php">Profile</a>
-            <a href="../logout.php">Logout</a>
+        
+          
     </div>
     </header>
     <div class="sidebar">
          <a href="#home"><img class="logo" src="../photo/logoUmpsa.png"></a>
-    <a class="sidebar2" href="../Module2/admin_list_area.php">List of Parking</a>
-    <a class="sidebar2" href="../Module2/admin_view.php">Parking Availability</a>
+      <a class="sidebar2" href="admin_list_area.php">List of Parking</a>
+    <a class="sidebar2" href="admin_view.php">Parking Availability</a>
     <a class="sidebar2" href="../Module 3/parkingReport.html">Parking Report</a>
     <a class="sidebar2" href="../Module1/admin_list_users.php">Manage User</a>
-   
     </div>
 
     </div>
    
     <div class="container">
-        <p>Welcome, <?php echo $username; ?>.</p>
-                <p><strong>Role:</strong> Admin</p>
-                <p><strong>User ID:</strong> <?php echo htmlspecialchars($user_id); ?></p>
+       <h2>Edit Parking Area</h2><br>
+    <form method="POST">
+            <label>Area Name:</label>
+            <input type="text" name="area_name" value="<?php echo $area['Area_name']; ?>" required>
 
-<div class="buttons">
-        <a href="../logout.php" class="logout-btn">Logout</a>
-        </div>
+            <label>Category:</label>
+            <select name="category">
+                <option value="Student" <?php if($area['Category'] == 'Student') echo 'selected'; ?>>Student Area</option>
+                <option value="Staff" <?php if($area['Category'] == 'Staff') echo 'selected'; ?>>Staff Area</option>
+            </select>
+
+            <button type="submit" name="update_area">Save Changes</button>
+            <a href="admin_list_area.php">Cancel</a>
+        </form>
     </div>
      
 </body>
