@@ -38,6 +38,19 @@ if ($user_id > 0) {
 		.header { background: #667eea; color: white; padding: 20px; margin-bottom: 20px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; }
 		.header .profile-section { font-size: 18px; }
 		.header .profile-section span { font-weight: bold; }
+		.navbar1{text-decoration-line: none;text-decoration: none; float: right; overflow: hidden; list-style-type: none; display: flex; text-align: center; padding: 0px; margin:0px;}
+		.navbar1 a{ 
+		    display: block;
+		  color: black;
+		  padding: 0px 20px;
+		  text-decoration: none;
+		text-align: center;
+		}
+
+		.navbar1 a:hover{
+		    background-color: black;
+		  color: white;
+		}
 		.container { max-width: 700px; margin: 0 auto; background: white; padding: 20px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 		h1 { margin-bottom: 10px; }
 		table { width: 100%; border-collapse: collapse; }
@@ -52,8 +65,9 @@ if ($user_id > 0) {
 <body>
 	<div class="header">
 		<h2>FKPark Admin Dashboard</h2>
-		<div class="profile-section">
-			Welcome, <span><?php echo htmlspecialchars($user['full_name'] ?? 'Admin'); ?></span> (<span><?php echo htmlspecialchars($user['user_type'] ?? 'admin'); ?></span>)
+		<div class="navbar1">
+			<a href="admin_view_profile.php">Profile</a>
+			<a href="../logout.php">Logout</a>
 		</div>
 	</div>
 	<div class="container">

@@ -18,6 +18,7 @@ $user = require_any_role(["Safety_Staff", "Student"]);
         <a href="#">Homepage</a>
         <a href="#">Profile</a>
         <a href="dashboard.html">Dashboard</a>
+        <a href="../logout.php">Logout</a>
     </div>
 </header>
 
