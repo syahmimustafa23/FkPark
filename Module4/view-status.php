@@ -32,10 +32,12 @@ $user = require_any_role(["Safety_Staff", "Student"]);
   <?php endif; ?>
 
   <?php if (in_array($user["user_type"], ["Safety_Staff", "Student"], true)): ?>
+    <a class="sidebar2 <?php echo basename($_SERVER["PHP_SELF"]) === "../Module2/student-view.php" ? "active" : ""; ?>"
+       href="../Module2/student-view.php">View Parking</a>
+    <a class="sidebar2 <?php echo basename($_SERVER["PHP_SELF"]) === "../Module 3/view_bookings.php" ? "active" : ""; ?>"
+       href="../Module 3/view_bookings.php">View Booking</a>
     <a class="sidebar2 <?php echo basename($_SERVER["PHP_SELF"]) === "view-status.php" ? "active" : ""; ?>"
-       href="view-status.php">
-      View Update Point & Status
-    </a>
+       href="view-status.php">View Update Point & Status</a>
   <?php endif; ?>
 </div>
 
