@@ -1,7 +1,7 @@
 <?php
 /**
- * FKPark Security Dashboard
- * Simple security interface with no animations
+ * FKPark Security Manage Report
+ * Shows charts for vehicle approval statuses
  */
 
 require_once '../config.php';
@@ -14,13 +14,25 @@ if ($_SESSION['role'] !== 'security') {
 
 $username = htmlspecialchars($_SESSION['username']);
 $user_id = $_SESSION['user_id'];
+
+// Query counts
+$sql = "SELECT status, COUNT(*) as count FROM approval GROUP BY status";
+$result = mysqli_query($conn, $sql);
+$counts = [];
+while ($row = mysqli_fetch_assoc($result)) {
+    $counts[$row['status']] = $row['count'];
+}
+$pending = $counts['Pending'] ?? 0;
+$approved = $counts['Approved'] ?? 0;
+$rejected = $counts['Rejected'] ?? 0;
+$total = $pending + $approved + $rejected;
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Security Dashboard | FKPark</title>
+    <title>Manage Report | FKPark</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
@@ -82,6 +94,48 @@ a.sidebar2{
     width: 200px;
     height: auto;
 }
+.chart-container {
+    margin-top: 30px;
+}
+.bar {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+.bar-label {
+    width: 100px;
+    font-weight: bold;
+}
+.bar-fill {
+    height: 30px;
+    background: #fd7e14;
+    margin-left: 10px;
+    border-radius: 4px;
+    color: white;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    font-size: 14px;
+}
+.stats {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+}
+.stat {
+    text-align: center;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 4px;
+    border: 1px solid #e0e0e0;
+}
+.stat h3 {
+    font-size: 24px;
+    color: #333;
+}
+.stat p {
+    color: #555;
+}
    </style>
 </head>
 <body>
@@ -97,21 +151,53 @@ a.sidebar2{
         <a class="sidebar2" href="../Module1/security_list_vehicles.php">Vehicle Approval</a>
         <a class="sidebar2" href="../Module4/manage-summon.php">Manage Traffic Summon</a>
         <a class="sidebar2" href="../Module4/dashboard.php">Manage Dashboard</a>
-        <a class="sidebar2" href="manage_report.php">Manage Report</a>
+        <a class="sidebar2 active" href="manage_report.php">Manage Report</a>
         <a class="sidebar2" href="../Module4/view-status.php">View Update Point & Status</a>
     </div>
     <div class="container">
         <div class="welcome">
-            <h2>Welcome, <?php echo $username; ?>!</h2>
-            <p>You are logged in as Security Staff</p>
+            <h2>Manage Report</h2>
+            <p>Vehicle Approval Statistics</p>
         </div>
         <div class="user-info">
             <strong>User ID:</strong> <?php echo htmlspecialchars($user_id); ?> |
             <strong>Role:</strong> Security
         </div>
-        <p>Security dashboard ready for development. Future features: parking monitoring, violation management, vehicle verification.</p>
+        <div class="stats">
+            <div class="stat">
+                <h3><?php echo $pending; ?></h3>
+                <p>Pending</p>
+            </div>
+            <div class="stat">
+                <h3><?php echo $approved; ?></h3>
+                <p>Approved</p>
+            </div>
+            <div class="stat">
+                <h3><?php echo $rejected; ?></h3>
+                <p>Rejected</p>
+            </div>
+        </div>
+        <div class="chart-container">
+            <h3>Approval Status Chart</h3>
+            <?php if ($total > 0): ?>
+            <div class="bar">
+                <div class="bar-label">Pending</div>
+                <div class="bar-fill" style="width: <?php echo ($pending / $total) * 100; ?>%;"><?php echo $pending; ?></div>
+            </div>
+            <div class="bar">
+                <div class="bar-label">Approved</div>
+                <div class="bar-fill" style="width: <?php echo ($approved / $total) * 100; ?>%; background: #28a745;"><?php echo $approved; ?></div>
+            </div>
+            <div class="bar">
+                <div class="bar-label">Rejected</div>
+                <div class="bar-fill" style="width: <?php echo ($rejected / $total) * 100; ?>%; background: #dc3545;"><?php echo $rejected; ?></div>
+            </div>
+            <?php else: ?>
+            <p>No data available.</p>
+            <?php endif; ?>
+        </div>
         <div class="buttons">
-            <a href="../logout.php" class="logout-btn">Logout</a>
+            <a href="security_dashboard.php" class="logout-btn">Back to Dashboard</a>
         </div>
     </div>
 </body>
