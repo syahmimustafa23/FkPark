@@ -143,7 +143,7 @@ td{
             <select name="area_id" onchange="this.form.submit()">
                 <option value="">-- Select Area --</option>
                 <?php while($a = mysqli_fetch_assoc($areas_query)): ?>
-                    <option value="<?php echo $a['Area_id']; ?>" <?php echo ($selected_area == $a['Area_id']) ? 'selected' : ''; ?>>
+                    <option value="<?php echo $a['Area_id']; ?>" <?php echo ($selected_area == $a['Area_id']) ? 'selected' : ''; ?>
                         <?php echo $a['Area_name']; ?> (<?php echo $a['Category']; ?>)
                     </option>
                 <?php endwhile; ?>
@@ -169,7 +169,7 @@ td{
             ?>
                 <div class="space-card" style="background: <?php echo $color; ?>; color: <?php echo ($s['Current_status'] == 'Maintenance') ? 'black' : 'white'; ?>;">
                     <strong><?php echo $s['Space_num']; ?></strong><br>
-                    <small><?php echo $display_status; ?></small><br>
+                    <small><?php echo $display_status; ?></small>
                     <img src="<?php echo $google_qr_api; ?>" alt="QR Code">
                     <a href="admin_update_status.php?id=<?php echo $s['Space_id']; ?>&current=<?php echo $s['Current_status']; ?>&area_id=<?php echo $selected_area; ?>" 
                        style="color: <?php echo ($s['Current_status'] == 'Maintenance') ? 'black' : 'white'; ?>; font-size: 10px; display: block; margin-top: 5px; text-decoration: underline;">
