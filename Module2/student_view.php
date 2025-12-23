@@ -20,6 +20,7 @@ $spaces_query = null;
 if ($selected_area) {
     $spaces_query = mysqli_query($conn, "SELECT * FROM parking_space WHERE Area_id = '$selected_area'");
 }
+
 ?>
 
 
@@ -134,30 +135,46 @@ td{
     </form>
 
     <div class="parking-grid" style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 20px;">
-        <?php 
-        if ($spaces_query):
-            while($s = mysqli_fetch_assoc($spaces_query)): 
-                $color = ($s['Current_status'] == 'Available') ? '#28a745' : '#dc3545';
-        ?>
-            <div class="space-card" style="background: <?php echo $color; ?>; color: white; padding: 20px; border-radius: 8px; text-align: center; width: 100px;">
-                <strong><?php echo $s['Space_num']; ?></strong><br>
-                <small><?php echo $s['Current_status']; ?></small>
-                
-                <?php if($s['Current_status'] == 'Available' && $_SESSION['role'] == 'student'): ?>
+    <?php 
+    if ($spaces_query):
+        while($s = mysqli_fetch_assoc($spaces_query)): 
+            // Map status to specific colors and labels
+            if ($s['Current_status'] == 'Available') {
+                $color = '#28a745'; // Green
+                $status_label = "Available";
+            } elseif ($s['Current_status'] == '') {
+                $color = '#ffc107'; // Yellow/Orange
+                $status_label = "Reserved";
+            } else {
+                $color = '#dc3545'; // Red (Occupied or Maintenance)
+                $status_label = $s['Current_status'];
+            }
+    ?>
+        <div class="space-card" style="background: <?php echo $color; ?>; color: white; padding: 20px; border-radius: 8px; text-align: center; width: 110px;">
+            <strong><?php echo $s['Space_num']; ?></strong><br>
+            <small><?php echo $status_label; ?></small>
+            
+            <?php if($_SESSION['role'] == 'student'): ?>
+                <?php if($s['Current_status'] == 'Available'): ?>
                     <br><a href="../Module 3/book_parking.php?space_id=<?php echo $s['Space_id']; ?>" style="color: white; font-size: 10px;">Book Now</a>
                 <?php endif; ?>
-                <a href="../Module 3/scan_qr.php?space_id=<?php echo $s['Space_id']; ?>" 
-       style="font-size: 10px; color: white; background: rgba(0,0,0,0.5); padding: 2px; text-decoration: none;">
-       [Simulate Scan]
-    </a>
-            </div>
-        <?php 
-            endwhile; 
-        else:
-            echo "<p>Please select an area to view spaces.</p>";
-        endif; 
-        ?>
-    </div>
+
+               
+                    <br>
+                    <a href="../Module 3/scan_qr.php?space_id=<?php echo $s['Space_id']; ?>" 
+                       style="font-size: 10px; color: white; background: rgba(0,0,0,0.5); padding: 4px; text-decoration: none; border-radius: 3px; display: inline-block; margin-top: 5px;">
+                       [Simulate Scan]
+                    </a>
+                
+            <?php endif; ?>
+        </div>
+    <?php 
+        endwhile; 
+    else:
+        echo "<p>Please select an area to view spaces.</p>";
+    endif; 
+    ?>
+</div>
     </div>
      
 </body>

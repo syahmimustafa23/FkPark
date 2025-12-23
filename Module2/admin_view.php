@@ -17,8 +17,15 @@ $selected_area = $_GET['area_id'] ?? null;
 $spaces_query = null;
 
 if ($selected_area) {
-    // Fetch all spaces in the selected area
-    $sql = "SELECT * FROM parking_space WHERE Area_id = '$selected_area' ORDER BY Space_num";
+    // We use a Subquery to find the LATEST active booking ID for each space
+    $sql = "SELECT s.*, 
+            (SELECT Usage_id FROM parking_usage 
+             WHERE Space_id = s.Space_id 
+             AND status IN ('Reserved', 'Occupied') 
+             ORDER BY Usage_id DESC LIMIT 1) as active_booking_id
+            FROM parking_space s 
+            WHERE s.Area_id = '$selected_area' 
+            ORDER BY s.Space_num";
     $spaces_query = mysqli_query($conn, $sql);
 }
 
@@ -181,27 +188,44 @@ if ($selected_area) {
             <div class="parking-grid">
                 <?php 
                 if ($spaces_query && mysqli_num_rows($spaces_query) > 0):
-                    while($s = mysqli_fetch_assoc($spaces_query)): 
-                        $display_status = $s['Current_status'];
+                   while($s = mysqli_fetch_assoc($spaces_query)): 
+    // Define text color globally for the cards
+    $text_color = '#ffffff'; 
+
+    if ($s['Current_status'] == 'Available') {
+        $color = '#28a745'; // Green
+        $status_label = "Available";
+    } elseif ($s['Current_status'] == '') {
+        $color = '#ffc107'; // Yellow
+        $status_label = "Reserved";
+    } elseif ($s['Current_status'] == 'Occupied') {
+        $color = '#dc3545'; // Red
+        $status_label = "Occupied";
+    } else {
+        $color = '#6c757d'; // Grey for Maintenance
+        $status_label = "Maintenance";
+    }
+
+    // Determine what the QR code should show
+    if ($s['active_booking_id']) {
+        // Points to the occupant's ticket for Admin verification
+        $qr_link = "http://localhost/fkpark/Module 3/view_ticket.php?id=" . $s['active_booking_id'];
+    } else {
+        // Points to the check-in page for physical printing
+        $qr_link = $s['Space_qrCode']; 
+    }
+    $google_qr_api = "https://chart.googleapis.com/chart?chs=100x100&cht=qr&chl=" . urlencode($qr_link);
+?>
                         
-                        if ($s['Current_status'] == 'Maintenance') {
-                            $color = '#ffc107'; // Yellow for Maintenance
-                            $text_color = 'black';
-                        } elseif ($s['Current_status'] == 'Available') {
-                            $color = '#28a745'; // Green for Available
-                            $text_color = 'white';
-                        } else {
-                            $color = '#dc3545'; // Red for Occupied
-                            $text_color = 'white';
-                        }
-                        
-                        $qr_link = $s['Space_qrCode']; 
-                        $google_qr_api = "https://chart.googleapis.com/chart?chs=100x100&cht=qr&chl=" . urlencode($qr_link);
-                ?>
+
                     <div class="space-card" style="background: <?php echo $color; ?>; color: <?php echo $text_color; ?>;">
                         <strong><?php echo $s['Space_num']; ?></strong>
-                        <small><?php echo $display_status; ?></small>
+                        <small><?php echo $status_label; ?></small>
                         <img src="<?php echo $google_qr_api; ?>" alt="QR Code">
+                        <?php if ($s['active_booking_id']): ?>
+    <a href="../Module 3/view_ticket.php?id=<?php echo $s['active_booking_id']; ?>" 
+       style="color: white; font-weight: bold;">View Ticket</a>
+<?php endif; ?>
                         <a href="admin_update_status.php?id=<?php echo $s['Space_id']; ?>&current=<?php echo $s['Current_status']; ?>&area_id=<?php echo $selected_area; ?>" 
                            style="color: <?php echo $text_color; ?>;">
                            <?php echo ($s['Current_status'] == 'Available') ? 'Close Space' : 'Open Space'; ?>

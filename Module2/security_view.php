@@ -15,15 +15,25 @@ if ($_SESSION['role'] !== 'security') {
 $username = htmlspecialchars($_SESSION['username']);
 $user_id = $_SESSION['user_id'];
 
+// 1. Fetch areas for the dropdown
 $areas_query = mysqli_query($conn, "SELECT * FROM parking_area");
 
-// Get selected area from filter, default to the first one found if not set
 $selected_area = $_GET['area_id'] ?? null;
-
 $spaces_query = null;
+
 if ($selected_area) {
-    $spaces_query = mysqli_query($conn, "SELECT * FROM parking_space WHERE Area_id = '$selected_area'");
+    // We use a Subquery to find the LATEST active booking ID for each space
+    $sql = "SELECT s.*, 
+            (SELECT Usage_id FROM parking_usage 
+             WHERE Space_id = s.Space_id 
+             AND status IN ('Reserved', 'Occupied') 
+             ORDER BY Usage_id DESC LIMIT 1) as active_booking_id
+            FROM parking_space s 
+            WHERE s.Area_id = '$selected_area' 
+            ORDER BY s.Space_num";
+    $spaces_query = mysqli_query($conn, $sql);
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -92,6 +102,50 @@ a.sidebar2{
     width: 200px;
     height: auto;
 }
+h2 { 
+            margin-bottom: 20px; 
+            color: #333; 
+        }
+        select {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            width: 100%;
+            max-width: 300px;
+        }
+        .parking-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .space-card {
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .space-card strong {
+            font-size: 18px;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .space-card small {
+            display: block;
+            margin-bottom: 8px;
+        }
+        .space-card img {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 5px;
+        }
+        .space-card a {
+            font-size: 11px;
+            display: block;
+            text-decoration: underline;
+            cursor: pointer;
+        }
    </style>
 </head>
 <body>
@@ -117,36 +171,74 @@ a.sidebar2{
     <div class="container">
        <h2>Live Parking Availability</h2>
     
-    <form method="GET">
-        <select name="area_id" onchange="this.form.submit()">
-            <option value="">-- Select Area --</option>
-            <?php while($a = mysqli_fetch_assoc($areas_query)): ?>
-                <option value="<?php echo $a['Area_id']; ?>" <?php if($selected_area == $a['Area_id']) echo 'selected'; ?>>
-                    <?php echo $a['Area_name']; ?> (<?php echo $a['Category']; ?>)
-                </option>
-            <?php endwhile; ?>
-        </select>
-    </form>
+        <form method="GET" style="margin-bottom: 20px;">
+            <select name="area_id" onchange="this.form.submit()">
+                <option value="">-- Select Area --</option>
+                <?php while($a = mysqli_fetch_assoc($areas_query)): ?>
+                    <option value="<?php echo $a['Area_id']; ?>" <?php echo ($selected_area == $a['Area_id']) ? 'selected' : ''; ?>>
+                        <?php echo $a['Area_name']; ?> (<?php echo $a['Category']; ?>)
+                    </option>
+                <?php endwhile; ?>
+            </select>
+        </form>
 
-    <div class="parking-grid" style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 20px;">
-        <?php 
-        if ($spaces_query):
-            while($s = mysqli_fetch_assoc($spaces_query)): 
-                $color = ($s['Current_status'] == 'Available') ? '#28a745' : '#dc3545';
-        ?>
-            <div class="space-card" style="background: <?php echo $color; ?>; color: white; padding: 20px; border-radius: 8px; text-align: center; width: 100px;">
-                <strong><?php echo $s['Space_num']; ?></strong><br>
-                <small><?php echo $s['Current_status']; ?></small>
-                
-                
+        <?php if ($selected_area): ?>
+            <div class="parking-grid">
+                <?php 
+                if ($spaces_query && mysqli_num_rows($spaces_query) > 0):
+                   while($s = mysqli_fetch_assoc($spaces_query)): 
+    // Define text color globally for the cards
+    $text_color = '#ffffff'; 
+
+    if ($s['Current_status'] == 'Available') {
+        $color = '#28a745'; // Green
+        $status_label = "Available";
+    } elseif ($s['Current_status'] == '') {
+        $color = '#ffc107'; // Yellow
+        $status_label = "Reserved";
+    } elseif ($s['Current_status'] == 'Occupied') {
+        $color = '#dc3545'; // Red
+        $status_label = "Occupied";
+    } else {
+        $color = '#6c757d'; // Grey for Maintenance
+        $status_label = "Maintenance";
+    }
+
+    // Determine what the QR code should show
+    if ($s['active_booking_id']) {
+        // Points to the occupant's ticket for Admin verification
+        $qr_link = "http://localhost/fkpark/Module 3/view_ticket.php?id=" . $s['active_booking_id'];
+    } else {
+        // Points to the check-in page for physical printing
+        $qr_link = $s['Space_qrCode']; 
+    }
+    $google_qr_api = "https://chart.googleapis.com/chart?chs=100x100&cht=qr&chl=" . urlencode($qr_link);
+?>
+                        
+
+                    <div class="space-card" style="background: <?php echo $color; ?>; color: <?php echo $text_color; ?>;">
+                        <strong><?php echo $s['Space_num']; ?></strong>
+                        <small><?php echo $status_label; ?></small>
+                        <img src="<?php echo $google_qr_api; ?>" alt="QR Code">
+                        <?php if ($s['active_booking_id']): ?>
+    <a href="../Module 3/view_ticket.php?id=<?php echo $s['active_booking_id']; ?>" 
+       style="color: white; font-weight: bold;">View Ticket</a>
+<?php endif; ?>
+                        <a href="admin_update_status.php?id=<?php echo $s['Space_id']; ?>&current=<?php echo $s['Current_status']; ?>&area_id=<?php echo $selected_area; ?>" 
+                           style="color: <?php echo $text_color; ?>;">
+                           <?php echo ($s['Current_status'] == 'Available') ? 'Close Space' : 'Open Space'; ?>
+                        </a>
+                    </div>
+                <?php 
+                    endwhile;
+                else:
+                    echo "<p>Please select an area to view spaces.</p>";
+                endif; 
+                ?>
             </div>
-        <?php 
-            endwhile; 
-        else:
-            echo "<p>Please select an area to view spaces.</p>";
-        endif; 
-        ?>
-    </div>
+        <?php else: ?>
+            <p style="text-align: center; margin-top: 20px; color: #666;">Please select an area to view spaces.</p>
+        <?php endif; ?>
     </div>
 </body>
 </html>

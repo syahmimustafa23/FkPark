@@ -27,16 +27,20 @@ if (isset($_POST['create_space'])) {
     $area_id = (int)$_POST['area_id'];
     $space_num = mysqli_real_escape_string($conn, $_POST['space_num']);
     $status = $_POST['status'];
-    $qr_content = "http://localhost/fkpark/Module 3/scan_qr.php?id=" . urlencode($space_num);
     
-    $sql = "INSERT INTO parking_space (Area_id, Space_num, Space_qrCode, Current_status) 
-            VALUES ('$area_id', '$space_num', '$qr_content', '$status')";
+    // First, insert with a temporary QR content
+    $sql = "INSERT INTO parking_space (Area_id, Space_num, Current_status) 
+            VALUES ('$area_id', '$space_num', '$status')";
     
     if (mysqli_query($conn, $sql)) {
+        $new_id = mysqli_insert_id($conn); // Get the actual unique ID
+        $qr_content = "http://localhost/fkpark/Module 3/scan_qr.php?space_id=" . $new_id;
+        
+        // Update the space with the correct QR link using space_id
+        mysqli_query($conn, "UPDATE parking_space SET Space_qrCode='$qr_content' WHERE Space_id='$new_id'");
+        
         header("Location: admin_manage_spaces.php?area_id=$area_id&msg=space_created");
         exit();
-    } else {
-        $error = "Error creating space: " . mysqli_error($conn);
     }
 }
 
@@ -288,6 +292,7 @@ if (isset($_GET['edit_id'])) {
                             <select name="status">
                                 <option value="Available" <?php echo (isset($edit_space) && $edit_space['Current_status'] == 'Available') ? 'selected' : ''; ?>>Available</option>
                                 <option value="Maintenance" <?php echo (isset($edit_space) && $edit_space['Current_status'] == 'Maintenance') ? 'selected' : ''; ?>>Maintenance</option>
+                                
                             </select>
                         </div>
                     </div>
@@ -316,13 +321,29 @@ if (isset($_GET['edit_id'])) {
                         </tr>
                     </thead>
                     <tbody>
-                        <?php while ($space = mysqli_fetch_assoc($spaces)): ?>
+                        <?php 
+while ($space = mysqli_fetch_assoc($spaces)): 
+    // Logic to handle all 4 possible statuses correctly
+    if ($space['Current_status'] == 'Available') {
+        $color_class = "status-available";
+        $status_label = "Available";
+    } elseif ($space['Current_status'] == '') {
+        $color_class = "status-occupied"; // Using maintenance color for yellow
+        $status_label = "Reserved";
+    } elseif ($space['Current_status'] == 'Occupied') {
+        $color_class = "status-occupied";
+        $status_label = "Occupied";
+    } else {
+        $color_class = "status-maintenance";
+        $status_label = "Maintenance";
+    }
+?>
                         <tr>
                             <td><strong><?php echo htmlspecialchars($space['Space_num']); ?></strong></td>
                             <td>
-                                <span class="status-<?php echo strtolower($space['Current_status']); ?>">
-                                    <?php echo ucfirst($space['Current_status']); ?>
-                                </span>
+                                <span class="<?php echo $color_class; ?>">
+            <?php echo $status_label; ?>
+        </span>
                             </td>
                             <td>
                                 <?php if ($space['Space_qrCode']): ?>

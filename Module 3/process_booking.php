@@ -54,11 +54,14 @@ if (isset($_POST['reserve'])) {
                 VALUES ('$space_id', '$user_id', '$entry_datetime', '$new_end', 'Parking', 'Reserved', '$date')";
         
         if (mysqli_query($conn, $sql)) {
-            $new_id = mysqli_insert_id($conn);
-            // Requirement: Generate reference QR code ticket
-            header("Location: view_ticket.php?id=" . $new_id); 
-            exit();
-        }
+    $new_id = mysqli_insert_id($conn);
+    
+    // UPDATE the physical space to 'Reserved' so the color changes in student_view
+    mysqli_query($conn, "UPDATE parking_space SET Current_status = 'Reserved' WHERE Space_id = '$space_id'");
+    
+    header("Location: view_ticket.php?id=" . $new_id); 
+    exit();
+}
     } else {
         die("<script>alert('Clash detected! This space is already reserved for the selected time.'); window.history.back();</script>");
     }
