@@ -100,15 +100,15 @@ a.sidebar2{
         <header>
         
          <div class="navbar1">
-            <a href="../Module1/security_profile.php">Profile</a>
-            <a href="../logout.php">Logout</a>
+             <a href="../Module1/security_profile.php">Profile</a>
+                  <a href="../logout.php">Logout</a>
     </div>
     </header>
     <div class="sidebar">
          <a href="#home"><img class="logo" src="../photo/logoUmpsa.png"></a>
-    <a class="sidebar2" href="security_view.php">View Parking</a>
+    <a class="sidebar2" href="../Module 2/security_view.php">View Parking</a>
     <a class="sidebar2" href="../Module1/security/list_vehicles.php">Vehicle Approval</a>
-     <a class="sidebar2" href="sidebar2">Traffic Summons</a>
+      <a class="sidebar2" href="../Module4/manage-summon.php">Traffic Summons</a>
     </div>
 
     </div>
