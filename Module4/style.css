@@ -180,23 +180,70 @@ tbody tr:nth-child(even) {
     background: #0b7051;
 }
 
-/* ================= PROFILE BOX ================= */
-.profile-img {
-    width: 160px;
-    height: 180px;
-    border: 1px solid #bbb;
-    margin-bottom: 10px;
+/* ================= STATS BOXES ================= */
+.stats {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+
+.stat {
+    flex: 1;
+    text-align: center;
+    padding: 20px;
+    margin: 0 110px;
+    background: #f9f9f9;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.stat h3 {
+    font-size: 26px;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.stat p {
+    color: #555;
+    font-size: 16px;
+}
+
+/* ================= VIOLATION CHART ================= */
+.chart-container {
+    margin-top: 20px;
+}
+
+.bar {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+    background: #f9f9f9;
+    border-radius: 6px;
+    padding: 8px 12px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.bar-label {
+    width: 180px;
+    font-weight: bold;
+    color: #333;
+    font-size: 14px;
+}
+
+.bar-fill {
+    height: 32px;
+    border-radius: 4px;
+    color: white;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #e8e8e8;
     font-size: 14px;
-    overflow: hidden;
+    font-weight: bold;
+    transition: width 0.3s ease;
 }
 
-.profile-img img {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: cover;
-}
-
+/* Optional colors for each violation type */
+.bar-fill:nth-child(1) { background-color: #ffc107; } /* Parking violation */
+.bar-fill:nth-child(2) { background-color: #28a745; } /* Regulation Non-compliance */
+.bar-fill:nth-child(3) { background-color: #dc3545; } /* Accident Caused */

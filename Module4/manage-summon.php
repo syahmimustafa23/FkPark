@@ -1,15 +1,22 @@
 <?php
 require_once "auth.php";
-require_once "db.php"; // <-- include your MySQLi connection
+require_once "db.php"; // include database connection
 $user = require_role("Safety_Staff");
 
 /* ROLE-BASED BODY CLASS */
 $roleClass = ($user["user_type"] === "Student") ? "student" : "staff";
 
-// Fetch vehicles and parking areas from DB
-$vehiclesResult = $conn->query("SELECT vehicle_id, license_plate FROM vehicle ORDER BY license_plate");
+// Fetch only APPROVED vehicles from approval table
+$vehiclesResult = $conn->query("
+    SELECT v.vehicle_id, v.license_plate
+    FROM vehicle v
+    JOIN approval a ON v.vehicle_id = a.vehicle_id
+    WHERE a.status = 'Approved'
+    ORDER BY v.license_plate
+");
 $vehicles = $vehiclesResult->fetch_all(MYSQLI_ASSOC);
 
+// Fetch parking areas
 $areasResult = $conn->query("SELECT Area_id, Area_name FROM parking_area ORDER BY Area_name");
 $areas = $areasResult->fetch_all(MYSQLI_ASSOC);
 ?>
@@ -36,7 +43,7 @@ $areas = $areasResult->fetch_all(MYSQLI_ASSOC);
     <?php if ($user["user_type"] === "Safety_Staff"): ?>
       <a class="sidebar2" href="../Module2/security_view.php">View Parking</a>
       <a class="sidebar2" href="../Module1/security_list_vehicles.php">Vehicle Approval</a>
-      <a class="sidebar2" href="manage-summon.php">Manage Traffic Summon</a>
+      <a class="sidebar2 active" href="manage-summon.php">Manage Traffic Summon</a>
       <a class="sidebar2" href="dashboard.php">Manage Dashboard</a>
       <a class="sidebar2" href="../dashboards/manage_report.php">Manage Report</a>
     <?php endif; ?>
@@ -59,9 +66,13 @@ $areas = $areasResult->fetch_all(MYSQLI_ASSOC);
 
     <label>Vehicle number</label>
     <select id="vehicleNo">
-      <?php foreach ($vehicles as $v): ?>
-        <option value="<?= $v['vehicle_id'] ?>"><?= htmlspecialchars($v['license_plate']) ?></option>
-      <?php endforeach; ?>
+      <?php if (empty($vehicles)): ?>
+        <option value="">No approved vehicles</option>
+      <?php else: ?>
+        <?php foreach ($vehicles as $v): ?>
+          <option value="<?= $v['vehicle_id'] ?>"><?= htmlspecialchars($v['license_plate']) ?></option>
+        <?php endforeach; ?>
+      <?php endif; ?>
     </select>
 
     <label>Date and time</label>
@@ -87,7 +98,7 @@ $areas = $areasResult->fetch_all(MYSQLI_ASSOC);
       const Datetime_issued = document.getElementById("Datetime_issued").value;
       const areaId = document.getElementById("area").value;
 
-      if (!Datetime_issued) {
+      if (!Datetime_issued || !vehicleId || !areaId) {
         alert("Please fill all fields.");
         return;
       }

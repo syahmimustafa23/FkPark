@@ -10,11 +10,26 @@ $vehicles = $vehiclesResult->fetch_all(MYSQLI_ASSOC);
 $areasResult = $conn->query("SELECT Area_id, Area_name FROM parking_area ORDER BY Area_name");
 $areas = $areasResult->fetch_all(MYSQLI_ASSOC);
 
+// Violation types
 $violations = [
-    ["id"=>1,"name"=>"Parking violation"],
-    ["id"=>2,"name"=>"Regulation Non-compliance"],
-    ["id"=>3,"name"=>"Accident Caused"]
+    1 => "Parking violation",
+    2 => "Regulation Non-compliance",
+    3 => "Accident Caused"
 ];
+
+// Get violation counts for stats & chart
+$violationCounts = [];
+$sql = "SELECT Violation_id, COUNT(*) as count FROM traffic_summon GROUP BY Violation_id";
+$result = $conn->query($sql);
+while ($row = $result->fetch_assoc()) {
+    $violationCounts[$row['Violation_id']] = $row['count'];
+}
+
+// Ensure all types exist
+foreach ($violations as $id => $name) {
+    if (!isset($violationCounts[$id])) $violationCounts[$id] = 0;
+}
+$totalViolations = array_sum($violationCounts);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -24,7 +39,7 @@ $violations = [
   <title>Dashboard – Summon History</title>
   <link rel="stylesheet" href="style.css?v=2" />
 </head>
-<body class="<?php echo ($user["user_type"]==="Student")?"student":"staff"; ?>">
+<body class="staff">
 
 <header>
   <div class="navbar1">
@@ -44,7 +59,36 @@ $violations = [
 </div>
 
 <div class="main-content">
-  <h2>Summon History</h2>
+  <h2>Summon Dashboard</h2>
+
+  <!-- ================== STATS BOXES ================== -->
+  <div class="stats">
+    <?php foreach ($violations as $id => $name): ?>
+      <div class="stat">
+        <h3><?= $violationCounts[$id] ?></h3>
+        <p><?= htmlspecialchars($name) ?></p>
+      </div>
+    <?php endforeach; ?>
+  </div>
+
+  <!-- ================== VIOLATION CHART ================== -->
+  <div class="chart-container">
+    <h3>Violation Type Chart</h3>
+    <?php foreach ($violations as $id => $name):
+      $count = $violationCounts[$id];
+      $percent = $totalViolations ? ($count / $totalViolations * 100) : 0;
+    ?>
+      <div class="bar">
+        <div class="bar-label"><?= htmlspecialchars($name) ?></div>
+        <div class="bar-fill" style="width: <?= $percent ?>%;"><?= $count ?> (<?= round($percent,2) ?>%)</div>
+      </div>
+    <?php endforeach; ?>
+    <?php if ($totalViolations == 0): ?>
+      <p>No violations recorded yet.</p>
+    <?php endif; ?>
+  </div>
+
+  <!-- ================== SUMMON HISTORY TABLE ================== -->
   <table id="historyTable">
     <thead>
       <tr>
@@ -64,8 +108,8 @@ $violations = [
 <div id="editModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#fff; padding:20px; border:1px solid #ccc; z-index:999;">
   <h3>Edit Summon</h3>
   <label>Violation</label>
-  <select id="editViolation"><?php foreach($violations as $v): ?>
-    <option value="<?= $v['id'] ?>"><?= htmlspecialchars($v['name']) ?></option>
+  <select id="editViolation"><?php foreach($violations as $id => $name): ?>
+    <option value="<?= $id ?>"><?= htmlspecialchars($name) ?></option>
   <?php endforeach; ?></select>
 
   <label>Vehicle</label>
@@ -138,17 +182,12 @@ tbody.addEventListener("click", e=>{
   if(e.target.classList.contains("editBtn")){
     editSummonId = e.target.dataset.id;
     const btn = e.target;
-
-    // Set dropdowns
     [...document.getElementById("editViolation").options].forEach(o=>{ o.selected = (o.text===btn.dataset.violation); });
     [...document.getElementById("editVehicle").options].forEach(o=>{ o.selected = (o.text===btn.dataset.vehicle); });
     [...document.getElementById("editArea").options].forEach(o=>{ o.selected = (o.text===btn.dataset.area); });
-
-    // Set datetime
     const dt = new Date(btn.dataset.datetime);
     const local = dt.toISOString().slice(0,16);
     document.getElementById("editDatetime").value = local;
-
     document.getElementById("editModal").style.display="block";
   }
 });
@@ -164,11 +203,8 @@ document.getElementById("saveEdit").addEventListener("click", async ()=>{
   const vehicleId = document.getElementById("editVehicle").value;
   const areaId = document.getElementById("editArea").value;
   const datetime = document.getElementById("editDatetime").value;
-
   if(!violationId || !vehicleId || !areaId || !datetime){ alert("All fields required"); return; }
-
-  const datetime_mysql = datetime.replace("T"," ")+":00"; // MySQL format
-
+  const datetime_mysql = datetime.replace("T"," ")+":00";
   try{
     const res = await fetch("updateSummon.php",{
       method:"POST",
