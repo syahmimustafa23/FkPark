@@ -107,7 +107,9 @@ a.sidebar2{
         <a href="#home"><img class="logo" src="../photo/logoUmpsa.png"></a>
         <a class="sidebar2" href="../Module2/security_view.php">View Parking</a>
         <a class="sidebar2" href="../Module1/security_list_vehicles.php">Vehicle Approval</a>
-        <a class="sidebar2" href="../Module4/manage-summon.php">Traffic Summons</a>
+        <a class="sidebar2" href="../Module4/manage-summon.php">Manage Traffic Summon</a>
+        <a class="sidebar2" href="../Module4/dashboard.php">Manage Dashboard</a>
+        <a class="sidebar2" href="../Module4/view-status.php">View Update Point & Status</a>
     </div>
 
     </div>

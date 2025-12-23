@@ -25,15 +25,19 @@ $user = require_any_role(["Safety_Staff", "Student"]);
   <a href="#"><img class="logo" src="umpsa-logo-png.png"></a>
 
   <?php if ($user["user_type"] === "Safety_Staff"): ?>
+    <a class="sidebar2" href="../Module2/security_view.php">View Parking</a>
+    <a class="sidebar2" href="../Module1/security_list_vehicles.php">Vehicle Approval</a>
     <a class="sidebar2" href="manage-summon.php">Manage Traffic Summon</a>
     <a class="sidebar2" href="dashboard.php">Manage Dashboard</a>
   <?php endif; ?>
 
   <?php if (in_array($user["user_type"], ["Safety_Staff", "Student"], true)): ?>
+    <a class="sidebar2 <?php echo basename($_SERVER["PHP_SELF"]) === "../Module2/student-view.php" ? "active" : ""; ?>"
+       href="../Module2/student-view.php">View Parking</a>
+    <a class="sidebar2 <?php echo basename($_SERVER["PHP_SELF"]) === "../Module 3/view_bookings.php" ? "active" : ""; ?>"
+       href="../Module 3/view_bookings.php">View Booking</a>
     <a class="sidebar2 <?php echo basename($_SERVER["PHP_SELF"]) === "view-status.php" ? "active" : ""; ?>"
-       href="view-status.php">
-      View Update Point & Status
-    </a>
+       href="view-status.php">View Update Point & Status</a>
   <?php endif; ?>
 </div>
 
