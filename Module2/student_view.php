@@ -103,20 +103,17 @@ td{
 </head>
 <body>
     <header>
-        
         <div class="navbar1">
-         
             <a href="../Module1/student_profile.php">Profile</a>
-                <a href="../logout.php">Logout</a>
-    </div>
-    </header>
-    <div class="sidebar">
-         <a href="#home"><img class="logo" src="../photo/logoUmpsa.png"></a>
-    <a class="sidebar2" href="student_view.php">View Parking</a>
-    <a class="sidebar2" href="../Module 3/viewBooking.php">View Booking</a>
- 
-    <a class="sidebar2" href="sidebar2">Traffic Summons</a>
- 
+            <a href="../logout.php">Logout</a>
+        </div>
+        </header>
+        <div class="sidebar">
+            <a href="student_view.php"><img class="logo" src="../photo/logoUmpsa.png"></a>
+            <a class="sidebar2" href="student_view.php">View Parking</a>
+            <a class="sidebar2" href="../Module3/viewBooking.php">View Booking</a>
+            <a class="sidebar2" href="../Module3/trafficSummons.php">Traffic Summons</a>
+        </div>
     </div>
 
     
