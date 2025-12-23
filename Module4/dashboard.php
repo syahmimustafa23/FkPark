@@ -40,6 +40,7 @@ $violations = [
   <a class="sidebar2" href="manage-summon.php">Manage Traffic Summon</a>
   <a class="sidebar2" href="dashboard.php">Manage Dashboard</a>
   <a class="sidebar2" href="../dashboards/manage_report.php">Manage Report</a>
+  <a class="sidebar2" href="view-status.php">View Update Point & Status</a>
 </div>
 
 <div class="main-content">

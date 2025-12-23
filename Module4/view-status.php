@@ -25,13 +25,18 @@ $roleClass = ($user["user_type"] === "Student") ? "student" : "staff";
       <?php
       // Role-based profile link
       $profileLink = ($user["user_type"] === "Student")
-        ? "../dashboards/student_dashboard.php"
+        ? "../Module1/student_profile.php"
         : "../Module1/security_profile.php";
       ?>
+      <!-- Home link for all users -->
+      <?php if($user["user_type"] === "Student"): ?>
+        <a href="../dashboards/student_dashboard.php">Home</a>
+      <?php endif; ?>
+
       <a href="<?php echo $profileLink; ?>">Profile</a>
       <a href="../logout.php">Logout</a>
     </div>
-  </header>
+</header>
 
 
   <!-- SIDEBAR -->

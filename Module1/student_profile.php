@@ -127,7 +127,7 @@ td{
     <header>
         
         <div class="navbar1">
-         
+         <a href="../dashboards/student_dashboard.php">Home</a>
             <a href="student_profile.php">Profile</a>
                 <a href="../logout.php">Logout</a>
     </div>
@@ -136,8 +136,7 @@ td{
          <a href="#home"><img class="logo" src="../photo/logoUmpsa.png"></a>
     <a class="sidebar2" href="../Module2/student_view.php">View Parking</a>
     <a class="sidebar2" href="../Module 3/viewBooking.php">View Booking</a>
- 
-    <a class="sidebar2" href="sidebar2">Traffic Summons</a>
+    <a class="sidebar2" href="../Module4/view-status.php">View Update Point & Status</a>
  
     </div>
 
