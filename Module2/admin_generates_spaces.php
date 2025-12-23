@@ -22,7 +22,13 @@ $username = htmlspecialchars($_SESSION['username']);
 
 $user_id = $_SESSION['user_id'];
 
-$area_id = $_GET['area_id'];
+$area_id = isset($_GET['area_id']) ? (int)$_GET['area_id'] : null;
+
+if (!$area_id) {
+    // If no area_id is provided, show a message and redirect back
+    header("Location: admin_list_area.php?error=select_area");
+    exit();
+}
 
 if (isset($_POST['bulk_generate'])) {
     $count = (int)$_POST['num_spaces'];
@@ -32,7 +38,7 @@ if (isset($_POST['bulk_generate'])) {
         $space_num = $prefix . str_pad($i, 2, '0', STR_PAD_LEFT); // Results in A01, A02...
         
         // The QR Code is just a link to the parking view page for that space
-    $qr_content = "http://localhost/fkpark/Module3/scan_qr.php?id=" . $space_num;
+        $qr_content = "http://localhost/fkpark/Module 3/scan_qr.php?id=" . $space_num;
 
         $sql = "INSERT INTO parking_space (Area_id, Space_num, Space_qrCode, Current_status) 
                 VALUES ('$area_id', '$space_num', '$qr_content', 'Available')";

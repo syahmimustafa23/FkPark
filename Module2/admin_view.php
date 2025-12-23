@@ -143,7 +143,7 @@ td{
             <select name="area_id" onchange="this.form.submit()">
                 <option value="">-- Select Area --</option>
                 <?php while($a = mysqli_fetch_assoc($areas_query)): ?>
-                    <option value="<?php echo $a['Area_id']; ?>" <?php echo ($selected_area == $a['Area_id']) ? 'selected' : ''; ?>
+                    <option value="<?php echo $a['Area_id']; ?>" <?php echo ($selected_area == $a['Area_id']) ? 'selected' : ''; ?>>
                         <?php echo $a['Area_name']; ?> (<?php echo $a['Category']; ?>)
                     </option>
                 <?php endwhile; ?>

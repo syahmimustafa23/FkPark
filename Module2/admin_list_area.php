@@ -27,8 +27,11 @@ if (isset($_POST['add_area'])) {
     $cat = $_POST['category']; // 'Staff' or 'Student' from your SQL ENUM
 
     $sql = "INSERT INTO parking_area (Area_name, Category) VALUES ('$name', '$cat')";
-    mysqli_query($conn, $sql);
-    header("Location: admin_generates_spaces.php?msg=added");
+    if (mysqli_query($conn, $sql)) {
+        $new_area_id = mysqli_insert_id($conn);
+        header("Location: admin_generates_spaces.php?area_id=$new_area_id&msg=added");
+        exit();
+    }
 }
 
 // 2. Fetch all areas for the list
