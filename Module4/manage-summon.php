@@ -1,45 +1,50 @@
 <?php
 require_once "auth.php";
+require_once "db.php"; // <-- include your MySQLi connection
 $user = require_role("Safety_Staff");
-?>
 
+/* ROLE-BASED BODY CLASS */
+$roleClass = ($user["user_type"] === "Student") ? "student" : "staff";
+
+// Fetch vehicles and parking areas from DB
+$vehiclesResult = $conn->query("SELECT vehicle_id, license_plate FROM vehicle ORDER BY license_plate");
+$vehicles = $vehiclesResult->fetch_all(MYSQLI_ASSOC);
+
+$areasResult = $conn->query("SELECT Area_id, Area_name FROM parking_area ORDER BY Area_name");
+$areas = $areasResult->fetch_all(MYSQLI_ASSOC);
+?>
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <title>Manage Traffic Summon</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=2" />
 </head>
 
-<body>
+<body class="<?php echo $roleClass; ?>">
   <!-- HORIZONTAL HEADER -->
   <header>
     <div class="navbar1">
-      <a href="dashboard.php">Dashboard</a>
+      <a href="../Module1/security_profile.php">Profile</a>
       <a href="../logout.php">Logout</a>
     </div>
   </header>
 
   <!-- SIDEBAR -->
-<div class="sidebar">
-  <a href="#"><img class="logo" src="umpsa-logo-png.png"></a>
-
-  <?php if ($user["user_type"] === "Safety_Staff"): ?>
-    <a class="sidebar2" href="../Module2/security_view.php">View Parking</a>
-    <a class="sidebar2" href="../Module1/security_list_vehicles.php">Vehicle Approval</a>
-    <a class="sidebar2" href="manage-summon.php">Manage Traffic Summon</a>
-    <a class="sidebar2" href="dashboard.php">Manage Dashboard</a>
-  <?php endif; ?>
-
-  <?php if (in_array($user["user_type"], ["Safety_Staff", "Student"], true)): ?>
+  <div class="sidebar">
+    <a href="#"><img class="logo" src="umpsa-logo-png.png"></a>
+    <?php if ($user["user_type"] === "Safety_Staff"): ?>
+      <a class="sidebar2" href="../Module2/security_view.php">View Parking</a>
+      <a class="sidebar2" href="../Module1/security_list_vehicles.php">Vehicle Approval</a>
+      <a class="sidebar2" href="manage-summon.php">Manage Traffic Summon</a>
+      <a class="sidebar2" href="dashboard.php">Manage Dashboard</a>
+      <a class="sidebar2" href="../dashboards/manage_report.php">Manage Report</a>
+    <?php endif; ?>
     <a class="sidebar2 <?php echo basename($_SERVER["PHP_SELF"]) === "view-status.php" ? "active" : ""; ?>"
        href="view-status.php">
       View Update Point & Status
     </a>
-  <?php endif; ?>
-</div>
-
+  </div>
 
   <!-- MAIN CONTENT -->
   <div class="main-content">
@@ -48,19 +53,26 @@ $user = require_role("Safety_Staff");
     <label>Violation type</label>
     <select id="violationType">
       <option value="1">Parking violation</option>
-      <option value="2">Traffic regulation breach</option>
-      <option value="3">Cause accident</option>
+      <option value="2">Regulation Non-compliance</option>
+      <option value="3">Accident Caused</option>
     </select>
 
-
     <label>Vehicle number</label>
-    <input id="vehicleNo" type="text" placeholder="Enter vehicle number" />
+    <select id="vehicleNo">
+      <?php foreach ($vehicles as $v): ?>
+        <option value="<?= $v['vehicle_id'] ?>"><?= htmlspecialchars($v['license_plate']) ?></option>
+      <?php endforeach; ?>
+    </select>
 
     <label>Date and time</label>
     <input id="Datetime_issued" type="datetime-local" />
 
     <label>Area of violation issued</label>
-    <input id="area" type="text" placeholder="Enter area" />
+    <select id="area">
+      <?php foreach ($areas as $a): ?>
+        <option value="<?= $a['Area_id'] ?>"><?= htmlspecialchars($a['Area_name']) ?></option>
+      <?php endforeach; ?>
+    </select>
 
     <div class="btn-row">
       <button type="reset">Reset</button>
@@ -70,45 +82,38 @@ $user = require_role("Safety_Staff");
 
   <script>
     document.getElementById("submitBtn").addEventListener("click", () => {
-      let violationType = document.getElementById("violationType").value;
-      let vehicleNo = document.getElementById("vehicleNo").value.trim();
-      let Datetime_issued = document.getElementById("Datetime_issued").value;
-      let area = document.getElementById("area").value.trim();
+      const violationType = document.getElementById("violationType").value;
+      const vehicleId = document.getElementById("vehicleNo").value;
+      const Datetime_issued = document.getElementById("Datetime_issued").value;
+      const areaId = document.getElementById("area").value;
 
-      if (!vehicleNo || !Datetime_issued || !area) {
+      if (!Datetime_issued) {
         alert("Please fill all fields.");
         return;
       }
 
       const record = {
         violation_id: parseInt(violationType, 10),
-        license_plate: vehicleNo,
+        vehicle_id: parseInt(vehicleId, 10),
         datetime_issued: Datetime_issued,
-        area_name: area
+        area_id: parseInt(areaId, 10)
       };
-
 
       fetch("trafficSummon.php", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(record),
       })
-        .then((res) => res.json())
-        .then((data) => {
-          if (!data.ok) {
-            alert("Save failed: " + (data.error || "Unknown error"));
-            return;
-          }
-          // optional: show QR link
-          // alert("Summon created. QR: " + data.qr_url);
-          window.location.href = "dashboard.php";
-        })
-        .catch((err) => {
-          alert("Network error: " + err.message);
-        });
+      .then(res => res.json())
+      .then(data => {
+        if (!data.ok) {
+          alert("Save failed: " + (data.error || "Unknown error"));
+          return;
+        }
+        window.location.href = "dashboard.php";
+      })
+      .catch(err => alert("Network error: " + err.message));
     });
   </script>
-
 </body>
-
 </html>

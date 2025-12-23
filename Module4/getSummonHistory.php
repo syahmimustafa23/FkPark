@@ -1,30 +1,31 @@
 <?php
-header("Content-Type: application/json");
+header("Content-Type: application/json; charset=utf-8");
 require_once "db.php";
 
-$sql = "
-  SELECT 
-    vt.Violation_name AS violation,
-    v.license_plate   AS vehicle,
-    ts.Datetime_issued AS datetime,
-    pa.Area_name      AS area
-  FROM traffic_summon ts
-  JOIN violation_type vt ON vt.Violation_id = ts.Violation_id
-  JOIN parking_area pa ON pa.Area_id = ts.Area_id
-  JOIN vehicle v ON v.vehicle_id = (
-      SELECT MIN(v2.vehicle_id)
-      FROM vehicle v2
-      WHERE v2.user_id = ts.user_id
-  )
-  ORDER BY ts.Datetime_issued DESC
-  LIMIT 100
-";
+try {
+    $sql = "
+    SELECT ts.summon_id,
+           v.license_plate AS vehicle,
+           vt.Violation_name AS violation,
+           pa.Area_name AS area,
+           ts.Datetime_issued AS datetime
+    FROM traffic_summon ts
+    LEFT JOIN vehicle v ON ts.vehicle_id = v.vehicle_id
+    LEFT JOIN violation_type vt ON ts.Violation_id = vt.Violation_id
+    LEFT JOIN parking_area pa ON ts.Area_id = pa.Area_id
+    ORDER BY ts.Datetime_issued DESC
+    ";
 
-$res = $conn->query($sql);
+    $res = $conn->query($sql);
+    if (!$res) throw new Exception($conn->error);
 
-$data = [];
-if ($res) {
-  while ($row = $res->fetch_assoc()) $data[] = $row;
+    $rows = [];
+    while ($row = $res->fetch_assoc()) {
+        $rows[] = $row;
+    }
+
+    echo json_encode(["ok" => true, "rows" => $rows]);
+} catch (Throwable $e) {
+    http_response_code(500);
+    echo json_encode(["ok" => false, "error" => $e->getMessage()]);
 }
-
-echo json_encode(["ok" => true, "rows" => $data]);
