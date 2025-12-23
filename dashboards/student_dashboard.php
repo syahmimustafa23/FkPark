@@ -1,16 +1,32 @@
 <?php
 /**
- * FKPark Student Dashboard (minimal)
+ * FKPark Student Dashboard
  */
 require_once '../config.php';
 requireLogin();
+
 if ($_SESSION['role'] !== 'student') {
     header("Location: ../login.php");
     exit();
 }
+
 $username = htmlspecialchars($_SESSION['username']);
 $user_id = $_SESSION['user_id'];
+$uid = mysqli_real_escape_string($conn, $user_id);
+
+// Check if student is currently parked (Status: Occupied)
+$check_parked = mysqli_query($conn, "
+    SELECT u.*, s.Space_num 
+    FROM parking_usage u 
+    JOIN parking_space s ON u.Space_id = s.Space_id 
+    WHERE u.user_id = '$uid' AND u.status = 'Occupied'
+    LIMIT 1
+");
+
+$active_parking = mysqli_fetch_assoc($check_parked);
 ?>
+
+
 
 
 <!DOCTYPE html>
@@ -110,13 +126,36 @@ td{
     
    
     <div class="container">
-        <p>Welcome, <?php echo $username; ?>.</p>
-        <p><strong>Role:</strong> Student</p>
-        <p><strong>User ID:</strong> <?php echo htmlspecialchars($user_id); ?></p>
+    <h2>Welcome, <?php echo $username; ?></h2>
+    <p><strong>User ID:</strong> <?php echo htmlspecialchars($user_id); ?></p>
+    <hr style="margin: 20px 0;">
 
-        <div class="buttons">
-        <a href="../logout.php" class="logout-btn">Logout</a>
+    <?php 
+    // This block ONLY shows if the student has an 'Occupied' status in parking_usage
+    if ($active_parking): 
+    ?>
+        <div class="checkout-section" style="background: #fff3cd; border: 1px solid #ffeeba; padding: 20px; border-radius: 8px; margin-top: 20px;">
+            <form action="../Module 3/process_occupy.php" method="POST" onsubmit="return confirm('Confirm your parking details for checkout?')">
+                <h3>Checkout Confirmation</h3>
+                
+                <p>You are currently parked at: <strong><?php echo htmlspecialchars($active_parking['Space_num']); ?></strong></p>
+                <p>Status: <strong>In Progress (Occupied)</strong></p>
+                
+                <input type="hidden" name="usage_id" value="<?php echo $active_parking['Usage_id']; ?>">
+                <input type="hidden" name="space_id" value="<?php echo $active_parking['Space_id']; ?>">
+                
+                <button type="submit" name="leave_parking" style="background: #dc3545; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px;">
+                    Proceed to Checkout (Leave Spot)
+                </button>
+            </form>
         </div>
+    <?php else: ?>
+        <div style="background: #d4edda; color: #155724; padding: 20px; border-radius: 8px; margin-top: 20px;">
+            
+            <p>Scan a QR code at a parking spot to start a session, or view your existing bookings below.</p>
+            <a href="../Module 3/view_bookings.php" style="display: inline-block; margin-top: 10px; color: #155724; font-weight: bold;">View My Bookings &rarr;</a>
+        </div>
+    <?php endif; ?>
     </div>
      
 </body>
