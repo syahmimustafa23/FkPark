@@ -104,6 +104,7 @@ td{
 <body>
     <header>
         <div class="navbar1">
+            <a href="../dashboards/student_dashboard.php">Home</a>
             <a href="../Module1/student_profile.php">Profile</a>
             <a href="../logout.php">Logout</a>
         </div>
@@ -145,6 +146,10 @@ td{
                 <?php if($s['Current_status'] == 'Available' && $_SESSION['role'] == 'student'): ?>
                     <br><a href="../Module 3/book_parking.php?space_id=<?php echo $s['Space_id']; ?>" style="color: white; font-size: 10px;">Book Now</a>
                 <?php endif; ?>
+                <a href="../Module 3/scan_qr.php?space_id=<?php echo $s['Space_id']; ?>" 
+       style="font-size: 10px; color: white; background: rgba(0,0,0,0.5); padding: 2px; text-decoration: none;">
+       [Simulate Scan]
+    </a>
             </div>
         <?php 
             endwhile; 
