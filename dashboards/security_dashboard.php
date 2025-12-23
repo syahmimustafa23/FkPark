@@ -97,8 +97,8 @@ a.sidebar2{
     </header>
     <div class="sidebar">
          <a href="#home"><img class="logo" src="../photo/logoUmpsa.png"></a>
-    <a class="sidebar2" href="../Module 2/security_view.php">View Parking</a>
-    <a class="sidebar2" href="../Module1/security_list_vehicles.php">Vehicle Approval</a>
+    <a class="sidebar2" href="../Module2/security_view.php">View Parking</a>
+    <a class="sidebar2" href="../Module1/security/list_vehicles.php">Vehicle Approval</a>
      <a class="sidebar2" href="sidebar2">Traffic Summons</a>
     </div>
 
