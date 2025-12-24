@@ -143,32 +143,63 @@ if (isset($_POST['update'])) {
             justify-content: center;
         }
         .save {
-            background: #28a745;
+            background-color: #28a745;
             color: white;
             padding: 12px 24px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             font-size: 16px;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            outline: none;
+            box-shadow: none;
             transition: background-color 0.3s;
         }
         .save:hover {
-            background: #218838;
+            background-color: #218838;
         }
-        .cancel {
-            background: #dc3545;
-            color: white;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            text-decoration: none;
-            display: inline-block;
-            transition: background-color 0.3s;
-        }
+      .cancel {
+    background-color: #ffffff;
+    color: #dc3545;
+    padding: 12px 24px;
+    border: 2px solid #dc3545;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+
+    /* kill browser styling */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    outline: none;
+    box-shadow: none;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cancel:hover {
+    background-color: #dc3545;
+    color: #ffffff;
+}
+
+.cancel:focus,
+.cancel:focus-visible {
+    outline: none;
+    box-shadow: none;
+}
+  
+.cancel:focus,
+.cancel:focus-visible {
+    outline: none;
+    box-shadow: none;
+}
+
         .cancel:hover {
-            background: #c82333;
+            background-color: #c82333;
         }
     </style>
 </head>
@@ -210,7 +241,11 @@ if (isset($_POST['update'])) {
             </div>
             <div class="buttons">
                 <button class="save" type="submit" name="update">Save Changes</button>
-                <a href="admin_list_users.php" class="cancel">Cancel</a>
+                <button type="button" class="cancel"
+        onclick="window.location.href='admin_list_users.php'">
+    Cancel
+</button>
+
             </div>
         </form>
     </div>

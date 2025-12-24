@@ -163,7 +163,7 @@ td{
                     <br>
                     <a href="../Module 3/scan_qr.php?space_id=<?php echo $s['Space_id']; ?>" 
                        style="font-size: 10px; color: white; background: rgba(0,0,0,0.5); padding: 4px; text-decoration: none; border-radius: 3px; display: inline-block; margin-top: 5px;">
-                       [Simulate Scan]
+                       QR photo
                     </a>
                 
             <?php endif; ?>
