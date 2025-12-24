@@ -29,14 +29,14 @@ $roleClass = ($user["user_type"] === "Student") ? "student" : "staff";
         : "../Module1/security_profile.php";
       ?>
       <!-- Home link for all users -->
-      <?php if($user["user_type"] === "Student"): ?>
+      <?php if ($user["user_type"] === "Student"): ?>
         <a href="../dashboards/student_dashboard.php">Home</a>
       <?php endif; ?>
 
       <a href="<?php echo $profileLink; ?>">Profile</a>
       <a href="../logout.php">Logout</a>
     </div>
-</header>
+  </header>
 
 
   <!-- SIDEBAR -->
@@ -149,25 +149,28 @@ $roleClass = ($user["user_type"] === "Student") ? "student" : "staff";
           return;
         }
 
-        const saved = localStorage.getItem("selectedVehicleId");
-        const firstId = data.rows[0].vehicle_id;
-        const selectedId = saved ? parseInt(saved, 10) : firstId;
+        // Always pick a valid vehicle for this student
+        let saved = parseInt(localStorage.getItem("selectedVehicleId"), 10);
+        if (!saved || !data.rows.some(v => v.vehicle_id === saved)) {
+          saved = data.rows[0].vehicle_id;
+        }
 
         data.rows.forEach(v => {
           const opt = document.createElement("option");
           opt.value = v.vehicle_id;
           opt.textContent = v.license_plate;
-          if (parseInt(v.vehicle_id, 10) === selectedId) opt.selected = true;
+          if (v.vehicle_id === saved) opt.selected = true;
           dropdown.appendChild(opt);
         });
 
-        loadVehicleStatus(selectedId);
+        loadVehicleStatus(saved);
       });
 
     window.changeVehicle = function (vehicleId) {
       localStorage.setItem("selectedVehicleId", vehicleId);
       loadVehicleStatus(vehicleId);
     };
+
   </script>
 
 </body>
