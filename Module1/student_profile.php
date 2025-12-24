@@ -161,8 +161,7 @@ td{
     </div>
     <br>
     <button type="button" class="update" name="update" onclick="window.location.href='student_profile_edit.php?id=<?php echo $user['user_id']; ?>'">Update</button>
-     <button class="delete" href="student_delete.php?id=<?php echo $user['user_id']; ?>"
-       onclick="return confirm('Are you sure you want to delete this user?')">Delete</button>
+     <a class="delete" href="student_delete.php" onclick="return confirm('Are you sure you want to delete your account?')">Delete</a>
 </div>
 
 
