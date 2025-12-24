@@ -154,13 +154,11 @@ $result = mysqli_query($conn, $query);
             font-weight: bold;
             color: #333;
         }
-        table a {
-            color: #667eea;
-            text-decoration: none;
-            margin-right: 10px;
+        table a.delete {
+            color: #dc3545;
         }
-        table a:hover {
-            text-decoration: underline;
+        table a.delete:hover {
+            color: #c82333;
         }
     </style>
 </head>
@@ -212,7 +210,7 @@ $result = mysqli_query($conn, $query);
                     <td>
                         <a href="admin_view_user.php?id=<?= $row['user_id']; ?>">View</a>
                         <a href="admin_update_user.php?id=<?= $row['user_id']; ?>">Update</a>
-                        <a href="admin_delete_user.php?id=<?= $row['user_id']; ?>" onclick="return confirm('Delete this user?')">Delete</a>
+                        <a href="admin_delete_user.php?id=<?= $row['user_id']; ?>" class="delete" onclick="return confirm('Delete this user?')">Delete</a>
                     </td>
                 </tr>
                 <?php endwhile; ?>
