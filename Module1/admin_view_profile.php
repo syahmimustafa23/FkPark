@@ -15,7 +15,7 @@ $error = '';
 $user = null;
 
 if ($user_id > 0) {
-	$sql = "SELECT id, username, full_name, user_type, email, created_at FROM users WHERE id = $user_id LIMIT 1";
+	$sql = "SELECT user_id, username, full_name, user_type FROM users WHERE user_id = $user_id LIMIT 1";
 	$res = mysqli_query($conn, $sql);
 	if ($res && mysqli_num_rows($res) > 0) {
 		$user = mysqli_fetch_assoc($res);
@@ -90,21 +90,14 @@ if ($user_id > 0) {
 					<td><?php echo htmlspecialchars($user['username'] ?? ''); ?></td>
 				</tr>
 				<tr>
-					<td>Email</td>
-					<td><?php echo htmlspecialchars($user['email'] ?? ''); ?></td>
-				</tr>
-				<tr>
 					<td>Role</td>
 					<td><?php echo htmlspecialchars($user['user_type'] ?? ''); ?></td>
-				</tr>
-				<tr>
-					<td>Member since</td>
-					<td><?php echo htmlspecialchars($user['created_at'] ?? ''); ?></td>
 				</tr>
 			</table>
 
 			<div class="actions">
-				<a class="btn btn-edit" href="admin_update_user.php?id=<?php echo (int)$user['id']; ?>">Edit Profile</a>
+				<a class="btn btn-edit" href="admin_update_user.php?id=<?php echo (int)$user['user_id']; ?>">Edit Profile</a>
+				<a class="btn" style="background: #dc3545;" href="admin_delete_user.php?id=<?php echo (int)$user['user_id']; ?>" onclick="return confirm('Are you sure you want to delete your account?')">Delete Account</a>
 				<a class="btn btn-back" href="admin_list_users.php">Manage Users</a>
 			</div>
 		<?php endif; ?>
