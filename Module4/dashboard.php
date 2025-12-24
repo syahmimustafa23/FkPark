@@ -3,10 +3,7 @@ require_once "auth.php";
 require_once "db.php";
 $user = require_role("Safety_Staff");
 
-// Fetch dropdown data
-$vehiclesResult = $conn->query("SELECT vehicle_id, license_plate FROM vehicle ORDER BY license_plate");
-$vehicles = $vehiclesResult->fetch_all(MYSQLI_ASSOC);
-
+// Fetch areas
 $areasResult = $conn->query("SELECT Area_id, Area_name FROM parking_area ORDER BY Area_name");
 $areas = $areasResult->fetch_all(MYSQLI_ASSOC);
 
@@ -19,10 +16,10 @@ $violations = [
 
 // Get violation counts for stats & chart
 $violationCounts = [];
-$sql = "SELECT Violation_id, COUNT(*) as count FROM traffic_summon GROUP BY Violation_id";
+$sql = "SELECT violation_id, COUNT(*) as count FROM traffic_summon GROUP BY violation_id";
 $result = $conn->query($sql);
 while ($row = $result->fetch_assoc()) {
-    $violationCounts[$row['Violation_id']] = $row['count'];
+    $violationCounts[$row['violation_id']] = $row['count'];
 }
 
 // Ensure all types exist
@@ -112,11 +109,6 @@ $totalViolations = array_sum($violationCounts);
     <option value="<?= $id ?>"><?= htmlspecialchars($name) ?></option>
   <?php endforeach; ?></select>
 
-  <label>Vehicle</label>
-  <select id="editVehicle"><?php foreach($vehicles as $v): ?>
-    <option value="<?= $v['vehicle_id'] ?>"><?= htmlspecialchars($v['license_plate']) ?></option>
-  <?php endforeach; ?></select>
-
   <label>Area</label>
   <select id="editArea"><?php foreach($areas as $a): ?>
     <option value="<?= $a['Area_id'] ?>"><?= htmlspecialchars($a['Area_name']) ?></option>
@@ -153,7 +145,6 @@ async function loadSummonHistory() {
           <button class="editBtn" 
             data-id="${item.summon_id}" 
             data-violation="${item.violation}" 
-            data-vehicle="${item.vehicle}" 
             data-area="${item.area}" 
             data-datetime="${item.datetime}">Edit</button>
           <button class="deleteBtn" data-id="${item.summon_id}">Delete</button>
@@ -183,7 +174,6 @@ tbody.addEventListener("click", e=>{
     editSummonId = e.target.dataset.id;
     const btn = e.target;
     [...document.getElementById("editViolation").options].forEach(o=>{ o.selected = (o.text===btn.dataset.violation); });
-    [...document.getElementById("editVehicle").options].forEach(o=>{ o.selected = (o.text===btn.dataset.vehicle); });
     [...document.getElementById("editArea").options].forEach(o=>{ o.selected = (o.text===btn.dataset.area); });
     const dt = new Date(btn.dataset.datetime);
     const local = dt.toISOString().slice(0,16);
@@ -200,10 +190,9 @@ document.getElementById("cancelEdit").addEventListener("click", ()=>{
 // Save edit
 document.getElementById("saveEdit").addEventListener("click", async ()=>{
   const violationId = document.getElementById("editViolation").value;
-  const vehicleId = document.getElementById("editVehicle").value;
   const areaId = document.getElementById("editArea").value;
   const datetime = document.getElementById("editDatetime").value;
-  if(!violationId || !vehicleId || !areaId || !datetime){ alert("All fields required"); return; }
+  if(!violationId || !areaId || !datetime){ alert("All fields required"); return; }
   const datetime_mysql = datetime.replace("T"," ")+":00";
   try{
     const res = await fetch("updateSummon.php",{
@@ -212,7 +201,6 @@ document.getElementById("saveEdit").addEventListener("click", async ()=>{
       body: JSON.stringify({
         summon_id: editSummonId,
         violation_id: violationId,
-        vehicle_id: vehicleId,
         area_id: areaId,
         datetime: datetime_mysql
       })

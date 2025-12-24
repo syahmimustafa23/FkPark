@@ -43,7 +43,7 @@ $areas = $areasResult->fetch_all(MYSQLI_ASSOC);
     <?php if ($user["user_type"] === "Safety_Staff"): ?>
       <a class="sidebar2" href="../Module2/security_view.php">View Parking</a>
       <a class="sidebar2" href="../Module1/security_list_vehicles.php">Vehicle Approval</a>
-      <a class="sidebar2 active" href="manage-summon.php">Manage Traffic Summon</a>
+      <a class="sidebar2" href="manage-summon.php">Manage Traffic Summon</a>
       <a class="sidebar2" href="dashboard.php">Manage Dashboard</a>
       <a class="sidebar2" href="../dashboards/manage_report.php">Manage Report</a>
     <?php endif; ?>
