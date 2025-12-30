@@ -22,14 +22,13 @@ if ($selected_area) {
     $spaces = mysqli_query($conn, "SELECT * FROM parking_space WHERE Area_id = '$selected_area' ORDER BY Space_num");
 }
 
-// Handle Update Space
+// Handle Update Space (only status can be updated)
 if (isset($_POST['update_space'])) {
     $space_id = (int)$_POST['space_id'];
-    $space_num = mysqli_real_escape_string($conn, $_POST['space_num']);
     $status = $_POST['status'];
     $area_id = (int)$_POST['area_id'];
     
-    $sql = "UPDATE parking_space SET Space_num='$space_num', Current_status='$status' WHERE Space_id='$space_id'";
+    $sql = "UPDATE parking_space SET Current_status='$status' WHERE Space_id='$space_id'";
     
     if (mysqli_query($conn, $sql)) {
         header("Location: admin_manage_spaces.php?area_id=$area_id&msg=space_updated");
@@ -255,17 +254,16 @@ if (isset($_GET['edit_id'])) {
                     <form method="POST">
                         <input type="hidden" name="area_id" value="<?php echo $selected_area; ?>">
                         <input type="hidden" name="space_id" value="<?php echo $edit_space['Space_id']; ?>">
-                        <input type="hidden" name="space_num" value="<?php echo htmlspecialchars($edit_space['Space_num']); ?>">
 
                         <div class="form-group">
                             <label>Status:</label>
-                            <select name="status">
+                            <select name="status" required>
                                 <option value="Available" <?php echo ($edit_space['Current_status'] == 'Available') ? 'selected' : ''; ?>>Available</option>
                                 <option value="Maintenance" <?php echo ($edit_space['Current_status'] == 'Maintenance') ? 'selected' : ''; ?>>Maintenance</option>
                             </select>
                         </div>
 
-                        <button type="submit" name="update_space">Update Space</button>
+                        <button type="submit" name="update_space">Update Status</button>
                         <a href="?area_id=<?php echo $selected_area; ?>" class="cancel-btn" style="padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">Cancel</a>
                     </form>
                 </div>
@@ -326,7 +324,7 @@ while ($space = mysqli_fetch_assoc($spaces)):
                     </tbody>
                 </table>
             <?php else: ?>
-                <p>No spaces in this area yet. Create one above!</p>
+                <p>No spaces in this area yet. Create spaces using the Manage Area section.</p>
             <?php endif; ?>
         <?php endif; ?>
     </div>
