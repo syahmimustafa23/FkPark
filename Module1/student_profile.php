@@ -155,6 +155,8 @@ td{
         <?php if ($vehicle['status'] === 'Rejected'): ?>
             <p style="color:red;">Your registration was rejected. Please <a href="student_register_vehicle.php">register again</a>.</p>
         <?php endif; ?>
+        <br>
+        <button type="button" class="update" onclick="window.location.href='student_edit_vehicle.php?vehicle_id=<?php echo $vehicle['vehicle_id']; ?>'">Edit Vehicle</button>
     <?php else: ?>
         <p>No vehicle registered. <a href="student_register_vehicle.php">Register Now</a></p>
     <?php endif; ?>
