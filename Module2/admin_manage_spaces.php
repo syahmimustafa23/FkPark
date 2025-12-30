@@ -22,28 +22,6 @@ if ($selected_area) {
     $spaces = mysqli_query($conn, "SELECT * FROM parking_space WHERE Area_id = '$selected_area' ORDER BY Space_num");
 }
 
-// Handle Create Space
-if (isset($_POST['create_space'])) {
-    $area_id = (int)$_POST['area_id'];
-    $space_num = mysqli_real_escape_string($conn, $_POST['space_num']);
-    $status = $_POST['status'];
-    
-    // First, insert with a temporary QR content
-    $sql = "INSERT INTO parking_space (Area_id, Space_num, Current_status) 
-            VALUES ('$area_id', '$space_num', '$status')";
-    
-    if (mysqli_query($conn, $sql)) {
-        $new_id = mysqli_insert_id($conn); // Get the actual unique ID
-        $qr_content = "http://localhost/fkpark/Module 3/scan_qr.php?space_id=" . $new_id;
-        
-        // Update the space with the correct QR link using space_id
-        mysqli_query($conn, "UPDATE parking_space SET Space_qrCode='$qr_content' WHERE Space_id='$new_id'");
-        
-        header("Location: admin_manage_spaces.php?area_id=$area_id&msg=space_created");
-        exit();
-    }
-}
-
 // Handle Update Space
 if (isset($_POST['update_space'])) {
     $space_id = (int)$_POST['space_id'];
@@ -243,8 +221,7 @@ if (isset($_GET['edit_id'])) {
         <?php if (isset($_GET['msg'])): ?>
             <div class="success">
                 <?php 
-                    if ($_GET['msg'] == 'space_created') echo "Space created successfully!";
-                    elseif ($_GET['msg'] == 'space_updated') echo "Space updated successfully!";
+                    if ($_GET['msg'] == 'space_updated') echo "Space updated successfully!";
                     elseif ($_GET['msg'] == 'space_deleted') echo "Space deleted successfully!";
                 ?>
             </div>
@@ -271,40 +248,28 @@ if (isset($_GET['edit_id'])) {
         </div>
 
         <?php if ($selected_area): ?>
-            <!-- Create/Edit Space Form -->
-            <div style="background: #f9f9f9; padding: 20px; border-radius: 4px; margin: 20px 0;">
-                <h3><?php echo isset($edit_space) ? 'Edit Space' : 'Create New Space'; ?></h3>
-                <form method="POST">
-                    <input type="hidden" name="area_id" value="<?php echo $selected_area; ?>">
-                    <?php if (isset($edit_space)): ?>
+            <?php if (isset($edit_space)): ?>
+                <!-- Edit Space Form -->
+                <div style="background: #f9f9f9; padding: 20px; border-radius: 4px; margin: 20px 0;">
+                    <h3>Edit Space <?php echo htmlspecialchars($edit_space['Space_num']); ?></h3>
+                    <form method="POST">
+                        <input type="hidden" name="area_id" value="<?php echo $selected_area; ?>">
                         <input type="hidden" name="space_id" value="<?php echo $edit_space['Space_id']; ?>">
-                    <?php endif; ?>
+                        <input type="hidden" name="space_num" value="<?php echo htmlspecialchars($edit_space['Space_num']); ?>">
 
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Space Number:</label>
-                            <input type="text" name="space_num" 
-                                   value="<?php echo isset($edit_space) ? htmlspecialchars($edit_space['Space_num']) : ''; ?>" 
-                                   placeholder="e.g. A01, B05" required>
-                        </div>
                         <div class="form-group">
                             <label>Status:</label>
                             <select name="status">
-                                <option value="Available" <?php echo (isset($edit_space) && $edit_space['Current_status'] == 'Available') ? 'selected' : ''; ?>>Available</option>
-                                <option value="Maintenance" <?php echo (isset($edit_space) && $edit_space['Current_status'] == 'Maintenance') ? 'selected' : ''; ?>>Maintenance</option>
-                                
+                                <option value="Available" <?php echo ($edit_space['Current_status'] == 'Available') ? 'selected' : ''; ?>>Available</option>
+                                <option value="Maintenance" <?php echo ($edit_space['Current_status'] == 'Maintenance') ? 'selected' : ''; ?>>Maintenance</option>
                             </select>
                         </div>
-                    </div>
 
-                    <button type="submit" name="<?php echo isset($edit_space) ? 'update_space' : 'create_space'; ?>">
-                        <?php echo isset($edit_space) ? 'Update Space' : 'Create Space'; ?>
-                    </button>
-                    <?php if (isset($edit_space)): ?>
+                        <button type="submit" name="update_space">Update Space</button>
                         <a href="?area_id=<?php echo $selected_area; ?>" class="cancel-btn" style="padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">Cancel</a>
-                    <?php endif; ?>
-                </form>
-            </div>
+                    </form>
+                </div>
+            <?php endif; ?>
 
             <!-- Spaces List -->
             <h3>Spaces in <?php echo htmlspecialchars(mysqli_fetch_assoc(mysqli_query($conn, "SELECT Area_name FROM parking_area WHERE Area_id = '$selected_area'"))['Area_name']); ?></h3>
