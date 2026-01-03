@@ -17,19 +17,58 @@ if (!$area_id) {
     exit();
 }
 
+// Create QR codes directory if it doesn't exist
+$qr_codes_dir = __DIR__ . '/../qr_codes/';
+if (!is_dir($qr_codes_dir)) {
+    @mkdir($qr_codes_dir, 0755, true);
+}
+
 if (isset($_POST['bulk_generate'])) {
     $count = (int)$_POST['num_spaces'];
     $prefix = mysqli_real_escape_string($conn, $_POST['prefix']);
+    $generated_count = 0;
 
     for ($i = 1; $i <= $count; $i++) {
         $space_num = $prefix . str_pad($i, 2, '0', STR_PAD_LEFT);
-        $qr_content = "http://localhost/fkpark/Module 3/scan_qr.php?id=" . $space_num;
+        
+        // Generate QR code content - point to parking availability page with space parameter
+        $qr_content = "http://localhost/fkpark/Module2/qr_space_info.php?area_id=" . $area_id . "&space=" . urlencode($space_num);
+        
+        // Generate QR code using Google QR Server API
+        $encoded_text = urlencode($qr_content);
+        $qr_size = 400;
+        $qr_image_url = "https://api.qrserver.com/v1/create-qr-code/?size={$qr_size}x{$qr_size}&data={$encoded_text}";
+        
+        // Download and save QR code image
+        $qr_filename = preg_replace('/[^a-zA-Z0-9_-]/', '', $space_num);
+        $qr_filepath = $qr_codes_dir . $qr_filename . '.png';
+        
+        $image_data = @file_get_contents($qr_image_url);
+        if ($image_data !== false && strlen($image_data) > 100) {
+            // Only save if we got valid image data
+            file_put_contents($qr_filepath, $image_data);
+            $qr_code_path = "../qr_codes/" . $qr_filename . ".png";
+        } else {
+            // Fallback: store the URL if image download fails
+            $qr_code_path = $qr_image_url;
+        }
 
+        // Insert into database
         $sql = "INSERT INTO parking_space (Area_id, Space_num, Space_qrCode, Current_status) 
-                VALUES ('$area_id', '$space_num', '$qr_content', 'Available')";
-        mysqli_query($conn, $sql);
+                VALUES ('$area_id', '$space_num', '$qr_code_path', 'Available')";
+        
+        if (mysqli_query($conn, $sql)) {
+            $generated_count++;
+        }
     }
-    header("Location: admin_list_area.php?msg=spaces_generated");
+    
+    // Redirect with success message
+    if ($generated_count > 0) {
+        header("Location: admin_list_area.php?msg=spaces_generated&count=$generated_count");
+    } else {
+        header("Location: admin_generates_spaces.php?area_id=$area_id&msg=error");
+    }
+    exit();
 }
 
 ?>

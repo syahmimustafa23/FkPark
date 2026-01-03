@@ -201,6 +201,7 @@ $areas = mysqli_query($conn, "SELECT * FROM parking_area");
             <td><?php echo $row['Category']; ?></td>
             <td>
                 <a href="admin_edit_area.php?id=<?php echo $row['Area_id']; ?>">Edit</a> |
+                <a href="admin_manage_spaces.php?area_id=<?php echo $row['Area_id']; ?>">Manage Spaces</a> |
                 <a href="admin_delete_area.php?id=<?php echo $row['Area_id']; ?>" 
                    style="color:red;" 
                    onclick="return confirm('Deleting this area will delete all slots inside it. Proceed?')">Delete</a>

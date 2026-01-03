@@ -1,0 +1,615 @@
+<?php
+require_once '../config.php';
+requireLogin();
+
+$area_id = isset($_GET['area_id']) ? (int)$_GET['area_id'] : null;
+
+if (!$area_id) {
+    header("Location: admin_list_area.php?error=select_area");
+    exit();
+}
+
+// Get area details
+$area_query = mysqli_query($conn, "SELECT * FROM parking_area WHERE Area_id = '$area_id'");
+$area = mysqli_fetch_assoc($area_query);
+
+if (!$area) {
+    header("Location: admin_list_area.php?error=area_not_found");
+    exit();
+}
+
+// Get all spaces for this area
+$spaces_query = mysqli_query($conn, "SELECT * FROM parking_space WHERE Area_id = '$area_id' ORDER BY Space_num");
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Codes - <?php echo htmlspecialchars($area['Area_name']); ?> | FKPark</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            margin-left: 240px;
+        }
+
+        header {
+            background: #667eea;
+            color: white;
+            padding: 20px 30px;
+            margin-bottom: 30px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .navbar {
+            display: flex;
+            gap: 20px;
+        }
+
+        .navbar a {
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .navbar a:hover {
+            text-decoration: underline;
+        }
+
+        .sidebar {
+            width: 220px;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 12px;
+            margin: 5px 0;
+            color: black;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .sidebar a:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .logo {
+            width: 100%;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+
+        .container {
+            max-width: 900px;
+            background: white;
+            padding: 30px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+
+        .area-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .area-info p {
+            color: #555;
+            font-size: 14px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .parking-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .space-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .space-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102,126,234,0.2);
+        }
+
+        .space-card strong {
+            font-size: 18px;
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .status-available {
+            background: #28a745;
+        }
+
+        .status-occupied {
+            background: #dc3545;
+        }
+
+        .status-maintenance {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .qr-button {
+            background: #667eea;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 12px;
+            font-weight: bold;
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .qr-button:hover {
+            background: #5568d3;
+        }
+
+        .no-spaces {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                margin-left: 0;
+            }
+            .sidebar {
+                width: 100%;
+                position: static;
+                max-height: none;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="navbar">
+            <a href="../Module1/admin_view_profile.php">Profile</a>
+            <a href="../logout.php">Logout</a>
+        </div>
+    </header>
+
+    <div class="sidebar">
+        <img class="logo" src="../photo/logoUmpsa.png" alt="Logo">
+        <a href="admin_list_area.php">Manage Area</a>
+        <a href="admin_manage_spaces.php">Manage Space</a>
+        <a href="admin_view.php">Parking Availability</a>
+        <a href="../Module 3/admin_parking_report.php">Parking Report</a>
+        <a href="../Module1/admin_list_users.php">Manage User</a>
+    </div>
+
+    <div class="container">
+        <h2>📱 QR Codes - <?php echo htmlspecialchars($area['Area_name']); ?></h2>
+
+        <div class="area-info">
+            <p><strong>Area:</strong> <?php echo htmlspecialchars($area['Area_name']); ?> | <strong>Category:</strong> <?php echo htmlspecialchars($area['Category']); ?> | <strong>Total Spaces:</strong> <?php echo mysqli_num_rows($spaces_query); ?></p>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-primary" onclick="window.print()">🖨️ Print QR Codes</button>
+            <a href="admin_manage_spaces.php?area_id=<?php echo $area_id; ?>" class="btn btn-secondary">← Back</a>
+        </div>
+
+        <?php if (mysqli_num_rows($spaces_query) > 0): ?>
+            <div class="parking-grid">
+                <?php 
+                while ($space = mysqli_fetch_assoc($spaces_query)): 
+                    // Determine status styling
+                    if ($space['Current_status'] == 'Available') {
+                        $status_class = 'status-available';
+                        $status_label = 'Available';
+                    } elseif ($space['Current_status'] == 'Occupied') {
+                        $status_class = 'status-occupied';
+                        $status_label = 'Occupied';
+                    } else {
+                        $status_class = 'status-maintenance';
+                        $status_label = 'Maintenance';
+                    }
+                ?>
+                    <div class="space-card">
+                        <strong><?php echo htmlspecialchars($space['Space_num']); ?></strong>
+                        <div class="status-badge <?php echo $status_class; ?>">
+                            <?php echo $status_label; ?>
+                        </div>
+                        <a href="qr_display.php?space_id=<?php echo $space['Space_id']; ?>" class="qr-button">
+                            📱 View QR Code
+                        </a>
+                    </div>
+                <?php endwhile; ?>
+            </div>
+        <?php else: ?>
+            <div class="no-spaces">
+                <p>No parking spaces in this area yet</p>
+                <a href="admin_generates_spaces.php?area_id=<?php echo $area_id; ?>" class="btn btn-primary">Create Spaces</a>
+            </div>
+        <?php endif; ?>
+    </div>
+</body>
+</html>
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+        }
+
+        header {
+            background: #667eea;
+            color: white;
+            padding: 20px 30px;
+            margin-bottom: 30px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        header h1 {
+            font-size: 24px;
+        }
+
+        .navbar1 {
+            display: flex;
+            gap: 20px;
+        }
+
+        .navbar1 a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .navbar1 a:hover {
+            text-decoration: underline;
+        }
+
+        .sidebar {
+            width: 200px;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 12px;
+            margin: 5px 0;
+            color: black;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+
+        .sidebar a:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .logo {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .container {
+            margin-left: 250px;
+            max-width: 1200px;
+            background: white;
+            padding: 30px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        .controls {
+            margin-bottom: 30px;
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        button:hover {
+            background: #5568d3;
+        }
+
+        .btn-print {
+            background: #28a745;
+        }
+
+        .btn-print:hover {
+            background: #218838;
+        }
+
+        .qr-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .qr-card {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .qr-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .qr-card h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .qr-image {
+            max-width: 100%;
+            height: auto;
+            margin: 10px 0;
+            border: 1px solid #eee;
+            padding: 5px;
+            border-radius: 4px;
+        }
+
+        .qr-actions {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        .qr-actions a {
+            padding: 8px 12px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        .qr-actions a:hover {
+            background: #5568d3;
+        }
+
+        .qr-actions .download {
+            background: #28a745;
+        }
+
+        .qr-actions .download:hover {
+            background: #218838;
+        }
+
+        .no-spaces {
+            padding: 40px;
+            text-align: center;
+            color: #666;
+        }
+
+        .area-info {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+
+        .area-info p {
+            margin: 5px 0;
+        }
+
+        @media print {
+            .sidebar,
+            header,
+            .controls,
+            .qr-actions {
+                display: none;
+            }
+
+            .container {
+                margin-left: 0;
+                box-shadow: none;
+            }
+
+            .qr-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 10px;
+            }
+
+            .qr-card {
+                page-break-inside: avoid;
+                border: 1px solid #999;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>FKPark</h1>
+        <div class="navbar1">
+            <a href="../Module1/admin_view_profile.php">Profile</a>
+            <a href="../logout.php">Logout</a>
+        </div>
+    </header>
+
+    <div class="sidebar">
+        <img class="logo" src="../photo/logoUmpsa.png" alt="Logo">
+        <a href="admin_list_area.php">Manage Area</a>
+        <a href="admin_manage_spaces.php">Manage Space</a>
+        <a href="admin_view.php">Parking Availability</a>
+        <a href="../Module 3/admin_parking_report.php">Parking Report</a>
+        <a href="../Module1/admin_list_users.php">Manage User</a>
+    </div>
+
+    <div class="container">
+        <h2>QR Codes for <?php echo htmlspecialchars($area['Area_name']); ?></h2>
+
+        <div class="area-info">
+            <p><strong>Area Name:</strong> <?php echo htmlspecialchars($area['Area_name']); ?></p>
+            <p><strong>Category:</strong> <?php echo htmlspecialchars($area['Category']); ?></p>
+            <p><strong>Total Spaces:</strong> <?php echo mysqli_num_rows($spaces_query); ?></p>
+        </div>
+
+        <div class="controls">
+            <button class="btn-print" onclick="window.print()">🖨️ Print QR Codes</button>
+            <a href="admin_manage_spaces.php?area_id=<?php echo $area_id; ?>" style="padding: 10px 20px; background: #6c757d; color: white; text-decoration: none; border-radius: 4px; display: inline-block;">← Back to Manage Spaces</a>
+        </div>
+
+        <?php if (mysqli_num_rows($spaces_query) > 0): ?>
+            <div class="qr-grid">
+                <?php 
+                while ($space = mysqli_fetch_assoc($spaces_query)): 
+                    $qr_path = $space['Space_qrCode'];
+                    
+                    // Handle different QR code path formats
+                    if (strpos($qr_path, 'http') === 0) {
+                        $qr_image = $qr_path;
+                    } else {
+                        // If it's a relative path like ../qr_codes/A01.png
+                        if (strpos($qr_path, '../') === 0) {
+                            $qr_image = $qr_path;
+                        } else {
+                            $qr_image = '../' . $qr_path;
+                        }
+                    }
+                ?>
+                    <div class="qr-card">
+                        <h3><?php echo htmlspecialchars($space['Space_num']); ?></h3>
+                        <?php if (file_exists(__DIR__ . '/' . $qr_image) || strpos($qr_image, 'http') === 0): ?>
+                            <img src="<?php echo htmlspecialchars($qr_image); ?>" alt="QR Code for <?php echo htmlspecialchars($space['Space_num']); ?>" class="qr-image" style="width: 150px; height: 150px;">
+                        <?php else: ?>
+                            <div style="width: 150px; height: 150px; background: #f0f0f0; margin: 10px auto; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #999;">
+                                QR Not Found
+                            </div>
+                        <?php endif; ?>
+                        <div class="qr-actions">
+                            <a href="<?php echo htmlspecialchars($qr_image); ?>" download class="download">Download</a>
+                            <a href="<?php echo htmlspecialchars($qr_image); ?>" target="_blank">View</a>
+                        </div>
+                    </div>
+                <?php endwhile; ?>
+            </div>
+        <?php else: ?>
+            <div class="no-spaces">
+                <p>No parking spaces have been created for this area yet.</p>
+                <a href="admin_generates_spaces.php?area_id=<?php echo $area_id; ?>" style="display: inline-block; padding: 10px 20px; background: #667eea; color: white; text-decoration: none; border-radius: 4px; margin-top: 10px;">Generate Spaces</a>
+            </div>
+        <?php endif; ?>
+    </div>
+</body>
+</html>

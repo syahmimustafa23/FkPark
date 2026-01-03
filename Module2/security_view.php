@@ -180,6 +180,9 @@ h2 {
                     </option>
                 <?php endwhile; ?>
             </select>
+            <?php if($selected_area): ?>
+                <a href="view_qr_codes.php?area_id=<?php echo $selected_area; ?>" style="margin-left: 10px; padding: 8px 15px; background: #28a745; color: white; text-decoration: none; border-radius: 4px; display: inline-block;">View QR Codes</a>
+            <?php endif; ?>
         </form>
 
         <?php if ($selected_area): ?>

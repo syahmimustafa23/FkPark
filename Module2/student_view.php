@@ -132,6 +132,9 @@ td{
                 </option>
             <?php endwhile; ?>
         </select>
+        <?php if($selected_area): ?>
+            <a href="view_qr_codes.php?area_id=<?php echo $selected_area; ?>" style="margin-left: 10px; padding: 8px 15px; background: #28a745; color: white; text-decoration: none; border-radius: 4px; display: inline-block;">View QR Codes</a>
+        <?php endif; ?>
     </form>
 
     <div class="parking-grid" style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 20px;">
@@ -159,12 +162,11 @@ td{
                     <br><a href="../Module 3/book_parking.php?space_id=<?php echo $s['Space_id']; ?>" style="color: white; font-size: 10px;">Book Now</a>
                 <?php endif; ?>
 
-               
-                    <br>
-                    <a href="../Module 3/scan_qr.php?space_id=<?php echo $s['Space_id']; ?>" 
-                       style="font-size: 10px; color: white; background: rgba(0,0,0,0.5); padding: 4px; text-decoration: none; border-radius: 3px; display: inline-block; margin-top: 5px;">
-                       QR photo
-                    </a>
+                <br>
+                <a href="qr_display.php?space_id=<?php echo $s['Space_id']; ?>" 
+                   style="font-size: 10px; color: white; background: rgba(0,0,0,0.5); padding: 4px; text-decoration: none; border-radius: 3px; display: inline-block; margin-top: 5px;">
+                   📱 QR Code
+                </a>
                 
             <?php endif; ?>
         </div>

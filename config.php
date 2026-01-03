@@ -4,6 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 // Database Connection
+// Always use localhost for database - it works from any network access
 $conn = mysqli_connect("localhost", "root", "", "fkpark");
 
 if (!$conn) {
