@@ -1,6 +1,6 @@
 <?php
 require_once '../config.php';
-session_start();
+
 
 if (isset($_POST['confirm_parking'])) {
     $user_id = $_SESSION['user_id'];
@@ -42,17 +42,25 @@ if (isset($_POST['confirm_parking'])) {
         exit();
     }
 }
+date_default_timezone_set('Asia/Kuala_Lumpur');
+$current_time = date('H:i');
+
 
 
 if (isset($_POST['leave_parking'])) {
     $usage_id = mysqli_real_escape_string($conn, $_POST['usage_id']);
     $space_id = mysqli_real_escape_string($conn, $_POST['space_id']);
 
-   
-    $sql_usage = "UPDATE parking_usage SET status = 'Completed' WHERE Usage_id = '$usage_id'";
+    // We only update status to 'Completed'. 
+    // We do not reference 'exit_time' to avoid the SQL error.
+    $sql_usage = "UPDATE parking_usage SET 
+                  status = 'Completed' 
+                  WHERE Usage_id = '$usage_id'";
     
-  
-    $sql_space = "UPDATE parking_space SET Current_status = 'Available' WHERE Space_id = '$space_id'";
+    // Reset the physical space to Available
+    $sql_space = "UPDATE parking_space SET 
+                  Current_status = 'Available' 
+                  WHERE Space_id = '$space_id'";
 
     if (mysqli_query($conn, $sql_usage) && mysqli_query($conn, $sql_space)) {
         header("Location: ../dashboards/student_dashboard.php?msg=vacancy_recorded");
@@ -61,4 +69,5 @@ if (isset($_POST['leave_parking'])) {
         echo "Error recording vacancy: " . mysqli_error($conn);
     }
 }
+
 ?>

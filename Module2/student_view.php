@@ -1,3 +1,5 @@
+
+
 <?php
 /**
  * FKPark Student Dashboard (minimal)
@@ -10,15 +12,32 @@ if ($_SESSION['role'] !== 'student') {
 }
 $username = htmlspecialchars($_SESSION['username']);
 $user_id = $_SESSION['user_id'];
-
+date_default_timezone_set('Asia/Kuala_Lumpur'); // Set to Malaysia time
 $areas_query = mysqli_query($conn, "SELECT * FROM parking_area");
 
 // Get selected area from filter, default to the first one found if not set
 $selected_area = $_GET['area_id'] ?? null;
 
 $spaces_query = null;
+// Top of student_view.php
+// Top of student_view.php
 if ($selected_area) {
-    $spaces_query = mysqli_query($conn, "SELECT * FROM parking_space WHERE Area_id = '$selected_area'");
+    $today = date('Y-m-d');
+    $current_time = date('H:i'); // 24-hour format: e.g., "18:08"
+
+    $sql = "SELECT s.*, 
+            (SELECT status FROM parking_usage 
+             WHERE Space_id = s.Space_id 
+             AND usage_date = '$today' 
+             AND status = 'Reserved' 
+             -- We format the database time to HH:mm to match PHP's current time
+             AND '$current_time' >= DATE_FORMAT(entry_time, '%H:%i') 
+             AND '$current_time' < DATE_FORMAT(end_time, '%H:%i')
+             LIMIT 1) as active_reservation
+            FROM parking_space s 
+            WHERE s.Area_id = '$selected_area'";
+    
+    $spaces_query = mysqli_query($conn, $sql);
 }
 
 ?>
@@ -141,35 +160,58 @@ td{
     <?php 
     if ($spaces_query):
         while($s = mysqli_fetch_assoc($spaces_query)): 
-            // Map status to specific colors and labels
-            if ($s['Current_status'] == 'Available') {
-                $color = '#28a745'; // Green
-                $status_label = "Available";
-            } elseif ($s['Current_status'] == '') {
-                $color = '#ffc107'; // Yellow/Orange
-                $status_label = "Reserved";
-            } else {
-                $color = '#dc3545'; // Red (Occupied or Maintenance)
-                $status_label = $s['Current_status'];
-            }
+    // 1. Check for physical occupancy first (Red)
+    if ($s['Current_status'] == 'Occupied') {
+        $color = '#dc3545'; 
+        $status_label = "Occupied";
+    } 
+    // 2. Check for the LIVE reservation status (Yellow)
+    // This will only be 'Reserved' if current time is within the booking window
+    elseif ($s['active_reservation'] == 'Reserved') {
+        $color = '#ffc107'; 
+        $status_label = "Reserved";
+    } 
+    // 3. Otherwise, it is Available (Green)
+    else {
+        $color = '#28a745'; 
+        $status_label = "Available";
+    }
     ?>
         <div class="space-card" style="background: <?php echo $color; ?>; color: white; padding: 20px; border-radius: 8px; text-align: center; width: 110px;">
-            <strong><?php echo $s['Space_num']; ?></strong><br>
-            <small><?php echo $status_label; ?></small>
-            
-            <?php if($_SESSION['role'] == 'student'): ?>
-                <?php if($s['Current_status'] == 'Available'): ?>
-                    <br><a href="../Module 3/book_parking.php?space_id=<?php echo $s['Space_id']; ?>" style="color: white; font-size: 10px;">Book Now</a>
-                <?php endif; ?>
+        <strong><?php echo $s['Space_num']; ?></strong><br>
+        <small><?php echo $status_label; ?></small>
+        
+        <?php if($status_label == 'Available'): ?>
+            <br>
+            <a href="../Module 3/book_parking.php?space_id=<?php echo $s['Space_id']; ?>" 
+               style="color: white; font-size: 10px; text-decoration: underline;">
+               Book Now
+            </a>
+        <?php endif; ?>
 
-                <br>
-                <a href="qr_display.php?space_id=<?php echo $s['Space_id']; ?>" 
-                   style="font-size: 10px; color: white; background: rgba(0,0,0,0.5); padding: 4px; text-decoration: none; border-radius: 3px; display: inline-block; margin-top: 5px;">
-                   📱 QR Code
-                </a>
-                
-            <?php endif; ?>
-        </div>
+         <br>
+                <div class="qr-container" style="margin-top: 10px;">
+    <?php 
+// Instead of 'localhost', use your Wi-Fi IP address
+$my_ip = "192.168.0.157"; 
+$scan_url = "http://" . $my_ip . "/FkPark_ParkingSystem/Module 3/scan_qr.php?space_id=" . $s['Space_id'];
+
+// Generate the QR Code image using Google Charts API
+$qr_image_url = "https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=" . urlencode($scan_url) . "&choe=UTF-8";
+?>
+
+<img src="<?php echo $qr_image_url; ?>" alt="Scan to Park">
+    </a>
+    <br>
+    <small style="font-size: 9px;">Scan to Occupy</small>
+</div>
+
+        <br>
+        <a href="qr_display.php?space_id=<?php echo $s['Space_id']; ?>" 
+           style="font-size: 10px; color: white; background: rgba(0,0,0,0.5); padding: 4px; text-decoration: none; border-radius: 3px; display: inline-block; margin-top: 5px;">
+           📱 Scan Info
+        </a>
+    </div>
     <?php 
         endwhile; 
     else:

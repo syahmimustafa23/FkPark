@@ -56,8 +56,8 @@ if (isset($_POST['reserve'])) {
         if (mysqli_query($conn, $sql)) {
     $new_id = mysqli_insert_id($conn);
     
-    // UPDATE the physical space to 'Reserved' so the color changes in student_view
-    mysqli_query($conn, "UPDATE parking_space SET Current_status = 'Reserved' WHERE Space_id = '$space_id'");
+    // REMOVE OR COMMENT OUT THIS LINE:
+    // mysqli_query($conn, "UPDATE parking_space SET Current_status = 'Reserved' WHERE Space_id = '$space_id'");
     
     header("Location: view_ticket.php?id=" . $new_id); 
     exit();

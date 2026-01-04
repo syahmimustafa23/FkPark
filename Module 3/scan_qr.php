@@ -70,16 +70,39 @@ if (mysqli_num_rows($active_check) > 0) {
             <p>Vehicle: <strong><?php echo $user_data['license_plate'] ?? 'No Plate Found'; ?></strong></p>
             <input type="hidden" name="license_plate" value="<?php echo $user_data['license_plate'] ?? ''; ?>">
 
-            <label>Start Time (Now):</label><br>
-            <input type="time" name="start_time" value="<?php echo date('H:i'); ?>" required style="width:100%; padding:10px; margin:10px 0;"><br>
 
-            <label>Expected End Time:</label><br>
-            <input type="time" name="end_time" value="<?php echo $booking['end_time'] ?? ''; ?>" required style="width:100%; padding:10px; margin:10px 0;"><br>
+           <?php date_default_timezone_set('Asia/Kuala_Lumpur'); ?>
+
+<label>Start Time (Set to Current Time):</label><br>
+<input type="time" name="start_time" 
+       value="<?php echo date('H:i'); ?>" 
+       readonly 
+       style="width:100%; padding:10px; margin:10px 0; background-color: #e9ecef; cursor: not-allowed;"><br>
+
+<label>Expected End Time (Choose when you will leave):</label><br>
+<input type="time" id="end_time" name="end_time" 
+       value="<?php echo $booking['end_time'] ?? ''; ?>" 
+       required 
+       style="width:100%; padding:10px; margin:10px 0;"><br>
 
             <button type="submit" name="confirm_parking" style="width:100%; padding:15px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">
                 Confirm & Park
             </button>
         </form>
     </div>
+    <script>
+    const endTimeInput = document.getElementById('end_time');
+
+    endTimeInput.addEventListener('change', function() {
+        const now = new Date();
+        const currentTime = now.getHours().toString().padStart(2, '0') + ":" + 
+                            now.getMinutes().toString().padStart(2, '0');
+
+        if (this.value <= currentTime) {
+            alert("Error: End time must be later than the current start time.");
+            this.value = ""; // Clear the invalid time
+        }
+    });
+</script>
 </body>
 </html>

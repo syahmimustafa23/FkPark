@@ -15,11 +15,13 @@ $user_id = $_SESSION['user_id'];
 $uid = mysqli_real_escape_string($conn, $user_id);
 
 // Check if student is currently parked (Status: Occupied)
+// Check if student is currently parked (Status: Occupied in the usage table)
 $check_parked = mysqli_query($conn, "
     SELECT u.*, s.Space_num 
     FROM parking_usage u 
     JOIN parking_space s ON u.Space_id = s.Space_id 
-    WHERE u.user_id = '$uid' AND s.Current_status = 'Occupied'
+    WHERE u.user_id = '$uid' 
+    AND u.status = 'Occupied' -- Change from s.Current_status to u.status
     LIMIT 1
 ");
 
