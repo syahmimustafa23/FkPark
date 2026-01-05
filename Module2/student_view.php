@@ -156,7 +156,7 @@ td{
         <?php endif; ?>
     </form>
 
-    <div class="parking-grid" style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 20px;">
+    <div class="parking-grid" style="display: flex; flex-wrap: wrap; gap: 50px; margin-top: 20px; margin-left: auto;margin-right: auto; justify-content: center;">
     <?php 
     if ($spaces_query):
         while($s = mysqli_fetch_assoc($spaces_query)): 
@@ -179,39 +179,25 @@ td{
     ?>
         <div class="space-card" style="background: <?php echo $color; ?>; color: white; padding: 20px; border-radius: 8px; text-align: center; width: 110px;">
         <strong><?php echo $s['Space_num']; ?></strong><br>
-        <small><?php echo $status_label; ?></small>
-        
-        <?php if($status_label == 'Available'): ?>
-            <br>
-            <a href="../Module 3/book_parking.php?space_id=<?php echo $s['Space_id']; ?>" 
-               style="color: white; font-size: 10px; text-decoration: underline;">
-               Book Now
-            </a>
-        <?php endif; ?>
-
-         <br>
-                <div class="qr-container" style="margin-top: 10px;">
-    <?php 
-// Instead of 'localhost', use your Wi-Fi IP address
-$my_ip = "172.20.10.2"; 
-$scan_url = "http://" . $my_ip . "/FkPark_ParkingSystem/Module 3/scan_qr.php?space_id=" . $s['Space_id'];
-
-// Generate the QR Code image using Google Charts API
-$qr_image_url = "https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=" . urlencode($scan_url) . "&choe=UTF-8";
-?>
-
-<img src="<?php echo $qr_image_url; ?>" alt="Scan to Park">
+            <small><?php echo $status_label; ?></small>
+            
+            <?php if($_SESSION['role'] == 'student'): ?>
+                <?php if($s['Current_status'] == 'Available'): ?>
+                    <br><a href="../Module 3/book_parking.php?space_id=<?php echo $s['Space_id']; ?>" style="color: white; font-size: 10px;">Book Now</a>
+                <?php endif; ?>
+                <a href="../Module 3/scan_qr.php?space_id=<?php echo $s['Space_id']; ?>" 
+       style="display: block; background: rgba(255,255,255,0.2); color: white; padding: 5px; border-radius: 4px; text-decoration: none; font-size: 11px; border: 1px solid white;">
+       [Scan QR Link]
     </a>
-    <br>
-    <small style="font-size: 9px;">Scan to Occupy</small>
-</div>
 
-        <br>
-        <a href="qr_display.php?space_id=<?php echo $s['Space_id']; ?>" 
-           style="font-size: 10px; color: white; background: rgba(0,0,0,0.5); padding: 4px; text-decoration: none; border-radius: 3px; display: inline-block; margin-top: 5px;">
-           📱 Scan Info
-        </a>
-    </div>
+                <br>
+                <a href="qr_display.php?space_id=<?php echo $s['Space_id']; ?>" 
+                   style="font-size: 10px; color: white; background: rgba(0,0,0,0.5); padding: 4px; text-decoration: none; border-radius: 3px; display: inline-block; margin-top: 5px;">
+                   📱 QR Code
+                </a>
+                
+            <?php endif; ?>
+        </div>
     <?php 
         endwhile; 
     else:
