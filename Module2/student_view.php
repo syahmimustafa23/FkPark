@@ -46,7 +46,7 @@ if ($selected_area) {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0"></script>
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Dashboard  | FKPark</title>
@@ -187,7 +187,18 @@ td{
                 <?php endif; ?>
                 <a href="../Module 3/scan_qr.php?space_id=<?php echo $s['Space_id']; ?>" 
        style="display: block; background: rgba(255,255,255,0.2); color: white; padding: 5px; border-radius: 4px; text-decoration: none; font-size: 11px; border: 1px solid white;">
-       [Scan QR Link]
+     <div style="margin-top: 10px; background: white; padding: 10px; border-radius: 5px;">
+    <?php 
+    // This is the URL of your live InfinityFree site
+    $live_url = "http://" . $_SERVER['HTTP_HOST'] . "/Module 3/scan_qr.php?space_id=" . $s['Space_id'];
+    
+    // The Google API will now work because your URL is public
+    $qr_api = "https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=" . urlencode($live_url) . "&choe=UTF-8";
+    ?>
+    
+    <img src="<?php echo $qr_api; ?>" alt="Scan to Park" style="width: 100px; height: 100px; border: 1px solid #ddd;">
+    <p style="color: black; font-size: 10px; margin-top: 5px;">Scan to Occupy</p>
+</div>
     </a>
 
                 <br>
