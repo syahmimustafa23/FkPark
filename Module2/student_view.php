@@ -193,7 +193,7 @@ td{
                 <div class="qr-container" style="margin-top: 10px;">
     <?php 
 // Instead of 'localhost', use your Wi-Fi IP address
-$my_ip = "192.168.0.157"; 
+$my_ip = "172.20.10.2"; 
 $scan_url = "http://" . $my_ip . "/FkPark_ParkingSystem/Module 3/scan_qr.php?space_id=" . $s['Space_id'];
 
 // Generate the QR Code image using Google Charts API
