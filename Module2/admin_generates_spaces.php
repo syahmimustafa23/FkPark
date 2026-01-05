@@ -78,7 +78,7 @@ if (isset($_POST['submit_generate']) && $_POST['submit_generate'] == 1) {
     
     // Redirect with success message
     if ($generated_count > 0) {
-        header("Location: admin_generates_spaces.php?area_id=$area_id&msg=success");
+        header("Location: admin_list_area.php?msg=spaces_generated&count=$generated_count");
     } else {
         header("Location: admin_generates_spaces.php?area_id=$area_id&msg=error");
     }
@@ -97,34 +97,36 @@ if (isset($_POST['submit_generate']) && $_POST['submit_generate'] == 1) {
     <script>
         function confirmGenerateSpaces(event) {
             event.preventDefault();
-            const prefix = document.getElementById('prefix').value.trim();
+            const prefix = document.getElementById('prefix').value.trim().toUpperCase();
             const count = document.getElementById('num_spaces').value.trim();
             
-            if (!validateSpacePrefix() || !validateSpaceCount()) {
+            // Validate before confirmation
+            if (!validateSpacePrefix(prefix) || !validateSpaceCount(count)) {
                 return false;
             }
             
-            const message = `Generate ${count} parking spaces with prefix "${prefix}"?`;
+            // Update prefix to uppercase
+            document.getElementById('prefix').value = prefix;
+            
+            const message = `Generate ${count} parking spaces with prefix "${prefix}"?\n\nSpaces will be named: ${prefix}01, ${prefix}02, etc.`;
             if (confirm(message)) {
-                // Set the hidden field to indicate JavaScript confirmed
                 document.getElementById('submit_generate').value = '1';
                 document.getElementById('generateForm').submit();
             }
             return false;
         }
         
-        function validateSpacePrefix() {
-            const prefix = document.getElementById('prefix').value.trim();
+        function validateSpacePrefix(prefix) {
             const prefixError = document.getElementById('prefixError');
             
-            if (!prefix) {
-                prefixError.textContent = 'Prefix is required';
+            if (!prefix || prefix.trim() === '') {
+                prefixError.textContent = '❌ Prefix is required (e.g., A, B, Block1)';
                 prefixError.style.display = 'block';
                 return false;
             }
             
-            if (!/^[a-zA-Z0-9]+$/.test(prefix)) {
-                prefixError.textContent = 'Prefix can only contain letters and numbers';
+            if (!/^[A-Z0-9]+$/.test(prefix)) {
+                prefixError.textContent = '❌ Prefix can only contain letters and numbers (will be converted to UPPERCASE)';
                 prefixError.style.display = 'block';
                 return false;
             }
@@ -133,12 +135,24 @@ if (isset($_POST['submit_generate']) && $_POST['submit_generate'] == 1) {
             return true;
         }
         
-        function validateSpaceCount() {
-            const count = document.getElementById('num_spaces').value.trim();
+        function validateSpaceCount(count) {
             const countError = document.getElementById('countError');
+            const numCount = parseInt(count);
             
-            if (!count || parseInt(count) < 1) {
-                countError.textContent = 'Number of spaces must be at least 1';
+            if (!count || count.trim() === '') {
+                countError.textContent = '❌ Number of spaces is required';
+                countError.style.display = 'block';
+                return false;
+            }
+            
+            if (isNaN(numCount) || numCount < 1) {
+                countError.textContent = '❌ Must create at least 1 space (minimum: 1, maximum: 50)';
+                countError.style.display = 'block';
+                return false;
+            }
+            
+            if (numCount > 50) {
+                countError.textContent = '❌ Cannot create more than 50 spaces at once (maximum: 50)';
                 countError.style.display = 'block';
                 return false;
             }
@@ -146,6 +160,24 @@ if (isset($_POST['submit_generate']) && $_POST['submit_generate'] == 1) {
             countError.style.display = 'none';
             return true;
         }
+
+        // Real-time validation as user types
+        document.addEventListener('DOMContentLoaded', function() {
+            const prefixInput = document.getElementById('prefix');
+            const countInput = document.getElementById('num_spaces');
+            
+            if (prefixInput) {
+                prefixInput.addEventListener('input', function() {
+                    validateSpacePrefix(this.value.trim().toUpperCase());
+                });
+            }
+            
+            if (countInput) {
+                countInput.addEventListener('input', function() {
+                    validateSpaceCount(this.value.trim());
+                });
+            }
+        });
     </script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -288,17 +320,6 @@ if (isset($_POST['submit_generate']) && $_POST['submit_generate'] == 1) {
    
     <div class="container">
        <h2>Generate Spaces for Area ID: <?php echo $area_id; ?></h2>
-       
-       <?php if (isset($_GET['msg']) && $_GET['msg'] == 'success'): ?>
-           <div style="background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
-               ✓ Spaces generated successfully! Redirecting in 3 seconds...
-               <script>
-                   setTimeout(function() {
-                       window.location.href = 'admin_manage_spaces.php?area_id=<?php echo $area_id; ?>';
-                   }, 3000);
-               </script>
-           </div>
-       <?php endif; ?>
        
     <form id="generateForm" method="POST" onsubmit="confirmGenerateSpaces(event)">
         <label>Prefix (e.g., A for Block A):</label>

@@ -22,15 +22,6 @@ if (!$space_query || mysqli_num_rows($space_query) == 0) {
 
 $space = mysqli_fetch_assoc($space_query);
 
-// Detect user role for styling
-$user_role = $_SESSION['role'] ?? 'student';
-$role_colors = [
-    'student' => '#28a745',
-    'security' => '#fd7e14',
-    'admin' => '#667eea'
-];
-$header_color = $role_colors[$user_role] ?? '#667eea';
-
 // Generate QR code content - use the current domain/IP so it works on phones
 $server_host = $_SERVER['HTTP_HOST']; // This will be whatever the user typed (localhost, IP, domain, etc)
 
@@ -78,7 +69,7 @@ $qr_image_url = "https://api.qrserver.com/v1/create-qr-code/?size={$qr_size}x{$q
         }
 
         header {
-            background: <?php echo $header_color; ?>;
+            background: #667eea;
             color: white;
             padding: 20px 30px;
             margin-bottom: 30px;
@@ -239,21 +230,11 @@ $qr_image_url = "https://api.qrserver.com/v1/create-qr-code/?size={$qr_size}x{$q
 
     <div class="sidebar">
         <img class="logo" src="../photo/logoUmpsa.png" alt="Logo">
-        <?php if ($user_role === 'admin'): ?>
-            <a href="admin_list_area.php">Manage Area</a>
-            <a href="admin_manage_spaces.php">Manage Space</a>
-            <a href="admin_view.php">Parking Availability</a>
-            <a href="../Module 3/admin_parking_report.php">Parking Report</a>
-            <a href="../Module1/admin_list_users.php">Manage User</a>
-        <?php elseif ($user_role === 'security'): ?>
-            <a href="security_view.php">Parking Availability</a>
-            <a href="../Module 3/manage_report.php">View Report</a>
-        <?php else: ?>
-            <a href="student_view.php">Parking Availability</a>
-            <a href="../Module1/student_profile.php">My Profile</a>
-            <a href="../Module1/student_register_vehicle.php">Register Vehicle</a>
-            <a href="../Module 3/view_bookings.php">My Bookings</a>
-        <?php endif; ?>
+        <a href="admin_list_area.php">Manage Area</a>
+        <a href="admin_manage_spaces.php">Manage Space</a>
+        <a href="admin_view.php">Parking Availability</a>
+        <a href="../Module 3/admin_parking_report.php">Parking Report</a>
+        <a href="../Module1/admin_list_users.php">Manage User</a>
     </div>
 
     <div class="container">
