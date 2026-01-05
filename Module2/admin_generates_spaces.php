@@ -24,7 +24,7 @@ if (!is_dir($qr_codes_dir)) {
 }
 
 // Check if form was submitted with confirmation
-if (isset($_POST['bulk_generate']) && isset($_POST['submit_generate']) && $_POST['submit_generate'] == 1) {
+if (isset($_POST['submit_generate']) && $_POST['submit_generate'] == 1) {
     $count = (int)$_POST['num_spaces'];
     $prefix = mysqli_real_escape_string($conn, $_POST['prefix']);
     $generated_count = 0;
@@ -78,7 +78,7 @@ if (isset($_POST['bulk_generate']) && isset($_POST['submit_generate']) && $_POST
     
     // Redirect with success message
     if ($generated_count > 0) {
-        header("Location: admin_list_area.php?msg=spaces_generated&count=$generated_count");
+        header("Location: admin_generates_spaces.php?area_id=$area_id&msg=success");
     } else {
         header("Location: admin_generates_spaces.php?area_id=$area_id&msg=error");
     }
@@ -288,6 +288,18 @@ if (isset($_POST['bulk_generate']) && isset($_POST['submit_generate']) && $_POST
    
     <div class="container">
        <h2>Generate Spaces for Area ID: <?php echo $area_id; ?></h2>
+       
+       <?php if (isset($_GET['msg']) && $_GET['msg'] == 'success'): ?>
+           <div style="background: #d4edda; border: 1px solid #c3e6cb; color: #155724; padding: 15px; border-radius: 4px; margin-bottom: 20px;">
+               ✓ Spaces generated successfully! Redirecting in 3 seconds...
+               <script>
+                   setTimeout(function() {
+                       window.location.href = 'admin_manage_spaces.php?area_id=<?php echo $area_id; ?>';
+                   }, 3000);
+               </script>
+           </div>
+       <?php endif; ?>
+       
     <form id="generateForm" method="POST" onsubmit="confirmGenerateSpaces(event)">
         <label>Prefix (e.g., A for Block A):</label>
         <input type="text" id="prefix" name="prefix" required>
