@@ -279,13 +279,11 @@ if (isset($_POST['bulk_generate']) && isset($_POST['submit_generate']) && $_POST
     </header>
     <div class="sidebar">
         <img class="logo" src="../photo/logoUmpsa.png" alt="Logo">
-        <a href="../Module2/admin_list_area.php">Manage Area</a>
-        <a href="../Module2/admin_manage_spaces.php">Manage Space</a>
-        <a href="../Module2/admin_view.php">Parking Availability</a>
+        <a href="admin_list_area.php">Manage Area</a>
+        <a href="admin_manage_spaces.php">Manage Space</a>
+        <a href="admin_view.php">Parking Availability</a>
         <a href="../Module 3/admin_parking_report.php">Parking Report</a>
         <a href="../Module1/admin_list_users.php">Manage User</a>
-    </div>
-
     </div>
    
     <div class="container">
