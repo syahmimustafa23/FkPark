@@ -29,7 +29,9 @@ if (isset($_POST['submit_vehicle'])) {
                 VALUES ('$user_id', '$v_type', '$plate', '$model', '$target_file')";
         
         if (mysqli_query($conn, $sql)) {
-            echo "<script>alert('Registration Submitted! Wait for Staff approval.'); window.location='student_profile.php';</script>";
+            // Redirect to profile - JavaScript alert will show instead
+            header("Location: student_profile.php?vehicle_added=success");
+            exit();
         }
     } else {
         echo "Sorry, there was an error uploading your file.";
@@ -179,52 +181,68 @@ h1 {
    
     <div class="container">
         <h1>Register New Vehicle</h1>
-        <form method="POST" action="" enctype="multipart/form-data">
+        <form method="POST" action="" enctype="multipart/form-data" onsubmit="return validateVehicleForm()">
             <div class="form-group">
                 <label for="vehicle_type">Vehicle Type:</label>
                 <select name="vehicle_type" id="vehicle_type" required>
+                    <option value="">-- Select Vehicle Type --</option>
                     <option value="car">Car</option>
                     <option value="motorcycle">Motorcycle</option>
                 </select>
             </div>
             <div class="form-group">
                 <label for="vehicle_model">Vehicle Model:</label>
-                <input type="text" name="vehicle_model" id="vehicle_model" required>
+                <input type="text" name="vehicle_model" id="vehicle_model">
             </div>
             <div class="form-group">
                 <label for="license_plate">License Plate:</label>
-                <input type="text" name="license_plate" id="license_plate" required>
+                <input type="text" name="license_plate" id="license_plate">
             </div>
             <div class="form-group">
                 <label for="grant_document">Grant Document:</label>
-                <input type="file" name="grant_document" id="grant_document" accept=".pdf,.jpg,.png" required>
+                <input type="file" name="grant_document" id="grant_document" accept=".pdf,.jpg,.png">
             </div>
             <button class="btn-add" type="submit" name="submit_vehicle">Register Vehicle</button>
         </form>
+
+        <script>
+            // Method 3: validateVehicleForm() - Uses document.getElementById() to check empty fields
+            function validateVehicleForm() {
+                const vehicleType = document.getElementById('vehicle_type');
+                const vehicleModel = document.getElementById('vehicle_model');
+                const licensePlate = document.getElementById('license_plate');
+                const grantDocument = document.getElementById('grant_document');
+                
+                if (vehicleType.value === '') {
+                    alert('Please select a vehicle type!');
+                    vehicleType.focus();
+                    return false;
+                }
+                
+                if (vehicleModel.value.trim() === '') {
+                    alert('Please enter the vehicle model!');
+                    vehicleModel.focus();
+                    return false;
+                }
+                
+                if (licensePlate.value.trim() === '') {
+                    alert('Please enter the license plate!');
+                    licensePlate.focus();
+                    return false;
+                }
+                
+                if (grantDocument.value === '') {
+                    alert('Please upload a grant document!');
+                    grantDocument.focus();
+                    return false;
+                }
+                
+                // Method 2: Show success alert
+                alert('Vehicle registration submitted! Wait for staff approval.');
+                return true;
+            }
+        </script>
     </div>
      
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

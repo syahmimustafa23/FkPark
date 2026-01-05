@@ -145,33 +145,46 @@ td{
     
    
     <div class="container">
-      <form method="POST">
+      <form method="POST" onsubmit="return validateProfileForm()">
     <h2>Update Profile Info</h2><br>
     <label>Full Name:</label><br><br>
-    <input type="text" name="full_name" value="<?php echo $user['full_name']; ?>" required><br>
+    <input type="text" id="fullName" name="full_name" value="<?php echo $user['full_name']; ?>" required><br>
 <br>
     <label>Username:</label><br><br>
-    <input type="text" name="username" value="<?php echo $user['username']; ?>" required>
+    <input type="text" id="username" name="username" value="<?php echo $user['username']; ?>" required>
 
     <br>
 <br>
     <button class="save" type="submit" name="update">Save Changes</button>
     <button class="cancel" type="button" onclick="window.location.href='student_profile.php'">Cancel</button>
 </form>
+
+<script>
+    // Method 3: validateProfileForm() - Uses document.getElementById() to check empty fields
+    function validateProfileForm() {
+        const fullName = document.getElementById('fullName');
+        const username = document.getElementById('username');
+        
+        if (fullName.value.trim() === '') {
+            alert('Please enter your full name!');
+            fullName.focus();
+            return false;
+        }
+        
+        if (username.value.trim() === '') {
+            alert('Please enter your username!');
+            username.focus();
+            return false;
+        }
+        
+        // Method 2: Show success alert after validation passes
+        alert('Profile updated successfully!');
+        return true;
+    }
+</script>
 </div>
 
 
      
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
