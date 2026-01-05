@@ -182,9 +182,6 @@ $areas = mysqli_query($conn, "SELECT * FROM parking_area");
         <select name="category">
             <option value="Student">Student Area</option>
             <option value="Staff">Staff Area</option>
-            <option value="Event">Event Area</option>
-            <option value="Visitor">No Booking Area</option>
-
         </select>
         <button type="submit" name="add_area">Create Area</button>
     </form>

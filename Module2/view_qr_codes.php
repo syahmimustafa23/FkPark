@@ -20,6 +20,15 @@ if (!$area) {
 
 // Get all spaces for this area
 $spaces_query = mysqli_query($conn, "SELECT * FROM parking_space WHERE Area_id = '$area_id' ORDER BY Space_num");
+
+// Detect user role for styling and sidebar
+$user_role = $_SESSION['role'] ?? 'student';
+$role_colors = [
+    'student' => '#28a745',
+    'security' => '#fd7e14',
+    'admin' => '#667eea'
+];
+$header_color = $role_colors[$user_role] ?? '#667eea';
 ?>
 
 <!DOCTYPE html>
@@ -43,7 +52,7 @@ $spaces_query = mysqli_query($conn, "SELECT * FROM parking_space WHERE Area_id =
         }
 
         header {
-            background: #667eea;
+            background: <?php echo $header_color; ?>;
             color: white;
             padding: 20px 30px;
             margin-bottom: 30px;
@@ -265,11 +274,20 @@ $spaces_query = mysqli_query($conn, "SELECT * FROM parking_space WHERE Area_id =
 
     <div class="sidebar">
         <img class="logo" src="../photo/logoUmpsa.png" alt="Logo">
-        <a href="admin_list_area.php">Manage Area</a>
-        <a href="admin_manage_spaces.php">Manage Space</a>
-        <a href="admin_view.php">Parking Availability</a>
-        <a href="../Module 3/admin_parking_report.php">Parking Report</a>
-        <a href="../Module1/admin_list_users.php">Manage User</a>
+        <?php if ($user_role === 'admin'): ?>
+            <a href="admin_list_area.php">Manage Area</a>
+            <a href="admin_manage_spaces.php">Manage Space</a>
+            <a href="admin_view.php">Parking Availability</a>
+            <a href="../Module 3/admin_parking_report.php">Parking Report</a>
+            <a href="../Module1/admin_list_users.php">Manage User</a>
+        <?php elseif ($user_role === 'security'): ?>
+            <a href="security_view.php">Parking Availability</a>
+            <a href="../Module 3/manage_report.php">View Report</a>
+        <?php else: ?>
+            <a href="student_view.php">Parking Availability</a>
+            <a href="../Module 3/book_parking.php">Book Parking</a>
+            <a href="../Module 3/view_bookings.php">My Bookings</a>
+        <?php endif; ?>
     </div>
 
     <div class="container">
@@ -280,8 +298,7 @@ $spaces_query = mysqli_query($conn, "SELECT * FROM parking_space WHERE Area_id =
         </div>
 
         <div class="controls">
-            <button class="btn btn-primary" onclick="window.print()">🖨️ Print QR Codes</button>
-            <a href="admin_manage_spaces.php?area_id=<?php echo $area_id; ?>" class="btn btn-secondary">← Back</a>
+            <a href="<?php echo isset($_SERVER['HTTP_REFERER']) ? htmlspecialchars($_SERVER['HTTP_REFERER']) : 'admin_manage_spaces.php?area_id=' . $area_id; ?>" class="btn btn-secondary">← Back</a>
         </div>
 
         <?php if (mysqli_num_rows($spaces_query) > 0): ?>

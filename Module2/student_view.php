@@ -160,18 +160,23 @@ td{
     <?php 
     if ($spaces_query):
         while($s = mysqli_fetch_assoc($spaces_query)): 
-    // 1. Check for physical occupancy first (Red)
-    if ($s['Current_status'] == 'Occupied') {
+    // 1. Check for maintenance status FIRST (Gray)
+    if ($s['Current_status'] == 'Maintenance') {
+        $color = '#6c757d'; 
+        $status_label = "Maintenance";
+    }
+    // 2. Check for physical occupancy (Red)
+    elseif ($s['Current_status'] == 'Occupied') {
         $color = '#dc3545'; 
         $status_label = "Occupied";
     } 
-    // 2. Check for the LIVE reservation status (Yellow)
+    // 3. Check for the LIVE reservation status (Yellow)
     // This will only be 'Reserved' if current time is within the booking window
     elseif ($s['active_reservation'] == 'Reserved') {
         $color = '#ffc107'; 
         $status_label = "Reserved";
     } 
-    // 3. Otherwise, it is Available (Green)
+    // 4. Otherwise, it is Available (Green)
     else {
         $color = '#28a745'; 
         $status_label = "Available";

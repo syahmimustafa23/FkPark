@@ -23,16 +23,30 @@ if (!is_dir($qr_codes_dir)) {
     @mkdir($qr_codes_dir, 0755, true);
 }
 
-if (isset($_POST['bulk_generate'])) {
+// Check if form was submitted with confirmation
+if (isset($_POST['bulk_generate']) && isset($_POST['submit_generate']) && $_POST['submit_generate'] == 1) {
     $count = (int)$_POST['num_spaces'];
     $prefix = mysqli_real_escape_string($conn, $_POST['prefix']);
     $generated_count = 0;
+
+    // Get the actual server host for QR code generation
+    $server_host = $_SERVER['HTTP_HOST'];
+    if ($server_host === 'localhost' || strpos($server_host, '127.0.0.1') === 0) {
+        if (!empty($_SERVER['SERVER_ADDR']) && $_SERVER['SERVER_ADDR'] !== '127.0.0.1') {
+            $server_host = $_SERVER['SERVER_ADDR'];
+        } else {
+            $server_host = gethostbyname(gethostname());
+            if ($server_host === gethostname()) {
+                $server_host = 'localhost';
+            }
+        }
+    }
 
     for ($i = 1; $i <= $count; $i++) {
         $space_num = $prefix . str_pad($i, 2, '0', STR_PAD_LEFT);
         
         // Generate QR code content - point to parking availability page with space parameter
-        $qr_content = "http://localhost/fkpark/Module2/qr_space_info.php?area_id=" . $area_id . "&space=" . urlencode($space_num);
+        $qr_content = "http://" . $server_host . "/fkpark/Module2/qr_space_info.php?area_id=" . $area_id . "&space=" . urlencode($space_num);
         
         // Generate QR code using Google QR Server API
         $encoded_text = urlencode($qr_content);
@@ -80,6 +94,59 @@ if (isset($_POST['bulk_generate'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard | FKPark</title>
+    <script>
+        function confirmGenerateSpaces(event) {
+            event.preventDefault();
+            const prefix = document.getElementById('prefix').value.trim();
+            const count = document.getElementById('num_spaces').value.trim();
+            
+            if (!validateSpacePrefix() || !validateSpaceCount()) {
+                return false;
+            }
+            
+            const message = `Generate ${count} parking spaces with prefix "${prefix}"?`;
+            if (confirm(message)) {
+                // Set the hidden field to indicate JavaScript confirmed
+                document.getElementById('submit_generate').value = '1';
+                document.getElementById('generateForm').submit();
+            }
+            return false;
+        }
+        
+        function validateSpacePrefix() {
+            const prefix = document.getElementById('prefix').value.trim();
+            const prefixError = document.getElementById('prefixError');
+            
+            if (!prefix) {
+                prefixError.textContent = 'Prefix is required';
+                prefixError.style.display = 'block';
+                return false;
+            }
+            
+            if (!/^[a-zA-Z0-9]+$/.test(prefix)) {
+                prefixError.textContent = 'Prefix can only contain letters and numbers';
+                prefixError.style.display = 'block';
+                return false;
+            }
+            
+            prefixError.style.display = 'none';
+            return true;
+        }
+        
+        function validateSpaceCount() {
+            const count = document.getElementById('num_spaces').value.trim();
+            const countError = document.getElementById('countError');
+            
+            if (!count || parseInt(count) < 1) {
+                countError.textContent = 'Number of spaces must be at least 1';
+                countError.style.display = 'block';
+                return false;
+            }
+            
+            countError.style.display = 'none';
+            return true;
+        }
+    </script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
@@ -178,6 +245,12 @@ if (isset($_POST['bulk_generate'])) {
         form button:hover {
             background: #5568d3;
         }
+        .error {
+            color: #dc3545;
+            font-size: 12px;
+            display: none;
+            margin-bottom: 10px;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -217,13 +290,16 @@ if (isset($_POST['bulk_generate'])) {
    
     <div class="container">
        <h2>Generate Spaces for Area ID: <?php echo $area_id; ?></h2>
-    <form method="POST">
+    <form id="generateForm" method="POST" onsubmit="confirmGenerateSpaces(event)">
         <label>Prefix (e.g., A for Block A):</label>
-        <input type="text" name="prefix" required>
+        <input type="text" id="prefix" name="prefix" required>
+        <div id="prefixError" class="error"></div>
         
         <label>How many spaces to create?</label>
-        <input type="number" name="num_spaces" value="10" min="1" max="50">
+        <input type="number" id="num_spaces" name="num_spaces" value="10" min="1" max="50">
+        <div id="countError" class="error"></div>
         
+        <input type="hidden" id="submit_generate" name="submit_generate" value="0">
         <button type="submit" name="bulk_generate">Generate Spaces Now</button>
     </form>
     </div>

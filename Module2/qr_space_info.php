@@ -2,6 +2,9 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+// Set timezone for Malaysia
+date_default_timezone_set('Asia/Kuala_Lumpur');
+
 // Direct database connection (NO SESSION - this page is public for QR scanning)
 $conn = mysqli_connect("localhost", "root", "", "fkpark");
 
@@ -390,8 +393,8 @@ if ($status == 'Available') {
         <?php endif; ?>
 
         <div style="text-align: center;">
-            <a href="student_view.php?area_id=<?php echo $area_id; ?>" class="back-button">
-                🔙 Back to Parking Map
+            <a href="<?php echo isset($_SERVER['HTTP_REFERER']) ? htmlspecialchars($_SERVER['HTTP_REFERER']) : 'student_view.php?area_id=' . $area_id; ?>" class="back-button">
+                🔙 Back
             </a>
         </div>
     </div>

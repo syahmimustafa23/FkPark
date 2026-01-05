@@ -309,8 +309,8 @@ while ($space = mysqli_fetch_assoc($spaces)):
         </span>
                             </td>
                             <td>
-                                <?php if ($space['Space_qrCode']): ?>
-                                    <a href="<?php echo htmlspecialchars($space['Space_qrCode']); ?>" target="_blank">View QR</a>
+                                <?php if ($space['Space_id']): ?>
+                                    <a href="qr_display.php?space_id=<?php echo $space['Space_id']; ?>" target="_blank">View QR</a>
                                 <?php endif; ?>
                             </td>
                             <td class="actions">
