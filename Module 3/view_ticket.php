@@ -39,5 +39,5 @@ $qr_url = "https://chart.googleapis.com/chart?chs=200x200&cht=qr&chl=" . urlenco
         <p><strong>Time:</strong> <?php echo date('H:i', strtotime($booking['entry_time'])); ?> - <?php echo $booking['end_time']; ?></p>
     </div>
 
-    <a href="../dashboards/student_dashboard.php" style="background: #6c757d; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; display: inline-block;">Back to Dashboard</a>
+    <a href="../dashboards/student_dashboard.php" style="background: #6c757d; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; display: inline-block;">Back to Dashboard</a>
 </div>
