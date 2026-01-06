@@ -184,7 +184,7 @@ $sql = "SELECT s.*,
         <a href="../Module2/admin_list_area.php">Manage Area</a>
         <a href="../Module2/admin_manage_spaces.php">Manage Space</a>
         <a href="../Module2/admin_view.php">Parking Availability</a>
-        <a href="../Module3/admin_parking_report.php">Parking Report</a>
+        <a href="../Module 3/admin_parking_report.php">Parking Report</a>
         <a href="../Module1/admin_list_users.php">Manage User</a>
     </div>
 
@@ -234,7 +234,7 @@ if ($spaces_query && mysqli_num_rows($spaces_query) > 0):
         }
 
         if (!empty($s['active_booking_id'])) {
-            $qr_link = "../Module3/view_ticket.php?id=" . $s['active_booking_id'];
+            $qr_link = "../Module 3/view_ticket.php?id=" . $s['active_booking_id'];
         } else {
             $qr_link = $s['Space_qrCode'];
         }
@@ -248,7 +248,7 @@ if ($spaces_query && mysqli_num_rows($spaces_query) > 0):
                         <small><?php echo $status_label; ?></small>
                         <img src="<?php echo $google_qr_api; ?>" alt="QR Code">
                         <?php if ($s['active_booking_id']): ?>
-    <a href="../Module3/view_ticket.php?id=<?php echo $s['active_booking_id']; ?>" 
+    <a href="../Module 3/view_ticket.php?id=<?php echo $s['active_booking_id']; ?>" 
        style="color: white; font-weight: bold;">View Ticket</a>
 <?php endif; ?>
                         <a href="admin_update_status.php?id=<?php echo $s['Space_id']; ?>&current=<?php echo $s['Current_status']; ?>&area_id=<?php echo $selected_area; ?>" 

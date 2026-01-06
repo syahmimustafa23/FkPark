@@ -50,7 +50,7 @@ if (mysqli_num_rows($active_check) > 0) {
     // Block the user and tell them where they are currently parked
     die("<script>
         alert('Error: You are already parked at spot $parked_spot. You must check-out from your current spot before occupying a new one.');
-        window.location.href='../Module3/view_bookings.php';
+        window.location.href='../Module 3/view_bookings.php';
     </script>");
 }
 ?>
