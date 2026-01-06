@@ -26,7 +26,6 @@ body.student header {
     margin: 20px;
 }
 
-
 .navbar1 {
     display: flex;
     justify-content: flex-end;
@@ -138,14 +137,22 @@ button[type="button"]:hover {
 }
 
 /* ================= TABLE (DASHBOARD) ================= */
-table {
-    width: 100%;
-    border-collapse: collapse;
+.table-container {
+    max-height: 400px; /* Vertical scroll limit */
+    overflow-y: auto;  /* Vertical scrolling */
+    overflow-x: auto;  /* Horizontal scrolling if needed */
+    border: 1px solid #ccc;
     margin-top: 20px;
-    background: white;
 }
 
-th, td {
+.table-container table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px; /* optional, prevent squished columns */
+}
+
+.table-container th, 
+.table-container td {
     padding: 12px;
     border: 1px solid #ccc;
     text-align: left;
@@ -159,6 +166,13 @@ body.staff table th {
 body.student table th {
     background: #28a745;
     color: white;
+}
+
+.table-container th {
+    position: sticky;
+    top: 0;
+    background-color: inherit;
+    z-index: 2;
 }
 
 tbody tr:nth-child(even) {

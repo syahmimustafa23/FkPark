@@ -34,7 +34,91 @@ $totalViolations = array_sum($violationCounts);
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard – Summon History</title>
-  <link rel="stylesheet" href="style.css?v=2" />
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; font-family: Arial, Helvetica, sans-serif; }
+    body { background: #f4f6f9; }
+    body.staff header { background-color: #fd7e14; padding: 30px; margin: 20px; }
+    body.student header { background-color: #28a745; padding: 30px; margin: 20px; }
+    .navbar1 { display:flex; justify-content:flex-end; }
+    .navbar1 a { display:block; padding:0 20px; text-decoration:none; color:black; font-size:16px; }
+    .navbar1 a:hover { background-color:black; color:white; }
+
+    .sidebar { height:100%; width:200px; position:fixed; top:20px; left:20px; background-color:#fff; display:flex; flex-direction:column; }
+    .logo { width:200px; height:auto; }
+    .sidebar2 { padding:15px 20px; text-decoration:none; font-size:18px; color:black; display:block; }
+    .sidebar2:hover { background-color:black; color:white; }
+    .sidebar2.active { font-weight:bold; }
+
+    .main-content { margin-left:260px; padding:40px; }
+
+    label { display:block; margin-top:15px; font-weight:bold; }
+    input, select { width:100%; padding:10px; margin-top:5px; border:1px solid #bbb; background:#f9fafb; }
+    input:focus, select:focus { border-color:#fd7e14; outline:none; background:#fff; }
+
+    .btn-row { margin-top:20px; }
+    button { padding:10px 20px; border:none; cursor:pointer; font-size:14px; }
+    button[type="reset"] { background:#fff; border:1px solid #999; }
+    button[type="reset"]:hover { background:#e5e7eb; }
+    button[type="button"] { background:#007bff; color:white; }
+    button[type="button"]:hover { background:#0056b3; }
+
+    .table-container {
+      max-height: 400px;
+      overflow-y: auto;
+      overflow-x: auto;
+      border:1px solid #ccc;
+      background:white;
+      margin-top:20px;
+    }
+    .table-container table {
+      width:100%;
+      border-collapse: collapse;
+      min-width:600px;
+    }
+    .table-container th, .table-container td {
+      padding:12px;
+      border:1px solid #ccc;
+      text-align:left;
+    }
+    .table-container th {
+      position:sticky;
+      top:0;
+      background-color:#fd7e14;
+      color:white;
+      z-index:2;
+    }
+    .table-container tbody tr:nth-child(even) { background:#f7fffb; }
+
+    .btn-back {
+      display:inline-block; margin-top:20px; padding:10px 16px;
+      background:#fd7e14; color:white; text-decoration:none; border-radius:4px;
+    }
+    .btn-back:hover { background:#0b7051; }
+
+    .stats { display:flex; justify-content:space-between; margin-bottom:30px; }
+    .stat { flex:1; text-align:center; padding:20px; margin:0 110px; background:#f9f9f9; border-radius:6px; border:1px solid #e0e0e0; box-shadow:0 1px 3px rgba(0,0,0,0.1); }
+    .stat h3 { font-size:26px; color:#333; margin-bottom:5px; }
+    .stat p { color:#555; font-size:16px; }
+
+    .chart-container { margin-top:20px; }
+    .bar { display:flex; align-items:center; margin-bottom:12px; background:#f9f9f9; border-radius:6px; padding:8px 12px; box-shadow:0 1px 2px rgba(0,0,0,0.1); }
+    .bar-label { width:180px; font-weight:bold; color:#333; font-size:14px; }
+    .bar-fill {
+      height:32px; border-radius:4px; color:white; display:flex;
+      align-items:center; justify-content:center; font-size:14px; font-weight:bold;
+      transition: width 0.3s ease;
+    }
+    .bar-fill:nth-child(1) { background-color:#ffc107; }
+    .bar-fill:nth-child(2) { background-color:#28a745; }
+    .bar-fill:nth-child(3) { background-color:#dc3545; }
+
+    /* New QR button styling */
+    .action-btn { margin-right:5px; padding:6px 10px; font-size:13px; border:none; border-radius:4px; cursor:pointer; }
+    .edit-btn { background:#007bff; color:white; }
+    .delete-btn { background:#dc3545; color:white; }
+    .qr-btn { background:#28a745; color:white; }
+    .action-btn:hover { opacity:0.8; }
+  </style>
 </head>
 <body class="staff">
 
@@ -58,7 +142,6 @@ $totalViolations = array_sum($violationCounts);
 <div class="main-content">
   <h2>Summon Dashboard</h2>
 
-  <!-- ================== STATS BOXES ================== -->
   <div class="stats">
     <?php foreach ($violations as $id => $name): ?>
       <div class="stat">
@@ -68,7 +151,6 @@ $totalViolations = array_sum($violationCounts);
     <?php endforeach; ?>
   </div>
 
-  <!-- ================== VIOLATION CHART ================== -->
   <div class="chart-container">
     <h3>Violation Type Chart</h3>
     <?php foreach ($violations as $id => $name):
@@ -85,19 +167,20 @@ $totalViolations = array_sum($violationCounts);
     <?php endif; ?>
   </div>
 
-  <!-- ================== SUMMON HISTORY TABLE ================== -->
-  <table id="historyTable">
-    <thead>
-      <tr>
-        <th>Violation type</th>
-        <th>Vehicle Number</th>
-        <th>Date & Time</th>
-        <th>Area</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <div class="table-container">
+    <table id="historyTable">
+      <thead>
+        <tr>
+          <th>Violation type</th>
+          <th>Vehicle Number</th>
+          <th>Date & Time</th>
+          <th>Area</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
   <a href="manage-summon.php" class="btn-back">Add New Summon</a>
 </div>
 
@@ -127,7 +210,6 @@ $totalViolations = array_sum($violationCounts);
 const tbody = document.querySelector("#historyTable tbody");
 let editSummonId = 0;
 
-// Load Summon History
 async function loadSummonHistory() {
   try {
     const res = await fetch("getSummonHistory.php");
@@ -142,12 +224,13 @@ async function loadSummonHistory() {
         <td>${item.datetime}</td>
         <td>${item.area}</td>
         <td>
-          <button class="editBtn" 
+          <button class="action-btn edit-btn" 
             data-id="${item.summon_id}" 
             data-violation="${item.violation}" 
             data-area="${item.area}" 
             data-datetime="${item.datetime}">Edit</button>
-          <button class="deleteBtn" data-id="${item.summon_id}">Delete</button>
+          <button class="action-btn delete-btn" data-id="${item.summon_id}">Delete</button>
+          <a href="view-summon.php?id=${item.summon_id}" class="action-btn qr-btn">View QR</a>
         </td>`;
       tbody.appendChild(row);
     });
@@ -156,7 +239,7 @@ async function loadSummonHistory() {
 
 // Delete
 tbody.addEventListener("click", async e=>{
-  if(e.target.classList.contains("deleteBtn")){
+  if(e.target.classList.contains("delete-btn")){
     const id=e.target.dataset.id;
     if(!confirm("Are you sure?")) return;
     try{
@@ -170,7 +253,7 @@ tbody.addEventListener("click", async e=>{
 
 // Edit
 tbody.addEventListener("click", e=>{
-  if(e.target.classList.contains("editBtn")){
+  if(e.target.classList.contains("edit-btn")){
     editSummonId = e.target.dataset.id;
     const btn = e.target;
     [...document.getElementById("editViolation").options].forEach(o=>{ o.selected = (o.text===btn.dataset.violation); });
@@ -182,12 +265,10 @@ tbody.addEventListener("click", e=>{
   }
 });
 
-// Cancel edit
 document.getElementById("cancelEdit").addEventListener("click", ()=>{
   document.getElementById("editModal").style.display="none";
 });
 
-// Save edit
 document.getElementById("saveEdit").addEventListener("click", async ()=>{
   const violationId = document.getElementById("editViolation").value;
   const areaId = document.getElementById("editArea").value;
@@ -216,7 +297,6 @@ document.getElementById("saveEdit").addEventListener("click", async ()=>{
   }catch(err){ alert("Network error: "+err.message); }
 });
 
-// Initial load
 loadSummonHistory();
 </script>
 </body>
