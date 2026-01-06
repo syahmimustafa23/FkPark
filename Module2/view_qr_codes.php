@@ -20,6 +20,16 @@ if (!$area) {
 
 // Get all spaces for this area
 $spaces_query = mysqli_query($conn, "SELECT * FROM parking_space WHERE Area_id = '$area_id' ORDER BY Space_num");
+
+// Determine back URL based on user role
+$user_role = $_SESSION['role'] ?? 'student';
+if ($user_role === 'admin') {
+    $back_url = 'admin_view.php?area_id=' . $area_id;
+} elseif ($user_role === 'security') {
+    $back_url = 'security_view.php?area_id=' . $area_id;
+} else {
+    $back_url = 'student_view.php?area_id=' . $area_id;
+}
 ?>
 
 <!DOCTYPE html>
@@ -280,7 +290,7 @@ $spaces_query = mysqli_query($conn, "SELECT * FROM parking_space WHERE Area_id =
         </div>
 
         <div class="controls">
-            <a href="<?php echo isset($_SERVER['HTTP_REFERER']) ? htmlspecialchars($_SERVER['HTTP_REFERER']) : 'admin_manage_spaces.php?area_id=' . $area_id; ?>" class="btn btn-secondary">← Back</a>
+            <a href="<?php echo htmlspecialchars($back_url); ?>" class="btn btn-secondary">← Back to Parking Availability</a>
         </div>
 
         <?php if (mysqli_num_rows($spaces_query) > 0): ?>

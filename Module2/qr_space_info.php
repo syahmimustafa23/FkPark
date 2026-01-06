@@ -393,8 +393,8 @@ if ($status == 'Available') {
         <?php endif; ?>
 
         <div style="text-align: center;">
-            <a href="<?php echo isset($_SERVER['HTTP_REFERER']) ? htmlspecialchars($_SERVER['HTTP_REFERER']) : 'student_view.php?area_id=' . $area_id; ?>" class="back-button">
-                🔙 Back
+            <a href="qr_display.php?space_id=<?php echo $space['Space_id']; ?>" class="back-button">
+                🔙 Back to QR Code
             </a>
         </div>
     </div>

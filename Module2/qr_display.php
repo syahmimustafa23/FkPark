@@ -69,7 +69,7 @@ $qr_image_url = "https://api.qrserver.com/v1/create-qr-code/?size={$qr_size}x{$q
         }
 
         header {
-            background: #667eea;
+            background: <?php echo $header_color; ?>;
             color: white;
             padding: 20px 30px;
             margin-bottom: 30px;
@@ -264,8 +264,8 @@ $qr_image_url = "https://api.qrserver.com/v1/create-qr-code/?size={$qr_size}x{$q
             </div>
         </div>
 
-        <button onclick="location.href='<?php echo isset($_SERVER['HTTP_REFERER']) ? htmlspecialchars($_SERVER['HTTP_REFERER']) : 'view_qr_codes.php?area_id=' . $space['Area_id']; ?>';" class="back-button">
-            🔙 Back
+        <button onclick="location.href='view_qr_codes.php?area_id=<?php echo $space['Area_id']; ?>';" class="back-button">
+            🔙 Back to QR Codes
         </button>
     </div>
 </body>
