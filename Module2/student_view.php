@@ -1,5 +1,3 @@
-
-
 <?php
 /**
  * FKPark Student Dashboard (minimal)
@@ -132,7 +130,7 @@ td{
         <div class="sidebar">
             <a href="student_view.php"><img class="logo" src="../photo/logoUmpsa.png"></a>
             <a class="sidebar2" href="student_view.php">View Parking</a>
-            <a class="sidebar2" href="../Module 3/view_bookings.php">View Booking</a>
+            <a class="sidebar2" href="../Module3/view_bookings.php">View Booking</a>
             <a class="sidebar2" href="../Module4/view-status.php">View Update Point & Status</a>
         </div>
     </div>
@@ -191,14 +189,14 @@ td{
             
             <?php if($_SESSION['role'] == 'student'): ?>
                 <?php if($s['Current_status'] == 'Available'): ?>
-                    <br><a href="../Module 3/book_parking.php?space_id=<?php echo $s['Space_id']; ?>" style="color: white; font-size: 10px;">Book Now</a>
+                    <br><a href="../Module3/book_parking.php?space_id=<?php echo $s['Space_id']; ?>" style="color: white; font-size: 10px;">Book Now</a>
                 <?php endif; ?>
                 <a href="../Module 3/scan_qr.php?space_id=<?php echo $s['Space_id']; ?>" 
        style="display: block; background: rgba(255,255,255,0.2); color: white; padding: 5px; border-radius: 4px; text-decoration: none; font-size: 11px; border: 1px solid white;">
      <div style="margin-top: 10px; background: white; padding: 10px; border-radius: 5px;">
     <?php 
     // This is the URL of your live InfinityFree site
-    $live_url = "http://" . $_SERVER['HTTP_HOST'] . "/Module 3/scan_qr.php?space_id=" . $s['Space_id'];
+    $live_url = "http://" . $_SERVER['HTTP_HOST'] . "/Module3/scan_qr.php?space_id=" . $s['Space_id'];
     
     // The Google API will now work because your URL is public
     $qr_api = "https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=" . urlencode($live_url) . "&choe=UTF-8";
