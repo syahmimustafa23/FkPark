@@ -62,97 +62,8 @@ $live_res = mysqli_fetch_assoc(mysqli_query($conn, $chart_sql));
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="styles.css">
     <title>Parking Report | FKPark</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
-        header { background: #667eea; color: white; padding: 20px 30px; margin-bottom: 30px; border-radius: 4px; }
-        header h1 { font-size: 24px; }
-        .navbar1 { float: right; display: flex; gap: 20px; }
-        .navbar1 a { color: white; text-decoration: none; }
-        .navbar1 a:hover { text-decoration: underline; }
-        .sidebar {
-            width: 200px;
-            position: fixed;
-            top: 20px;
-            left: 20px;
-            background: white;
-            padding: 20px;
-            border-radius: 4px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        .sidebar a {
-            display: block;
-            padding: 12px;
-            margin: 5px 0;
-            color: black;
-            text-decoration: none;
-            border-radius: 4px;
-        }
-        .sidebar a:hover {
-            background: #667eea;
-            color: white;
-        }
-        .sidebar a.active {
-            background: #667eea;
-            color: white;
-        }
-        .logo {
-            width: 100%;
-            margin-bottom: 20px;
-        }
-        .container {
-            margin-left: 250px;
-            max-width: 1000px;
-            background: white;
-            padding: 30px;
-            border-radius: 4px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        h2 { margin-bottom: 20px; color: #333; }
-        .chart-container {
-            position: relative;
-            height: 400px;
-            margin-bottom: 30px;
-        }
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        .stat-box {
-            background: #f9f9f9;
-            padding: 20px;
-            border-radius: 4px;
-            text-align: center;
-        }
-        .stat-box h3 {
-            font-size: 14px;
-            color: #666;
-            margin-bottom: 10px;
-        }
-        .stat-box .number {
-            font-size: 32px;
-            font-weight: bold;
-            color: #667eea;
-        }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; padding: 20px; }
-        .report-container { max-width: 1000px; margin: auto; background: white; padding: 30px; border-radius: 8px; shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        
-        /* Top Summary Cards */
-        .summary-row { display: flex; gap: 20px; margin-bottom: 30px; justify-content: space-between; }
-        .card { flex: 1; background: #fff; padding: 20px; text-align: center; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-top: 4px solid #667eea; }
-        .card h4 { margin: 0; color: #666; font-size: 14px; text-transform: uppercase; }
-        .card .value { font-size: 24px; font-weight: bold; color: #4e73df; margin-top: 10px; }
-
-        /* Filters */
-        .filter-row { margin-bottom: 20px; display: flex; gap: 10px; align-items: center; }
-        select { padding: 8px; border-radius: 4px; border: 1px solid #ddd; }
-
-        .chart-box { position: relative; height: 400px; width: 100%; }
-        .footer-note { text-align: center; color: #888; margin-top: 20px; font-size: 14px; }
-    </style>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Highlight current menu item
@@ -243,7 +154,7 @@ const ctx = document.getElementById('parkingChart').getContext('2d');
 new Chart(ctx, {
     type: 'bar',
     data: {
-        labels: ['Actual Parking', 'Reservations', 'Cancellations'], // Updated Labels
+        labels: ['Actual Parking', 'Reservations'], // Updated Labels
         datasets: [{
             label: 'Total Usage Records',
             data: [
