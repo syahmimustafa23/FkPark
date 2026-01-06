@@ -20,10 +20,12 @@ $user_id = $_SESSION['user_id'];
 $user_res = mysqli_query($conn, "SELECT * FROM users WHERE user_id = '$user_id'");
 $user = mysqli_fetch_assoc($user_res);
 
-// Get ALL Vehicles & Approval Status (removed LIMIT 1)
-$veh_sql = "SELECT v.*, a.status FROM vehicle v 
-            LEFT JOIN approval a ON v.vehicle_id = a.vehicle_id 
-            WHERE v.user_id = '$user_id' ORDER BY v.vehicle_id DESC";
+// Get ALL Vehicles with LATEST Approval Status (avoid duplicates)
+$veh_sql = "SELECT v.*, 
+            (SELECT status FROM approval WHERE vehicle_id = v.vehicle_id ORDER BY approval_date DESC LIMIT 1) as status
+            FROM vehicle v 
+            WHERE v.user_id = '$user_id' 
+            ORDER BY v.vehicle_id DESC";
 $veh_res = mysqli_query($conn, $veh_sql);
 $vehicles = array();
 while ($row = mysqli_fetch_assoc($veh_res)) {

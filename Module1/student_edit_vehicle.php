@@ -54,12 +54,16 @@ if (isset($_POST['update_vehicle'])) {
     }
 
     if (mysqli_query($conn, $update_sql)) {
-        // If previously approved, reset to pending
-        if ($vehicle['status'] === 'Approved') {
+        // Reset status to Pending whenever vehicle is edited (whether Approved or Rejected)
+        if ($vehicle['status'] === 'Approved' || $vehicle['status'] === 'Rejected') {
             $reset_sql = "UPDATE approval SET status='Pending' WHERE vehicle_id='$vehicle_id'";
             mysqli_query($conn, $reset_sql);
+        } else if ($vehicle['status'] === null || $vehicle['status'] === '') {
+            // If no approval record exists, create one with Pending status
+            $create_sql = "INSERT INTO approval (vehicle_id, status, approval_date) VALUES ('$vehicle_id', 'Pending', NOW())";
+            mysqli_query($conn, $create_sql);
         }
-        echo "<script>alert('Vehicle updated successfully!'); window.location='student_profile.php';</script>";
+        echo "<script>alert('Vehicle updated successfully! Status reset to Pending for staff review.'); window.location='student_profile.php';</script>";
     } else {
         echo "Error updating vehicle: " . mysqli_error($conn);
     }
