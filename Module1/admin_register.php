@@ -130,76 +130,41 @@ if (isset($_POST['register'])) {
     </div>
 
     <div class="container">
-        <h2>Register New User</h2>
-        <form method="POST" action="admin_register.php">
-            <tr>
-            <td>username</td>
-            <td><input type="text" name="username" required></td>
-            </tr>
+        <h2 class="mb-4">Register New User</h2>
+        <div class="col-md-6">
+            <form method="POST" action="admin_register.php">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" class="form-control" id="username" name="username" required>
+                </div>
 
-            <tr>
-            <td>full_name</td>
-            <td><input type="text" name="full_name" required></td>
-            </tr>
+                <div class="mb-3">
+                    <label for="full_name" class="form-label">Full Name</label>
+                    <input type="text" class="form-control" id="full_name" name="full_name" required>
+                </div>
 
-            <tr>
-            <td>password</td>
-            <td><input type="password" name="password" required></td>
-            </tr>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
 
-            <tr>
-            <td>user_type</td>
-             <td><select name="user_type" required>
+                <div class="mb-3">
+                    <label for="user_type" class="form-label">User Type</label>
+                    <select class="form-select" id="user_type" name="user_type" required>
                         <option value="admin">Admin</option>
                         <option value="student">Student</option>
                         <option value="safety_staff">Safety Staff</option>
-                    </select></td>
-                    </tr>
-        </table>
-        <button class="register" type="submit" name="register">Register User</button>
-    <a href="admin_list_users.php" class="cancel"><button type="button">Cancel</button></a>
-        </form>
-        
-           
+                    </select>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button class="btn btn-success" type="submit" name="register">Register User</button>
+                    <a href="admin_list_users.php" class="btn btn-danger">Cancel</a>
+                </div>
+            </form>
+        </div>
     </div>
      
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-
-
-
-
- class="mb-4">Register New User</h2>
-        <div class="col-md-6">
-        <form method="POST" action="admin_register.php">
-            <div class="mb-3">
-                <label for="username" class="form-label">Username</label>
-                <input type="text" class="form-control" id="username" name="username" required>
-            </div>
-
-            <div class="mb-3">
-                <label for="full_name" class="form-label">Full Name</label>
-                <input type="text" class="form-control" id="full_name" name="full_name" required>
-            </div>
-
-            <div class="mb-3">
-                <label for="password" class="form-label">Password</label>
-                <input type="password" class="form-control" id="password" name="password" required>
-            </div>
-
-            <div class="mb-3">
-                <label for="user_type" class="form-label">User Type</label>
-                <select class="form-select" id="user_type" name="user_type" required>
-                    <option value="admin">Admin</option>
-                    <option value="student">Student</option>
-                    <option value="safety_staff">Safety Staff</option>
-                </select>
-            </div>
-
-            <div class="d-flex gap-2">
-                <button class="btn btn-success" type="submit" name="register">Register User</button>
-                <a href="admin_list_users.php" class="btn btn-danger">Cancel</a>
-            </div>
-        </form>
-        </div>
