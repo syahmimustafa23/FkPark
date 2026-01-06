@@ -171,8 +171,8 @@ h2 {
     <div class="container">
        <h2>Live Parking Availability</h2>
     
-        <form method="GET" style="margin-bottom: 20px;">
-            <select name="area_id" onchange="this.form.submit()">
+        <form method="GET" style="margin-bottom: 20px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <select name="area_id" onchange="this.form.submit()" style="flex: 0 1 auto; padding: 8px;">
                 <option value="">-- Select Area --</option>
                 <?php while($a = mysqli_fetch_assoc($areas_query)): ?>
                     <option value="<?php echo $a['Area_id']; ?>" <?php echo ($selected_area == $a['Area_id']) ? 'selected' : ''; ?>>
@@ -181,17 +181,12 @@ h2 {
                 <?php endwhile; ?>
             </select>
             <?php if($selected_area): ?>
-                <a href="view_qr_codes.php?area_id=<?php echo $selected_area; ?>" style="margin-left: 10px; padding: 8px 15px; background: #28a745; color: white; text-decoration: none; border-radius: 4px; display: inline-block;">View QR Codes</a>
+                <a href="view_qr_codes.php?area_id=<?php echo $selected_area; ?>" style="padding: 8px 15px; background: #28a745; color: white; text-decoration: none; border-radius: 4px; display: inline-block;">View QR Codes</a>
+                <input type="text" id="searchInput" placeholder="🔍 Search by space number or status..." 
+                       style="padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 13px; flex: 1; min-width: 250px;">
+                <button type="button" onclick="clearSearch()" style="padding: 8px 15px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer; white-space: nowrap;">Clear Search</button>
             <?php endif; ?>
         </form>
-
-        <?php if($selected_area): ?>
-            <div style="margin-bottom: 20px; display: flex; gap: 10px; align-items: center;">
-                <input type="text" id="searchInput" placeholder="🔍 Search by space number or status..." 
-                       style="padding: 10px; border: 1px solid #ddd; border-radius: 4px; flex: 1; max-width: 400px;">
-                <button onclick="clearSearch()" style="padding: 8px 15px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer;">Clear Search</button>
-            </div>
-        <?php endif; ?>
 
         <?php if ($selected_area): ?>
             <div class="parking-grid">
