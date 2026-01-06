@@ -21,6 +21,7 @@ $result = mysqli_query($conn, $query);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard | FKPark</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
@@ -87,78 +88,29 @@ $result = mysqli_query($conn, $query);
             border-radius: 4px;
         }
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             background: white;
             padding: 30px;
-            border-radius: 4px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         h2 { 
-            margin-bottom: 20px; 
-            color: #333; 
+            margin-bottom: 25px; 
+            color: #333;
+            font-weight: 600;
         }
-        form {
-            background: #f9f9f9;
-            padding: 20px;
-            border-radius: 4px;
-            margin-bottom: 20px;
+        .controls-section {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .controls-section form {
+            flex: 1;
             display: flex;
             gap: 10px;
-            align-items: center;
-        }
-        input[type="text"] {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-            flex: 1;
-            max-width: 400px;
-        }
-        .search-btn {
-            background: #667eea;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .search-btn:hover {
-            background: #5568d3;
-        }
-        .btn-add {
-            background: #28a745;
-            color: white;
-            padding: 10px 20px;
-            text-decoration: none;
-            border-radius: 4px;
-            margin-bottom: 20px;
-            display: inline-block;
-            font-size: 14px;
-        }
-        .btn-add:hover {
-            background: #218838;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-        table th, table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        table th {
-            background: #f9f9f9;
-            font-weight: bold;
-            color: #333;
-        }
-        table a.delete {
-            color: #dc3545;
-        }
-        table a.delete:hover {
-            color: #c82333;
+            min-width: 300px;
         }
     </style>
 </head>
@@ -183,40 +135,45 @@ $result = mysqli_query($conn, $query);
     <div class="container">
         <h2>User Management</h2>
 
-        <form method="GET">
-            <input type="text" name="search" placeholder="Search by username or name" value="<?= htmlspecialchars($searchTerm); ?>">
-            <button class="search-btn" type="submit">Search</button>
-        </form>
+        <div class="controls-section">
+            <form method="GET" class="flex-grow-1">
+                <input type="text" class="form-control" name="search" placeholder="Search by username or name..." value="<?= htmlspecialchars($searchTerm); ?>">
+                <button class="btn btn-primary" type="submit">Search</button>
+            </form>
+            <a href="admin_register.php" class="btn btn-success">+ Add New User</a>
+            <a href="admin_user_statistics.php" class="btn btn-info">📊 Show Report</a>
+        </div>
 
-        <a href="admin_register.php" class="btn-add">+ Add New User</a>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Username</th>
-                    <th>Full Name</th>
-                    <th>Type</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php while ($row = mysqli_fetch_assoc($result)): ?>
-                <tr>
-                    <td><?= htmlspecialchars($row['user_id']); ?></td>
-                    <td><?= htmlspecialchars($row['username']); ?></td>
-                    <td><?= htmlspecialchars($row['full_name']); ?></td>
-                    <td><?= htmlspecialchars($row['user_type']); ?></td>
-                    <td>
-                        <a href="admin_view_user.php?id=<?= $row['user_id']; ?>">View</a>
-                        <a href="admin_update_user.php?id=<?= $row['user_id']; ?>">Update</a>
-                        <a href="admin_delete_user.php?id=<?= $row['user_id']; ?>" class="delete" onclick="return confirm('Delete this user?')">Delete</a>
-                    </td>
-                </tr>
-                <?php endwhile; ?>
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Full Name</th>
+                        <th>Type</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php while ($row = mysqli_fetch_assoc($result)): ?>
+                    <tr>
+                        <td><?= htmlspecialchars($row['user_id']); ?></td>
+                        <td><?= htmlspecialchars($row['username']); ?></td>
+                        <td><?= htmlspecialchars($row['full_name']); ?></td>
+                        <td>
+                            <span class="badge bg-info text-dark"><?= htmlspecialchars($row['user_type']); ?></span>
+                        </td>
+                        <td>
+                            <a href="admin_view_user.php?id=<?= $row['user_id']; ?>" class="link-primary small">View</a>
+                            <span class="text-muted ms-2 me-2">·</span>
+                            <a href="admin_update_user.php?id=<?= $row['user_id']; ?>" class="link-primary small">Update</a>
+                            <span class="text-muted ms-2 me-2">·</span>
+                            <a href="admin_delete_user.php?id=<?= $row['user_id']; ?>" class="link-danger small" onclick="return confirm('Delete this user?')">Delete</a>
+                        </td>
+                    </tr>
+                    <?php endwhile; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
-
-</body>
-</html>

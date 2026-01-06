@@ -33,6 +33,7 @@ $areas = mysqli_query($conn, "SELECT * FROM parking_area");
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard | FKPark</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
@@ -105,54 +106,6 @@ $areas = mysqli_query($conn, "SELECT * FROM parking_area");
             margin-bottom: 20px; 
             color: #333; 
         }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        table th, table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        table th {
-            background: #f9f9f9;
-            font-weight: bold;
-        }
-        table a {
-            color: #667eea;
-            text-decoration: none;
-            margin-right: 10px;
-        }
-        table a:hover {
-            text-decoration: underline;
-        }
-        form {
-            background: #f9f9f9;
-            padding: 20px;
-            border-radius: 4px;
-            margin-bottom: 30px;
-        }
-        form input, form select {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-            margin-right: 10px;
-            margin-bottom: 10px;
-        }
-        form button {
-            background: #667eea;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        form button:hover {
-            background: #5568d3;
-        }
     </style>
 </head>
 <body>
@@ -176,36 +129,53 @@ $areas = mysqli_query($conn, "SELECT * FROM parking_area");
     <div class="container">
         <h2>Manage Parking Areas</h2>
     
-    <form method="POST" style="margin-bottom: 30px; border: 1px solid #ccc; padding: 15px;">
-        <h3>Add New Area</h3>
-        <input type="text" name="area_name" placeholder="e.g. Block A" required>
-        <select name="category">
-            <option value="Student">Student Area</option>
-            <option value="Staff">Staff Area</option>
-        </select>
-        <button type="submit" name="add_area">Create Area</button>
-    </form>
+    <div class="card mb-4">
+        <div class="card-body bg-light">
+            <h3 class="card-title mb-3">Add New Area</h3>
+            <form method="POST" class="row g-2">
+                <div class="col-md-5">
+                    <input type="text" class="form-control" name="area_name" placeholder="e.g. Block A" required>
+                </div>
+                <div class="col-md-4">
+                    <select class="form-select" name="category">
+                        <option value="Student">Student Area</option>
+                        <option value="Staff">Staff Area</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" name="add_area" class="btn btn-primary w-100">Create Area</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-    <table border="1" width="100%">
-        <tr>
-            <th>Area Name</th>
-            <th>Category</th>
-            <th>Actions</th>
-        </tr>
+    <div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>Area Name</th>
+                <th>Category</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
         <?php while($row = mysqli_fetch_assoc($areas)): ?>
         <tr>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
             <td><?php echo $row['Area_name']; ?></td>
             <td><?php echo $row['Category']; ?></td>
             <td>
-                <a href="admin_edit_area.php?id=<?php echo $row['Area_id']; ?>">Edit</a> |
-                <a href="admin_manage_spaces.php?area_id=<?php echo $row['Area_id']; ?>">Manage Spaces</a> |
+                <a href="admin_edit_area.php?id=<?php echo $row['Area_id']; ?>" class="link-primary small">Edit</a>
+                <a href="admin_manage_spaces.php?area_id=<?php echo $row['Area_id']; ?>" class="link-primary small ms-2">Manage Spaces</a>
                 <a href="admin_delete_area.php?id=<?php echo $row['Area_id']; ?>" 
-                   style="color:red;" 
+                   class="link-danger small ms-2" 
                    onclick="return confirm('Deleting this area will delete all slots inside it. Proceed?')">Delete</a>
             </td>
         </tr>
         <?php endwhile; ?>
+        </tbody>
     </table>
+    </div>
     </div>
      
 </body>

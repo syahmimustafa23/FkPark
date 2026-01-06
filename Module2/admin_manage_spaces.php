@@ -82,6 +82,7 @@ if (isset($_GET['edit_id'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Manage Parking Spaces | FKPark</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
@@ -140,52 +141,8 @@ if (isset($_GET['edit_id'])) {
             border-radius: 4px;
             font-size: 14px;
         }
-        button {
-            background: #667eea;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        button:hover {
-            background: #5568d3;
-        }
-        .cancel-btn {
-            background: #6c757d;
-            margin-left: 10px;
-        }
-        .cancel-btn:hover {
-            background: #5a6268;
-        }
         .success { color: green; padding: 10px; background: #d4edda; border-radius: 4px; margin-bottom: 20px; }
         .error { color: red; padding: 10px; background: #f8d7da; border-radius: 4px; margin-bottom: 20px; }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background: #f5f5f5;
-            font-weight: bold;
-        }
-        .actions a {
-            margin-right: 10px;
-            color: #667eea;
-            text-decoration: none;
-        }
-        .actions a:hover {
-            text-decoration: underline;
-        }
-        .delete-link {
-            color: red;
-        }
         .form-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -231,9 +188,9 @@ if (isset($_GET['edit_id'])) {
         <?php endif; ?>
 
         <!-- Area Selection -->
-        <div class="form-group">
-            <label>Select Area:</label>
-            <select onchange="window.location.href='?area_id=' + this.value">
+        <div class="mb-3">
+            <label class="form-label">Select Area:</label>
+            <select class="form-select" onchange="window.location.href='?area_id=' + this.value">
                 <option value="">-- Select Area --</option>
                 <?php 
                 mysqli_data_seek($areas, 0);
@@ -248,31 +205,35 @@ if (isset($_GET['edit_id'])) {
 
         <?php if ($selected_area): ?>
             <!-- Search Box -->
-            <div class="form-group" style="margin-top: 20px; margin-bottom: 20px;">
-                <input type="text" id="searchInput" placeholder="🔍 Search space number or status (e.g., A01, Available, Maintenance)..." 
-                       style="padding: 10px; width: 100%; max-width: 500px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
-                <button onclick="clearSearch()" style="margin-left: 10px; padding: 10px 15px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">Clear Search</button>
+            <div class="mb-3 d-flex gap-2">
+                <input type="text" id="searchInput" class="form-control" placeholder="🔍 Search space number or status (e.g., A01, Available, Maintenance)..." 
+                       style="max-width: 500px;">
+                <button onclick="clearSearch()" class="btn btn-secondary">Clear Search</button>
             </div>
 
             <?php if (isset($edit_space)): ?>
                 <!-- Edit Space Form -->
-                <div style="background: #f9f9f9; padding: 20px; border-radius: 4px; margin: 20px 0;">
-                    <h3>Edit Space <?php echo htmlspecialchars($edit_space['Space_num']); ?></h3>
+                <div class="card bg-light mb-4">
+                    <div class="card-body">
+                    <h3 class="card-title mb-3">Edit Space <?php echo htmlspecialchars($edit_space['Space_num']); ?></h3>
                     <form method="POST">
                         <input type="hidden" name="area_id" value="<?php echo $selected_area; ?>">
                         <input type="hidden" name="space_id" value="<?php echo $edit_space['Space_id']; ?>">
 
-                        <div class="form-group">
-                            <label>Status:</label>
-                            <select name="status" required>
+                        <div class="mb-3">
+                            <label class="form-label">Status:</label>
+                            <select name="status" class="form-select" required>
                                 <option value="Available" <?php echo ($edit_space['Current_status'] == 'Available') ? 'selected' : ''; ?>>Available</option>
                                 <option value="Maintenance" <?php echo ($edit_space['Current_status'] == 'Maintenance') ? 'selected' : ''; ?>>Maintenance</option>
                             </select>
                         </div>
 
-                        <button type="submit" name="update_space">Update Status</button>
-                        <a href="?area_id=<?php echo $selected_area; ?>" class="cancel-btn" style="padding: 10px 20px; text-decoration: none; border-radius: 4px; display: inline-block;">Cancel</a>
+                        <div class="d-flex gap-2">
+                            <button type="submit" name="update_space" class="btn btn-primary">Update Status</button>
+                            <a href="?area_id=<?php echo $selected_area; ?>" class="btn btn-secondary">Cancel</a>
+                        </div>
                     </form>
+                    </div>
                 </div>
             <?php endif; ?>
 
@@ -281,8 +242,9 @@ if (isset($_GET['edit_id'])) {
             <?php 
             if ($spaces && mysqli_num_rows($spaces) > 0): 
             ?>
-                <table>
-                    <thead>
+                <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-light">
                         <tr>
                             <th>Space Number</th>
                             <th>Status</th>
@@ -320,22 +282,24 @@ while ($space = mysqli_fetch_assoc($spaces)):
                                     <a href="qr_display.php?space_id=<?php echo $space['Space_id']; ?>&back_from=manage_spaces&area_id=<?php echo $selected_area; ?>" target="_blank">View QR</a>
                                 <?php endif; ?>
                             </td>
-                            <td class="actions">
-                                <a href="?area_id=<?php echo $selected_area; ?>&edit_id=<?php echo $space['Space_id']; ?>">Edit</a> |
+                            <td>
+                                <a href="?area_id=<?php echo $selected_area; ?>&edit_id=<?php echo $space['Space_id']; ?>" class="link-primary small">Edit</a>
                                 <a href="?area_id=<?php echo $selected_area; ?>&delete_id=<?php echo $space['Space_id']; ?>" 
-                                   class="delete-link"
+                                   class="link-danger small ms-2"
                                    onclick="return confirm('Delete this space?');">Delete</a>
                             </td>
                         </tr>
                         <?php endwhile; ?>
                     </tbody>
                 </table>
+                </div>
             <?php else: ?>
                 <p>No spaces in this area yet. Create spaces using the Manage Area section.</p>
             <?php endif; ?>
         <?php endif; ?>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function searchSpaces(searchTerm) {
             const rows = document.querySelectorAll('.space-row');
