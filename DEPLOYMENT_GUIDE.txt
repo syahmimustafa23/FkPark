@@ -1,0 +1,154 @@
+========================================
+FKPARK DEPLOYMENT GUIDE
+========================================
+
+📋 STEP-BY-STEP DEPLOYMENT PROCESS:
+
+1. CHOOSE HOSTING PROVIDER
+   └─ Get: Domain, Database Host, DB Name, DB User, DB Pass, FTP Details
+
+2. CREATE DATABASE ON LIVE SERVER
+   └─ Via cPanel → MySQL Databases → Create DB and User
+   └─ Note the exact credentials
+
+3. EXPORT LOCAL DATABASE
+   └─ Go to: http://localhost/phpmyadmin
+   └─ Select database "fkpark"
+   └─ Click "Export" → Save as fkpark_backup.sql
+
+4. IMPORT DATABASE TO LIVE SERVER
+   └─ Login to hosting cPanel → phpMyAdmin
+   └─ Select your live database
+   └─ Click "Import" → Upload fkpark_backup.sql
+   └─ Click "Go"
+
+5. UPDATE config.php WITH LIVE CREDENTIALS
+   └─ Edit: config.php (in FkPark folder root)
+   └─ Change these 4 lines:
+      
+      $db_host = "localhost";      ← Change this
+      $db_user = "root";           ← Change this
+      $db_pass = "";               ← Change this
+      $db_name = "fkpark";         ← Change this
+
+   └─ Example from Hostinger:
+      
+      $db_host = "mysql.parkingapp.com";
+      $db_user = "u1234567_user";
+      $db_pass = "YourPassword123";
+      $db_name = "u1234567_fkpark";
+
+6. UPLOAD ALL FILES VIA FTP
+   └─ Use: FileZilla or Hosting FTP Manager
+   └─ Local Folder: c:\xampp\htdocs\FkPark\
+   └─ Remote Folder: public_html/fkpark/
+   
+   └─ Upload everything:
+      - config.php ✓
+      - login.php ✓
+      - Module1/ (all files) ✓
+      - Module2/ (all files) ✓
+      - Module3/ (all files) ✓
+      - Module4/ (all files) ✓
+      - dashboards/ ✓
+      - assets/ ✓
+      - images/ ✓
+      - photo/ ✓
+
+7. CREATE FOLDER PERMISSIONS
+   └─ Via cPanel File Manager:
+      
+      Folders that need WRITE permission (755 or 777):
+      └─ FkPark/Module1/uploads/
+      └─ FkPark/qr_codes/
+      └─ FkPark/photo/
+
+8. TEST THE APP
+   └─ Open: https://parkingapp.com/fkpark/login.php
+   └─ Try login (admin/admin or your test accounts)
+   └─ Test all modules
+   └─ Scan QR code with phone - should work!
+
+========================================
+WHAT HAPPENS AT EACH STAGE:
+========================================
+
+🏠 LOCAL (Now):
+- Database: localhost (on your computer)
+- Access: http://localhost/fkpark/
+- Users: admin, security_staff, student
+
+📡 LIVE SERVER:
+- Database: remote server (e.g., mysql.parkingapp.com)
+- Access: https://parkingapp.com/fkpark/
+- Users: SAME (already in database)
+- QR Codes: Automatically use your domain
+
+========================================
+QR CODE BEHAVIOR:
+========================================
+
+✅ LOCAL: QR contains http://192.168.X.X/fkpark/...
+✅ LIVE:  QR contains https://parkingapp.com/fkpark/...
+
+The code automatically detects whether you're using:
+- localhost (http)
+- Local IP (http)
+- Domain (https)
+
+No changes needed! It just works!
+
+========================================
+IF SOMETHING DOESN'T WORK:
+========================================
+
+1. Database Connection Error
+   ├─ Check config.php has correct db credentials
+   ├─ Verify database exists on live server
+   └─ Check database user has proper permissions
+
+2. Files Not Found (404 Error)
+   ├─ Check files uploaded to public_html/fkpark/
+   ├─ Check folder structure is correct
+   └─ Check file permissions (755 for folders)
+
+3. QR Code Not Scanning
+   ├─ Make sure domain is accessible from internet
+   ├─ Check HTTPS/SSL is enabled
+   └─ Test QR manually by typing URL in browser
+
+4. Login Not Working
+   ├─ Check users table imported correctly
+   ├─ Try default admin: username=admin, password=admin
+   └─ Check session folder has write permission
+
+========================================
+EXAMPLE HOSTINGER DEPLOYMENT:
+========================================
+
+1. Buy domain + hosting from Hostinger
+2. Get credentials:
+   Domain: parkingapp.com
+   DB Host: mysql.parkingapp.com
+   DB Name: u1234567_fkpark
+   DB User: u1234567_fkpark
+   DB Pass: Secure1234
+   FTP: u1234567 / FTPPass123
+
+3. Export database from XAMPP phpMyAdmin
+
+4. Import to Hostinger cPanel phpMyAdmin
+
+5. Edit config.php:
+   $db_host = "mysql.parkingapp.com";
+   $db_user = "u1234567_fkpark";
+   $db_pass = "Secure1234";
+   $db_name = "u1234567_fkpark";
+
+6. Upload files via FileZilla FTP
+
+7. Test: https://parkingapp.com/fkpark/login.php
+
+Done! ✅
+
+========================================

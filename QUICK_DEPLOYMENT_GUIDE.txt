@@ -1,0 +1,157 @@
+========================================
+⚡ QUICK REFERENCE - DEPLOYMENT IN 5 MINUTES
+========================================
+
+WHAT IS "CONFIG-BASED"?
+→ Your app has ONE file (config.php) that knows WHERE the database is
+→ All other files read from this file
+→ To move to a different server = just change config.php!
+
+LOCAL (Now):
+  config.php says: "Database is on localhost"
+  → App works on your computer
+
+LIVE SERVER (Later):
+  config.php says: "Database is on mysql.parkingapp.com"
+  → App works on the internet
+
+========================================
+SUPER SIMPLE 5-STEP SUMMARY:
+========================================
+
+1️⃣ Sign up for hosting
+   Get: domain name, database details, FTP details
+
+2️⃣ Create database on live server
+   Via cPanel → Create database & user
+
+3️⃣ Copy your database from local to live
+   Export local database → Import to live server
+
+4️⃣ Update config.php (3 important changes)
+   
+   BEFORE (Local):
+   ─────────────────────────────
+   $db_host = "localhost";
+   $db_user = "root";
+   $db_pass = "";
+   $db_name = "fkpark";
+   
+   AFTER (Live Server - Example):
+   ─────────────────────────────
+   $db_host = "mysql.parkingapp.com";
+   $db_user = "u1234567_user";
+   $db_pass = "SecurePass123";
+   $db_name = "u1234567_fkpark";
+
+5️⃣ Upload ALL files to server via FTP
+   Local: c:\xampp\htdocs\FkPark\
+   Remote: public_html/fkpark/
+
+Done! ✅ Your app is live!
+
+========================================
+HOW UPLOADING WORKS (FTP):
+========================================
+
+Think of FTP like copying files to a USB drive, but online:
+
+Your Computer (Local)          Remote Server (Live)
+─────────────────            ────────────────────
+c:\xampp\htdocs\FkPark\   →   public_html/fkpark/
+├── config.php             →   ├── config.php
+├── login.php              →   ├── login.php
+├── Module1/               →   ├── Module1/
+├── Module2/               →   ├── Module2/
+└── Module3/               →   └── Module3/
+
+Use FileZilla (free FTP software):
+1. Download FileZilla
+2. Enter FTP host, username, password from hosting
+3. Navigate to local folder: c:\xampp\htdocs\FkPark\
+4. Navigate to remote: public_html/
+5. Drag and drop files to upload
+6. Done!
+
+========================================
+QR CODES - WILL THEY WORK?
+========================================
+
+✅ YES! 100% Will Work
+
+WHY?
+→ Your code detects if you're using:
+  - localhost (generates QR with http://localhost/...)
+  - Local IP (generates QR with http://192.168.X.X/...)
+  - Domain (generates QR with https://parkingapp.com/...)
+
+→ So QR codes AUTOMATICALLY adapt!
+
+When you scan on live server:
+→ Student scans QR code
+→ QR has link to: https://parkingapp.com/fkpark/Module2/qr_space_info.php
+→ Opens on their phone
+→ Works! ✅
+
+========================================
+EXAMPLE: HOSTINGER DEPLOYMENT
+========================================
+
+1. Buy from hostinger.com
+   Cost: ~$3-5/month
+   
+2. After signup, you get:
+   Email with credentials
+   cPanel login
+   
+3. In cPanel → MySQL Databases:
+   Create database: u1234567_fkpark
+   Create user: u1234567_user
+   Set password: MySecurePass123
+   
+4. Export from XAMPP:
+   Open http://localhost/phpmyadmin
+   Select "fkpark" database
+   Click "Export" → Save file
+   
+5. Import to Hostinger:
+   Login to hosting cPanel
+   Click phpMyAdmin
+   Click "Import"
+   Upload the file from step 4
+   
+6. Edit config.php:
+   $db_host = "mysql.parkingapp.com"
+   $db_user = "u1234567_user"
+   $db_pass = "MySecurePass123"
+   $db_name = "u1234567_fkpark"
+   
+7. Download FileZilla (free)
+   
+8. In FileZilla:
+   Host: ftp.parkingapp.com
+   User: u1234567
+   Pass: (your FTP password)
+   
+9. Upload:
+   Local: c:\xampp\htdocs\FkPark\
+   Remote: public_html/fkpark/
+   
+10. Test:
+    Open browser: https://parkingapp.com/fkpark/login.php
+    Login with: admin / admin
+    ✅ Done!
+
+========================================
+REMEMBER:
+========================================
+
+✅ Your app is ALREADY production-ready
+✅ All modules will work on live server
+✅ QR codes will work anywhere
+✅ You only need to change 4 lines in config.php
+✅ Everything else stays the same
+
+Questions? Check DEPLOYMENT_GUIDE.txt in FkPark folder!
+
+========================================

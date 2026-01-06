@@ -33,6 +33,7 @@ if (isset($_POST['register'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard | FKPark</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
@@ -109,53 +110,6 @@ if (isset($_POST['register'])) {
             margin-bottom: 20px; 
             color: #333; 
         }
-        form {
-            background: #f9f9f9;
-            padding: 20px;
-            border-radius: 4px;
-            margin-bottom: 20px;
-        }
-        form input, form select {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-            width: 100%;
-            max-width: 400px;
-            margin-bottom: 15px;
-            display: block;
-        }
-        .buttons {
-            margin-top: 20px;
-            display: flex;
-            gap: 10px;
-        }
-        .register {
-            background: #28a745;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .register:hover {
-            background: #218838;
-        }
-        .cancel {
-            background: #dc3545;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            text-decoration: none;
-            display: inline-block;
-        }
-        .cancel:hover {
-            background: #c82333;
-        }
     </style>
 </head>
 <body>
@@ -209,9 +163,43 @@ if (isset($_POST['register'])) {
            
     </div>
      
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
 
 
 
 
+ class="mb-4">Register New User</h2>
+        <div class="col-md-6">
+        <form method="POST" action="admin_register.php">
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" class="form-control" id="username" name="username" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="full_name" class="form-label">Full Name</label>
+                <input type="text" class="form-control" id="full_name" name="full_name" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="user_type" class="form-label">User Type</label>
+                <select class="form-select" id="user_type" name="user_type" required>
+                    <option value="admin">Admin</option>
+                    <option value="student">Student</option>
+                    <option value="safety_staff">Safety Staff</option>
+                </select>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button class="btn btn-success" type="submit" name="register">Register User</button>
+                <a href="admin_list_users.php" class="btn btn-danger">Cancel</a>
+            </div>
+        </form>
+        </div>

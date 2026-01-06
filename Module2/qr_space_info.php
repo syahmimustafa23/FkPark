@@ -2,12 +2,16 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// Direct database connection (NO SESSION - this page is public for QR scanning)
-$conn = mysqli_connect("localhost", "root", "", "fkpark");
+// Set timezone for Malaysia
+date_default_timezone_set('Asia/Kuala_Lumpur');
 
-if (!$conn) {
-    die("Connection failed: " . mysqli_connect_error());
-}
+// Direct database connection (NO SESSION - this page is public for QR scanning)
+// Use config file for portability across servers
+require_once '../config.php';
+
+// Use existing connection from config.php
+$conn = $conn; // Already defined in config.php
+
 
 // Get space information from QR code
 $space_num = isset($_GET['space']) ? mysqli_real_escape_string($conn, $_GET['space']) : null;
@@ -390,8 +394,8 @@ if ($status == 'Available') {
         <?php endif; ?>
 
         <div style="text-align: center;">
-            <a href="student_view.php?area_id=<?php echo $area_id; ?>" class="back-button">
-                🔙 Back to Parking Map
+            <a href="qr_display.php?space_id=<?php echo $space['Space_id']; ?>" class="back-button">
+                🔙 Back to QR Code
             </a>
         </div>
     </div>
