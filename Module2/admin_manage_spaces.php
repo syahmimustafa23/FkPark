@@ -247,6 +247,13 @@ if (isset($_GET['edit_id'])) {
         </div>
 
         <?php if ($selected_area): ?>
+            <!-- Search Box -->
+            <div class="form-group" style="margin-top: 20px; margin-bottom: 20px;">
+                <input type="text" id="searchInput" placeholder="🔍 Search space number or status (e.g., A01, Available, Maintenance)..." 
+                       style="padding: 10px; width: 100%; max-width: 500px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                <button onclick="clearSearch()" style="margin-left: 10px; padding: 10px 15px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">Clear Search</button>
+            </div>
+
             <?php if (isset($edit_space)): ?>
                 <!-- Edit Space Form -->
                 <div style="background: #f9f9f9; padding: 20px; border-radius: 4px; margin: 20px 0;">
@@ -301,7 +308,7 @@ while ($space = mysqli_fetch_assoc($spaces)):
         $status_label = "Maintenance";
     }
 ?>
-                        <tr>
+                        <tr class="space-row" data-space-name="<?php echo htmlspecialchars($space['Space_num']); ?>" data-status="<?php echo htmlspecialchars($status_label); ?>">
                             <td><strong><?php echo htmlspecialchars($space['Space_num']); ?></strong></td>
                             <td>
                                 <span class="<?php echo $color_class; ?>">
@@ -310,7 +317,7 @@ while ($space = mysqli_fetch_assoc($spaces)):
                             </td>
                             <td>
                                 <?php if ($space['Space_id']): ?>
-                                    <a href="qr_display.php?space_id=<?php echo $space['Space_id']; ?>" target="_blank">View QR</a>
+                                    <a href="qr_display.php?space_id=<?php echo $space['Space_id']; ?>&back_from=manage_spaces&area_id=<?php echo $selected_area; ?>" target="_blank">View QR</a>
                                 <?php endif; ?>
                             </td>
                             <td class="actions">
@@ -328,5 +335,43 @@ while ($space = mysqli_fetch_assoc($spaces)):
             <?php endif; ?>
         <?php endif; ?>
     </div>
+
+    <script>
+        function searchSpaces(searchTerm) {
+            const rows = document.querySelectorAll('.space-row');
+            let foundCount = 0;
+
+            rows.forEach(row => {
+                const spaceName = row.getAttribute('data-space-name').toLowerCase();
+                const status = row.getAttribute('data-status').toLowerCase();
+                
+                if (spaceName.includes(searchTerm.toLowerCase()) || status.includes(searchTerm.toLowerCase())) {
+                    row.style.display = 'table-row';
+                    foundCount++;
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+
+            if (foundCount === 0 && searchTerm.length > 0) {
+                alert('No parking spaces found matching your search.');
+            }
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            const rows = document.querySelectorAll('.space-row');
+            rows.forEach(row => {
+                row.style.display = 'table-row';
+            });
+        }
+
+        // Add real-time search
+        if (document.getElementById('searchInput')) {
+            document.getElementById('searchInput').addEventListener('keyup', function() {
+                searchSpaces(this.value);
+            });
+        }
+    </script>
 </body>
 </html>

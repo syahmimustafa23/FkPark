@@ -185,6 +185,14 @@ h2 {
             <?php endif; ?>
         </form>
 
+        <?php if($selected_area): ?>
+            <div style="margin-bottom: 20px; display: flex; gap: 10px; align-items: center;">
+                <input type="text" id="searchInput" placeholder="🔍 Search by space number or status..." 
+                       style="padding: 10px; border: 1px solid #ddd; border-radius: 4px; flex: 1; max-width: 400px;">
+                <button onclick="clearSearch()" style="padding: 8px 15px; background: #667eea; color: white; border: none; border-radius: 4px; cursor: pointer;">Clear Search</button>
+            </div>
+        <?php endif; ?>
+
         <?php if ($selected_area): ?>
             <div class="parking-grid">
                 <?php 
@@ -219,7 +227,7 @@ h2 {
 ?>
                         
 
-                    <div class="space-card" style="background: <?php echo $color; ?>; color: <?php echo $text_color; ?>;">
+                    <div class="space-card" data-space-name="<?php echo htmlspecialchars($s['Space_num']); ?>" data-status="<?php echo htmlspecialchars($status_label); ?>" style="background: <?php echo $color; ?>; color: <?php echo $text_color; ?>;">
                         <strong><?php echo $s['Space_num']; ?></strong>
                         <small><?php echo $status_label; ?></small>
                         <img src="<?php echo $google_qr_api; ?>" alt="QR Code">
@@ -243,5 +251,43 @@ h2 {
             <p style="text-align: center; margin-top: 20px; color: #666;">Please select an area to view spaces.</p>
         <?php endif; ?>
     </div>
+
+    <script>
+        function searchSpaces(searchTerm) {
+            const spaces = document.querySelectorAll('.space-card');
+            let foundCount = 0;
+
+            spaces.forEach(space => {
+                const spaceName = space.getAttribute('data-space-name').toLowerCase();
+                const spaceStatus = space.getAttribute('data-status').toLowerCase();
+                
+                if (spaceName.includes(searchTerm.toLowerCase()) || spaceStatus.includes(searchTerm.toLowerCase())) {
+                    space.style.display = 'block';
+                    foundCount++;
+                } else {
+                    space.style.display = 'none';
+                }
+            });
+
+            if (foundCount === 0 && searchTerm.length > 0) {
+                alert('No parking spaces found matching your search.');
+            }
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            const spaces = document.querySelectorAll('.space-card');
+            spaces.forEach(space => {
+                space.style.display = 'block';
+            });
+        }
+
+        // Add real-time search
+        if (document.getElementById('searchInput')) {
+            document.getElementById('searchInput').addEventListener('keyup', function() {
+                searchSpaces(this.value);
+            });
+        }
+    </script>
 </body>
 </html>

@@ -6,11 +6,12 @@ ini_set('display_errors', 1);
 date_default_timezone_set('Asia/Kuala_Lumpur');
 
 // Direct database connection (NO SESSION - this page is public for QR scanning)
-$conn = mysqli_connect("localhost", "root", "", "fkpark");
+// Use config file for portability across servers
+require_once '../config.php';
 
-if (!$conn) {
-    die("Connection failed: " . mysqli_connect_error());
-}
+// Use existing connection from config.php
+$conn = $conn; // Already defined in config.php
+
 
 // Get space information from QR code
 $space_num = isset($_GET['space']) ? mysqli_real_escape_string($conn, $_GET['space']) : null;

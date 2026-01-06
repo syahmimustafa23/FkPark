@@ -142,7 +142,7 @@ td{
     <div class="container">
        <h2>Live Parking Availability</h2>
     
-    <form method="GET">
+    <form method="GET" style="margin-bottom: 20px;">
         <select name="area_id" onchange="this.form.submit()">
             <option value="">-- Select Area --</option>
             <?php while($a = mysqli_fetch_assoc($areas_query)): ?>
@@ -156,7 +156,16 @@ td{
         <?php endif; ?>
     </form>
 
-    <div class="parking-grid" style="display: flex; flex-wrap: wrap; gap: 50px; margin-top: 20px; margin-left: auto;margin-right: auto; justify-content: center;">
+    <!-- Search Box -->
+    <?php if($selected_area): ?>
+        <div style="margin-bottom: 20px; text-align: center;">
+            <input type="text" id="searchInput" placeholder="🔍 Search by space name (e.g., D01, A05)..." 
+                   style="padding: 10px; width: 300px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+            <button onclick="clearSearch()" style="margin-left: 10px; padding: 10px 15px; background: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer;">Clear Search</button>
+        </div>
+    <?php endif; ?>
+
+    <div class="parking-grid" style="display: flex; flex-wrap: wrap; gap: 50px; margin-top: 20px; margin-left: auto;margin-right: auto; justify-content: center;" id="parkingGrid">
     <?php 
     if ($spaces_query):
         while($s = mysqli_fetch_assoc($spaces_query)): 
@@ -182,7 +191,7 @@ td{
         $status_label = "Available";
     }
     ?>
-        <div class="space-card" style="background: <?php echo $color; ?>; color: white; padding: 20px; border-radius: 8px; text-align: center; width: 110px;">
+        <div class="space-card" data-space-name="<?php echo htmlspecialchars($s['Space_num']); ?>" data-status="<?php echo htmlspecialchars($status_label); ?>" style="background: <?php echo $color; ?>; color: white; padding: 20px; border-radius: 8px; text-align: center; width: 110px;">
         <strong><?php echo $s['Space_num']; ?></strong><br>
             <small><?php echo $status_label; ?></small>
             
@@ -222,6 +231,41 @@ td{
     ?>
 </div>
     </div>
+
+    <script>
+        // Search function for parking spaces
+        document.getElementById('searchInput')?.addEventListener('input', function() {
+            searchSpaces(this.value);
+        });
+
+        function searchSpaces(searchTerm) {
+            const spaceCards = document.querySelectorAll('.space-card');
+            let matchCount = 0;
+
+            spaceCards.forEach(card => {
+                const spaceName = card.querySelector('strong')?.textContent.toLowerCase() || '';
+                
+                if (spaceName.includes(searchTerm.toLowerCase())) {
+                    card.style.display = 'block';
+                    matchCount++;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+
+            // Show message if no results
+            if (matchCount === 0 && searchTerm.length > 0) {
+                alert('No spaces found matching "' + searchTerm + '"');
+            }
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            document.querySelectorAll('.space-card').forEach(card => {
+                card.style.display = 'block';
+            });
+        }
+    </script>
      
 </body>
 </html>

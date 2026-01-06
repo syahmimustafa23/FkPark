@@ -4,6 +4,8 @@ requireLogin();
 
 // Get space information
 $space_id = isset($_GET['space_id']) ? (int)$_GET['space_id'] : null;
+$back_from = isset($_GET['back_from']) ? htmlspecialchars($_GET['back_from']) : 'qr_codes';
+$area_id = isset($_GET['area_id']) ? (int)$_GET['area_id'] : null;
 
 if (!$space_id) {
     die("Error: Space ID not provided");
@@ -22,14 +24,28 @@ if (!$space_query || mysqli_num_rows($space_query) == 0) {
 
 $space = mysqli_fetch_assoc($space_query);
 
+// Use area_id from query if provided, otherwise from space
+$area_id = $area_id ?: $space['Area_id'];
+
+// Determine back button URL based on where user came from
+if ($back_from == 'manage_spaces') {
+    $back_url = "admin_manage_spaces.php?area_id=" . $area_id;
+    $back_text = "Back to Manage Spaces";
+} else {
+    $back_url = "view_qr_codes.php?area_id=" . $area_id;
+    $back_text = "Back to QR Codes";
+}
+
 // Generate QR code content - use the current domain/IP so it works on phones
 $server_host = $_SERVER['HTTP_HOST']; // This will be whatever the user typed (localhost, IP, domain, etc)
+$protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? 'https://' : 'http://';
 
 // If user accessed via localhost, get the actual WiFi IP for the QR code
 if ($server_host === 'localhost' || strpos($server_host, '127.0.0.1') === 0) {
     // Try to get the server's actual IP address
     if (!empty($_SERVER['SERVER_ADDR']) && $_SERVER['SERVER_ADDR'] !== '127.0.0.1') {
         $server_host = $_SERVER['SERVER_ADDR'];
+        $protocol = 'http://'; // Local IP should use http
     } else {
         // Fallback: Try to get IPv4 address
         $server_host = gethostbyname(gethostname());
@@ -37,10 +53,11 @@ if ($server_host === 'localhost' || strpos($server_host, '127.0.0.1') === 0) {
             // If that fails, keep localhost
             $server_host = 'localhost';
         }
+        $protocol = 'http://'; // Localhost uses http
     }
 }
 
-$qr_content = "http://" . $server_host . "/fkpark/Module2/qr_space_info.php?area_id=" . $space['Area_id'] . "&space=" . urlencode($space['Space_num']);
+$qr_content = $protocol . $server_host . "/fkpark/Module2/qr_space_info.php?area_id=" . $space['Area_id'] . "&space=" . urlencode($space['Space_num']);
 
 // Generate QR code using Google QR Server API
 $encoded_text = urlencode($qr_content);
@@ -264,8 +281,8 @@ $qr_image_url = "https://api.qrserver.com/v1/create-qr-code/?size={$qr_size}x{$q
             </div>
         </div>
 
-        <button onclick="location.href='view_qr_codes.php?area_id=<?php echo $space['Area_id']; ?>';" class="back-button">
-            🔙 Back to QR Codes
+        <button onclick="location.href='<?php echo $back_url; ?>';" class="back-button">
+            🔙 <?php echo $back_text; ?>
         </button>
     </div>
 </body>
