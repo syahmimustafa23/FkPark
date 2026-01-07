@@ -1,0 +1,659 @@
+================================================================================
+ADMIN_MANAGE_SPACES.PHP - COMPLETE SYNTAX EXPLANATION
+================================================================================
+File: Module2/admin_manage_spaces.php
+Purpose: Manage parking spaces with real-time search functionality (CO2 requirement)
+Features: Edit status, Delete spaces, Search by name/status, Bootstrap styling
+
+================================================================================
+PART 1: PHP SECURITY & INITIALIZATION
+================================================================================
+
+Line 1-3: <?php require_once '../config.php'; requireLogin();
+SYNTAX:
+  - <?php = PHP opening tag
+  - require_once = includes file only once (prevents duplicate includes)
+  - '../config.php' = relative path (up one level, then config.php)
+  - requireLogin() = custom function from config.php
+PURPOSE:
+  - Loads database connection and helper functions
+  - Checks if user is logged in via session
+
+Line 5-8: if ($_SESSION['role'] !== 'admin') { header("Location: ../login.php"); exit(); }
+SYNTAX:
+  - $_SESSION['role'] = session variable storing user role
+  - !== = strict not equals (checks value AND type)
+  - header("Location: ...") = sends HTTP redirect
+  - exit() = terminates script execution
+PURPOSE:
+  - Security check: only admin users can access
+  - Redirects non-admin users to login page
+
+Line 10-11: $username = htmlspecialchars($_SESSION['username']); $user_id = $_SESSION['user_id'];
+SYNTAX:
+  - htmlspecialchars() = converts special characters to HTML entities
+    * < becomes &lt;
+    * > becomes &gt;
+    * & becomes &amp;
+  - $_SESSION['username'] = gets username from session
+PURPOSE:
+  - Gets current user information
+  - htmlspecialchars() prevents XSS (cross-site scripting) attacks
+
+================================================================================
+PART 2: DATABASE QUERIES
+================================================================================
+
+Line 14: $areas = mysqli_query($conn, "SELECT * FROM parking_area ORDER BY Area_name");
+SYNTAX:
+  - mysqli_query($conn, $sql) = executes SQL query
+  - $conn = database connection object (from config.php)
+  - SELECT * = gets all columns
+  - FROM parking_area = from this table
+  - ORDER BY Area_name = sorts alphabetically by area name
+  - Returns: mysqli_result object (not array)
+PURPOSE:
+  - Fetches all parking areas for dropdown menu
+
+Line 17: $selected_area = $_GET['area_id'] ?? null;
+SYNTAX:
+  - $_GET['area_id'] = gets parameter from URL
+    * Example URL: ?area_id=5
+    * Result: $_GET['area_id'] = "5"
+  - ?? = null coalescing operator (PHP 7+)
+    * If left side exists and not null, use it
+    * Otherwise use right side
+  - Equivalent to: isset($_GET['area_id']) ? $_GET['area_id'] : null
+PURPOSE:
+  - Gets selected area from URL, or null if not present
+
+Line 18: $spaces = null;
+SYNTAX:
+  - $spaces = null = assigns null value
+  - null = special value meaning "no value"
+PURPOSE:
+  - Initializes variable (prevents "undefined variable" errors)
+
+Line 20-23: if ($selected_area) { ... }
+SYNTAX:
+  - if ($selected_area) = checks if variable is "truthy"
+    * truthy = not null, not false, not 0, not empty string
+  - $selected_area = (int)$selected_area = type casting to integer
+  - (int) = forces value to be integer
+    * "5" (string) becomes 5 (number)
+    * "abc" becomes 0
+    * null becomes 0
+PURPOSE:
+  - Only fetch spaces if area selected
+  - Type casting prevents SQL injection (ensures number)
+
+Line 22: $spaces = mysqli_query($conn, "SELECT * FROM parking_space WHERE Area_id = '$selected_area' ORDER BY Space_num");
+SYNTAX:
+  - SELECT * = all columns from parking_space
+  - WHERE Area_id = '$selected_area' = filter by area
+  - ORDER BY Space_num = sort by space number
+PURPOSE:
+  - Gets all spaces in selected area, sorted
+
+================================================================================
+PART 3: UPDATE SPACE STATUS
+================================================================================
+
+Line 26-39: if (isset($_POST['update_space'])) { ... }
+SYNTAX:
+  - isset($_POST['update_space']) = checks if form submitted
+  - $_POST = superglobal array with form data (POST method)
+  - $_POST['update_space'] = button name from form
+
+Line 27-29: $space_id = (int)$_POST['space_id']; $status = $_POST['status']; $area_id = (int)$_POST['area_id'];
+SYNTAX:
+  - (int)$_POST['space_id'] = converts to integer
+  - $_POST['status'] = gets status value (no conversion needed)
+PURPOSE:
+  - Gets form values for update operation
+  - Type casting ensures safe integer values
+
+Line 31: $sql = "UPDATE parking_space SET Current_status='$status' WHERE Space_id='$space_id'";
+SYNTAX:
+  - UPDATE parking_space = modifies table
+  - SET Current_status='$status' = changes status column
+  - WHERE Space_id='$space_id' = only for this specific space
+  - Example: UPDATE parking_space SET Current_status='Maintenance' WHERE Space_id='5'
+PURPOSE:
+  - SQL query to update space status in database
+
+Line 33-36: if (mysqli_query($conn, $sql)) { header("Location: ..."); exit(); }
+SYNTAX:
+  - mysqli_query($conn, $sql) = executes UPDATE query
+  - Returns true if successful, false if failed
+  - header("Location: admin_manage_spaces.php?area_id=$area_id&msg=space_updated")
+    * Redirects to same page
+    * ?area_id=$area_id = keeps area selected
+    * &msg=space_updated = success message parameter
+PURPOSE:
+  - Executes update and redirects with success message
+
+Line 37-38: else { $error = "Error updating space: " . mysqli_error($conn); }
+SYNTAX:
+  - mysqli_error($conn) = gets last MySQL error message
+  - . = string concatenation
+  - $error = stores error message
+PURPOSE:
+  - Captures error message for display to user
+
+================================================================================
+PART 4: DELETE SPACE (CASCADING DELETE)
+================================================================================
+
+Line 42-67: if (isset($_GET['delete_id'])) { ... }
+SYNTAX:
+  - isset($_GET['delete_id']) = checks if delete parameter in URL
+  - Example URL: ?delete_id=5&area_id=1
+
+Line 43-44: $space_id = (int)$_GET['delete_id']; $area_id = (int)$_GET['area_id'];
+PURPOSE:
+  - Gets space ID and area ID from URL
+
+Line 47-48: $space_check = mysqli_query($conn, "SELECT Current_status FROM parking_space WHERE Space_id = '$space_id'");
+SYNTAX:
+  - SELECT Current_status = gets only status column
+  - WHERE Space_id = '$space_id' = for specific space
+PURPOSE:
+  - Checks current status before deleting
+
+Line 49: $space_data = mysqli_fetch_assoc($space_check);
+SYNTAX:
+  - mysqli_fetch_assoc($result) = converts result to associative array
+  - Returns one row from query result
+  - Array keys = column names
+  - Example: $space_data['Current_status'] = "Available"
+PURPOSE:
+  - Converts query result to usable array
+
+Line 51-52: if ($space_data['Current_status'] == 'Occupied') { $error = "..."; }
+SYNTAX:
+  - == = equality comparison (value only, not type)
+  - $space_data['Current_status'] = accesses array value
+PURPOSE:
+  - Safety check: prevents deleting occupied spaces
+
+Line 54-56: $delete_bookings = "DELETE FROM booking WHERE Space_id = '$space_id'"; mysqli_query($conn, $delete_bookings);
+SYNTAX:
+  - DELETE FROM booking = removes rows from table
+  - WHERE Space_id = '$space_id' = only for this space
+PURPOSE:
+  - CASCADING DELETE: removes dependent data first
+  - Prevents orphaned records (bookings without space)
+
+Line 59-60: $delete_usage = "DELETE FROM parking_usage WHERE Space_id = '$space_id'"; mysqli_query($conn, $delete_usage);
+PURPOSE:
+  - Removes usage history for this space
+
+Line 63-66: $delete_space = "DELETE FROM parking_space WHERE Space_id = '$space_id'"; if (mysqli_query($conn, $delete_space)) { ... }
+PURPOSE:
+  - Finally deletes the space itself
+  - Only after dependent data removed
+  - Redirects with success message
+
+================================================================================
+PART 5: EDIT MODE (PRE-FILL FORM)
+================================================================================
+
+Line 69-75: $edit_space = null; if (isset($_GET['edit_id'])) { ... }
+SYNTAX:
+  - $edit_space = null = initialize variable
+  - isset($_GET['edit_id']) = checks if edit parameter in URL
+  - Example URL: ?edit_id=5&area_id=1
+
+Line 71-73: $edit_id = (int)$_GET['edit_id']; $result = mysqli_query(...); $edit_space = mysqli_fetch_assoc($result);
+PURPOSE:
+  - Gets space data for editing
+  - $edit_space contains current space information
+  - Used to pre-fill edit form with current values
+
+Line 74: $selected_area = $edit_space['Area_id'];
+PURPOSE:
+  - Sets selected area to edited space's area
+  - Ensures dropdown shows correct area
+
+================================================================================
+PART 6: HTML STRUCTURE
+================================================================================
+
+Line 77-86: <!DOCTYPE html> <html lang="en"> <head> ... </head>
+SYNTAX:
+  - <!DOCTYPE html> = HTML5 document type declaration
+  - <html lang="en"> = root element, language is English
+  - <head> = contains metadata (not visible on page)
+  - <meta charset="UTF-8"> = character encoding (supports all languages)
+  - <meta name="viewport" ...> = responsive design for mobile
+  - <title> = page title shown in browser tab
+
+Line 87: <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+SYNTAX:
+  - <link> = links external resource
+  - href = URL of resource
+  - rel="stylesheet" = relation is CSS stylesheet
+  - CDN = Content Delivery Network (faster loading)
+PURPOSE:
+  - Loads Bootstrap 5.3.0 CSS framework
+  - Provides pre-built styles (buttons, tables, forms, etc.)
+
+Line 88-152: <style> ... </style>
+SYNTAX:
+  - <style> = embedded CSS styles
+  - CSS Selector { property: value; }
+PURPOSE:
+  - Custom styles that override or extend Bootstrap
+  - Layout, colors, spacing for this specific page
+
+================================================================================
+PART 7: BOOTSTRAP CLASSES USED
+================================================================================
+
+Line 87: <link href="...bootstrap...css" rel="stylesheet">
+  - Loads Bootstrap CSS framework
+
+Line 201: <div class="mb-3">
+SYNTAX:
+  - mb-3 = margin-bottom 3 (spacing utility)
+  - Bootstrap spacing scale: 0, 1, 2, 3, 4, 5
+  - mb-3 = 1rem bottom margin (16px default)
+
+Line 202: <label class="form-label">
+SYNTAX:
+  - form-label = Bootstrap class for form labels
+  - Adds proper spacing and font weight
+
+Line 203: <select class="form-select" onchange="...">
+SYNTAX:
+  - form-select = Bootstrap class for select dropdowns
+  - Adds styling (borders, padding, focus effects)
+  - onchange = JavaScript event when selection changes
+  - window.location.href = changes browser URL
+  - 'this.value' = selected option's value
+
+Line 215-217: <div class="mb-3 d-flex gap-2">
+SYNTAX:
+  - mb-3 = margin bottom spacing
+  - d-flex = display: flex (flexbox layout)
+  - gap-2 = spacing between flex items
+PURPOSE:
+  - Creates horizontal layout for search box and button
+
+Line 218: <input type="text" id="searchInput" class="form-control" placeholder="...">
+SYNTAX:
+  - type="text" = text input field
+  - id="searchInput" = unique identifier for JavaScript
+  - class="form-control" = Bootstrap input styling
+  - placeholder = hint text shown in empty field
+  - style="max-width: 500px;" = inline CSS limiting width
+
+Line 220: <button onclick="clearSearch()" class="btn btn-secondary">
+SYNTAX:
+  - onclick = JavaScript event when clicked
+  - clearSearch() = calls JavaScript function
+  - btn = base Bootstrap button class
+  - btn-secondary = gray color scheme
+
+Line 224-234: <div class="card bg-light mb-4"> <div class="card-body"> ...
+SYNTAX:
+  - card = Bootstrap component (white box with border)
+  - bg-light = light gray background
+  - mb-4 = margin bottom spacing
+  - card-body = padding inside card
+  - card-title = larger text for card heading
+
+Line 236-238: <form method="POST"> <input type="hidden" ...> ...
+SYNTAX:
+  - method="POST" = sends data in request body (not URL)
+  - type="hidden" = invisible field (user can't see/edit)
+  - name="area_id" = field name for PHP
+  - value="..." = field value sent to server
+PURPOSE:
+  - Hidden fields pass data without showing to user
+
+Line 241-246: <select name="status" class="form-select" required> <option value="..."> ...
+SYNTAX:
+  - required = HTML5 validation (must select option)
+  - <option value="Available"> = dropdown choice
+  - <?php echo (...) ? 'selected' : ''; ?> = conditional attribute
+    * Ternary operator: condition ? true_value : false_value
+    * If current status is Available, adds 'selected' attribute
+    * Otherwise adds empty string (no attribute)
+PURPOSE:
+  - Pre-selects current status in dropdown
+
+Line 249-252: <div class="d-flex gap-2"> <button ... class="btn btn-primary"> <a ... class="btn btn-secondary">
+SYNTAX:
+  - d-flex gap-2 = flexbox with spacing
+  - btn btn-primary = blue Bootstrap button
+  - btn btn-secondary = gray Bootstrap button
+  - type="submit" = submits form
+  - <a href="..."> = link styled as button
+PURPOSE:
+  - Side-by-side buttons with consistent styling
+
+Line 261-269: <div class="table-responsive"> <table class="table table-striped table-hover">
+SYNTAX:
+  - table-responsive = makes table scrollable on small screens
+  - table = base Bootstrap table class
+  - table-striped = alternating row colors (zebra striping)
+  - table-hover = highlights row on mouse hover
+  - thead = table header section
+  - table-light = light background for header
+  - <th> = table header cell
+  - <td> = table data cell
+
+================================================================================
+PART 8: JAVASCRIPT SEARCH FUNCTIONALITY (CO2 REQUIREMENT)
+================================================================================
+
+Line 323: <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+SYNTAX:
+  - <script src="..."> = loads external JavaScript file
+  - bootstrap.bundle.min.js = Bootstrap JavaScript components
+  - .min.js = minified (compressed) version
+PURPOSE:
+  - Enables Bootstrap interactive features (dropdowns, modals, etc.)
+
+Line 324-325: <script> function searchSpaces(searchTerm) {
+SYNTAX:
+  - <script> = embedded JavaScript code
+  - function = defines reusable function
+  - searchSpaces = function name
+  - (searchTerm) = parameter (input value)
+  - { ... } = function body
+PURPOSE:
+  - Creates function to filter table rows
+
+Line 326: const rows = document.querySelectorAll('.space-row');
+SYNTAX:
+  - const = declares constant variable (cannot be reassigned)
+  - document = represents entire HTML page (DOM object)
+  - querySelectorAll('.space-row') = finds ALL elements with class "space-row"
+  - '.space-row' = CSS selector (dot = class)
+  - Returns: NodeList (like array) of matching elements
+PURPOSE:
+  - Gets all table rows to search through
+  - querySelectorAll() is native JavaScript (no jQuery needed)
+
+Line 327: let foundCount = 0;
+SYNTAX:
+  - let = declares variable (can be reassigned)
+  - foundCount = 0 = initializes counter at zero
+PURPOSE:
+  - Tracks how many matches found
+  - Used to show "no results" message
+
+Line 329: rows.forEach(row => {
+SYNTAX:
+  - forEach() = array method that loops through each element
+  - row => { ... } = arrow function (modern JavaScript)
+  - row = current element in loop
+  - Equivalent to: rows.forEach(function(row) { ... })
+PURPOSE:
+  - Processes each table row one by one
+
+Line 330-331: const spaceName = row.getAttribute('data-space-name').toLowerCase(); const status = row.getAttribute('data-status').toLowerCase();
+SYNTAX:
+  - row.getAttribute('data-space-name') = gets HTML5 data attribute
+  - HTML source: <tr data-space-name="A01" data-status="Available">
+  - Returns: string value ("A01", "Available")
+  - .toLowerCase() = converts to lowercase
+    * "A01" becomes "a01"
+    * "Available" becomes "available"
+  - const = variable that won't be reassigned
+PURPOSE:
+  - Gets searchable data from each row
+  - toLowerCase() makes search case-insensitive
+
+Line 333-337: if (spaceName.includes(searchTerm.toLowerCase()) || status.includes(searchTerm.toLowerCase())) { row.style.display = 'table-row'; foundCount++; } else { row.style.display = 'none'; }
+SYNTAX:
+  - .includes(substring) = checks if string contains substring
+  - searchTerm.toLowerCase() = converts search to lowercase
+  - || = OR operator (if either condition true)
+  - if (...) { ... } else { ... } = conditional
+  - row.style.display = 'table-row' = shows row
+  - row.style.display = 'none' = hides row
+  - foundCount++ = adds 1 to counter (same as foundCount = foundCount + 1)
+EXAMPLES:
+  - "a01".includes("a") = true
+  - "available".includes("avail") = true
+  - "a01".includes("xyz") = false
+PURPOSE:
+  - Shows row if search matches name OR status
+  - Hides row if no match
+  - Counts visible rows
+
+Line 340-342: if (foundCount === 0 && searchTerm.length > 0) { alert('No parking spaces found matching your search.'); }
+SYNTAX:
+  - === = strict equality (checks value AND type)
+  - && = AND operator (both conditions must be true)
+  - searchTerm.length = number of characters
+  - > 0 = greater than zero (not empty)
+  - alert() = shows browser popup message
+PURPOSE:
+  - Shows message only if: 0 results AND user typed something
+  - Doesn't show if search box empty
+
+Line 345-351: function clearSearch() { document.getElementById('searchInput').value = ''; const rows = document.querySelectorAll('.space-row'); rows.forEach(row => { row.style.display = 'table-row'; }); }
+SYNTAX:
+  - document.getElementById('searchInput') = finds element by id
+  - .value = the text in input field
+  - .value = '' = sets to empty string (clears field)
+  - row.style.display = 'table-row' = shows all rows
+PURPOSE:
+  - Clears search box
+  - Shows all rows again (resets filter)
+
+Line 354-359: if (document.getElementById('searchInput')) { document.getElementById('searchInput').addEventListener('keyup', function() { searchSpaces(this.value); }); }
+SYNTAX:
+  - if (document.getElementById('searchInput')) = checks if element exists
+  - addEventListener('keyup', function() {...}) = adds event listener
+  - 'keyup' = event type (when user releases key)
+  - function() {...} = callback function (runs when event happens)
+  - this.value = value of input field (what user typed)
+  - searchSpaces(this.value) = calls search function with input value
+PURPOSE:
+  - Real-time search: filters as user types
+  - No "Search" button needed
+  - Instant feedback
+
+================================================================================
+PART 9: DYNAMIC TABLE ROW GENERATION
+================================================================================
+
+Line 276-283: <?php while ($space = mysqli_fetch_assoc($spaces)): ... ?>
+SYNTAX:
+  - while (...): ... endwhile; = alternative while loop syntax
+  - mysqli_fetch_assoc($spaces) = gets next row from result
+  - Returns: associative array or false when done
+  - $space = current row data
+  - Loop continues until no more rows
+PURPOSE:
+  - Generates one <tr> for each parking space
+
+Line 277-290: if ($space['Current_status'] == 'Available') { $color_class = "status-available"; $status_label = "Available"; } elseif ...
+SYNTAX:
+  - if (...) { ... } elseif (...) { ... } else { ... }
+  - Multiple conditions checked in order
+  - $space['Current_status'] = gets status from database
+  - $color_class = CSS class name to apply
+  - $status_label = text to display
+PURPOSE:
+  - Sets color and label based on status
+  - Different colors for different statuses:
+    * Available = green
+    * Occupied = red
+    * Maintenance = orange
+
+Line 292: <tr class="space-row" data-space-name="<?php echo htmlspecialchars($space['Space_num']); ?>" data-status="<?php echo htmlspecialchars($status_label); ?>">
+SYNTAX:
+  - <tr> = table row
+  - class="space-row" = CSS class for styling and JavaScript selection
+  - data-space-name = custom HTML5 data attribute
+  - data-status = another custom attribute
+  - <?php echo ... ?> = outputs PHP value into HTML
+  - htmlspecialchars() = prevents XSS attacks
+PURPOSE:
+  - Creates searchable table row
+  - data-* attributes store searchable values
+  - JavaScript reads these to perform search
+
+Line 293-296: <td><strong><?php echo htmlspecialchars($space['Space_num']); ?></strong></td> <td> <span class="<?php echo $color_class; ?>"> <?php echo $status_label; ?> </span> </td>
+SYNTAX:
+  - <td> = table data cell
+  - <strong> = bold text
+  - <span class="..."> = inline element with class
+  - $color_class = CSS class (status-available, etc.)
+PURPOSE:
+  - Displays space number and colored status
+
+Line 298-300: <?php if ($space['Space_id']): ?> <a href="qr_display.php?space_id=<?php echo $space['Space_id']; ?>&back_from=manage_spaces&area_id=<?php echo $selected_area; ?>" target="_blank">View QR</a> <?php endif; ?>
+SYNTAX:
+  - <?php if (...): ?> ... <?php endif; ?> = conditional HTML output
+  - $space['Space_id'] = space ID from database
+  - target="_blank" = opens in new tab/window
+  - href builds URL with parameters:
+    * ?space_id=... = which space
+    * &back_from=manage_spaces = where to return to
+    * &area_id=... = which area
+PURPOSE:
+  - Shows "View QR" link only if space has ID
+  - Opens QR display page in new tab
+
+Line 303-307: <a href="?area_id=<?php echo $selected_area; ?>&edit_id=<?php echo $space['Space_id']; ?>" class="link-primary small">Edit</a> <a href="..." onclick="return confirm('Delete this space?');">Delete</a>
+SYNTAX:
+  - class="link-primary small" = Bootstrap classes
+    * link-primary = blue colored link
+    * small = smaller font size
+  - class="link-danger small ms-2"
+    * link-danger = red colored link
+    * ms-2 = margin-start spacing (left margin in LTR)
+  - onclick="return confirm(...)" = JavaScript confirmation
+    * confirm() = shows browser confirmation dialog
+    * return = prevents navigation if user clicks "Cancel"
+PURPOSE:
+  - Edit link: adds edit_id parameter to URL
+  - Delete link: shows confirmation before deleting
+
+================================================================================
+PART 10: KEY FEATURES SUMMARY
+================================================================================
+
+1. SECURITY
+   - Admin-only access check
+   - htmlspecialchars() prevents XSS
+   - Type casting (int) prevents SQL injection
+   - Confirmation dialog before delete
+
+2. BOOTSTRAP STYLING (CO1 REQUIREMENT)
+   - form-control, form-select, form-label
+   - table, table-striped, table-hover, table-responsive
+   - btn, btn-primary, btn-secondary, btn-danger
+   - d-flex, gap-2, mb-3, ms-2
+   - card, card-body, card-title
+   - link-primary, link-danger
+
+3. JAVASCRIPT SEARCH (CO2 REQUIREMENT)
+   - searchSpaces() function
+   - clearSearch() function
+   - addEventListener('keyup') for real-time filtering
+   - querySelectorAll() to select rows
+   - forEach() to loop through rows
+   - getAttribute() to read data attributes
+   - includes() for string matching
+   - toLowerCase() for case-insensitive search
+
+4. DATABASE OPERATIONS
+   - SELECT queries with ORDER BY
+   - UPDATE query for status change
+   - DELETE queries with cascading (dependent data first)
+   - mysqli_fetch_assoc() to convert results
+   - Type casting for safety
+
+5. CASCADING DELETE
+   - Delete bookings first
+   - Delete usage records second
+   - Delete space last
+   - Prevents orphaned data
+   - Safety check (can't delete occupied spaces)
+
+6. RESPONSIVE DESIGN
+   - Bootstrap grid system
+   - table-responsive for mobile
+   - Flexbox layouts (d-flex)
+   - Mobile-friendly forms
+
+================================================================================
+DATA FLOW DIAGRAM
+================================================================================
+
+1. PAGE LOAD
+   URL: admin_manage_spaces.php?area_id=1
+   ↓
+   PHP checks session (admin only)
+   ↓
+   Query: SELECT areas, spaces
+   ↓
+   Generate HTML with Bootstrap
+   ↓
+   JavaScript attaches event listeners
+   ↓
+   Page displayed to admin
+
+2. SEARCH FLOW
+   User types in search box
+   ↓
+   keyup event fires
+   ↓
+   searchSpaces(value) called
+   ↓
+   querySelectorAll('.space-row') gets all rows
+   ↓
+   forEach() loops through rows
+   ↓
+   getAttribute() reads data-space-name and data-status
+   ↓
+   includes() checks if search matches
+   ↓
+   style.display shows/hides rows
+   ↓
+   Table filtered instantly (no page reload)
+
+3. UPDATE FLOW
+   User clicks Edit → Form shows
+   ↓
+   User changes status → Clicks Update
+   ↓
+   Form submits (POST)
+   ↓
+   PHP: UPDATE query executes
+   ↓
+   Redirect with success message
+   ↓
+   Page reloads showing updated status
+
+4. DELETE FLOW
+   User clicks Delete
+   ↓
+   JavaScript: confirm() dialog
+   ↓
+   User confirms
+   ↓
+   URL: ?delete_id=5&area_id=1
+   ↓
+   PHP: Check if occupied
+   ↓
+   DELETE bookings
+   ↓
+   DELETE usage
+   ↓
+   DELETE space
+   ↓
+   Redirect with success message
+
+================================================================================
+END OF SYNTAX EXPLANATION
+================================================================================

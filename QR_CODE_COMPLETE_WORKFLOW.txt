@@ -1,0 +1,869 @@
+================================================================================
+QR CODE CREATION TO SCANNING - COMPLETE STEP-BY-STEP WORKFLOW
+================================================================================
+FKPark Parking Management System
+Complete Technical Documentation with Code Syntax Explanations
+
+================================================================================
+OVERVIEW: QR CODE LIFECYCLE
+================================================================================
+
+STEP 1: Admin Creates Parking Area
+STEP 2: Admin Generates Parking Spaces with QR Codes
+STEP 3: QR Code Images are Downloaded and Saved
+STEP 4: QR Code Paths Stored in Database
+STEP 5: Admin Can View/Print QR Codes
+STEP 6: Student Scans QR Code with Phone
+STEP 7: QR Info Page Displays Space Status
+
+FILES INVOLVED:
+1. admin_list_area.php - Create parking areas
+2. admin_generates_spaces.php - Generate spaces with QR codes
+3. generate_qr_code.php - Helper functions for QR generation
+4. qr_display.php - Display individual QR code for printing
+5. view_qr_codes.php - View all QR codes in area
+6. qr_space_info.php - Public page that opens when QR is scanned
+
+================================================================================
+STEP 1: ADMIN CREATES PARKING AREA
+================================================================================
+
+FILE: admin_list_area.php
+
+*** HTML FORM SECTION ***
+
+<form method="POST" class="card">
+    <div class="card-body bg-light">
+        <div class="row g-2">
+            <div class="col-md-6">
+                <label class="form-label">Area Name</label>
+                <input type="text" name="area_name" class="form-control" required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Category</label>
+                <select name="category" class="form-select" required>
+                    <option value="">-- Select --</option>
+                    <option value="Student">Student</option>
+                    <option value="Staff">Staff</option>
+                    <option value="VIP">VIP</option>
+                </select>
+            </div>
+        </div>
+        <button type="submit" name="add_area" class="btn btn-success">Add Area</button>
+    </div>
+</form>
+
+SYNTAX EXPLANATION:
+
+<form method="POST" class="card">
+  - method="POST" = submits data in request body (not visible in URL)
+  - class="card" = Bootstrap class for white container with border
+
+<input type="text" name="area_name" class="form-control" required>
+  - type="text" = text input field
+  - name="area_name" = field name (used to get value in PHP)
+  - class="form-control" = Bootstrap styling for input
+  - required = HTML5 validation (cannot submit empty)
+
+<select name="category" class="form-select">
+  - <select> = dropdown menu
+  - name="category" = field name for PHP
+  - class="form-select" = Bootstrap styling for dropdown
+
+<option value="Student">Student</option>
+  - value="Student" = value sent to server
+  - Text between tags = what user sees
+
+<button type="submit" name="add_area">
+  - type="submit" = submits the form
+  - name="add_area" = button identifier in PHP
+
+*** PHP PROCESSING SECTION ***
+
+if (isset($_POST['add_area'])) {
+    $name = mysqli_real_escape_string($conn, $_POST['area_name']);
+    $cat = $_POST['category'];
+
+    $sql = "INSERT INTO parking_area (Area_name, Category) VALUES ('$name', '$cat')";
+    if (mysqli_query($conn, $sql)) {
+        $new_area_id = mysqli_insert_id($conn);
+        header("Location: admin_generates_spaces.php?area_id=$new_area_id&msg=added");
+        exit();
+    }
+}
+
+SYNTAX EXPLANATION:
+
+if (isset($_POST['add_area']))
+  - isset() = checks if variable exists and is not null
+  - $_POST['add_area'] = checks if "add_area" button was clicked
+  - $_POST = superglobal array containing form data sent via POST
+
+$name = mysqli_real_escape_string($conn, $_POST['area_name']);
+  - $_POST['area_name'] = gets value from form field named "area_name"
+  - mysqli_real_escape_string() = escapes special characters for SQL safety
+    * Prevents SQL injection attacks
+    * Escapes: ' " \ NULL
+  - $conn = database connection object
+  - $name = stores escaped area name
+
+$sql = "INSERT INTO parking_area (Area_name, Category) VALUES ('$name', '$cat')";
+  - INSERT INTO = SQL command to add new row
+  - parking_area = table name
+  - (Area_name, Category) = columns to insert into
+  - VALUES ('$name', '$cat') = values to insert
+  - Example: "INSERT INTO parking_area (Area_name, Category) VALUES ('North Lot', 'Student')"
+
+if (mysqli_query($conn, $sql))
+  - mysqli_query($conn, $sql) = executes SQL query
+  - Returns true if successful, false if failed
+  - if (...) = checks if insertion succeeded
+
+$new_area_id = mysqli_insert_id($conn);
+  - mysqli_insert_id() = gets ID of last inserted row
+  - AUTO_INCREMENT primary key value
+  - Example: if new area ID is 5, $new_area_id = 5
+  - Purpose: need this ID to generate spaces for this area
+
+header("Location: admin_generates_spaces.php?area_id=$new_area_id&msg=added");
+  - header() = sends HTTP header to browser
+  - Location: = redirect header
+  - admin_generates_spaces.php = redirect to space generation page
+  - ?area_id=$new_area_id = passes area ID as URL parameter
+  - &msg=added = passes success message
+  - Example URL: admin_generates_spaces.php?area_id=5&msg=added
+
+exit();
+  - Terminates script execution
+  - Prevents code below from running after redirect
+  - Good practice after header() redirect
+
+RESULT: New area created in database, admin redirected to generate spaces
+
+================================================================================
+STEP 2: ADMIN GENERATES PARKING SPACES WITH QR CODES
+================================================================================
+
+FILE: admin_generates_spaces.php
+
+*** HTML FORM SECTION ***
+
+<form id="generateForm" method="POST" onsubmit="confirmGenerateSpaces(event)">
+    <label>Prefix (e.g., A for Block A):</label>
+    <input type="text" id="prefix" name="prefix" required>
+    
+    <label>How many spaces to create?</label>
+    <input type="number" id="num_spaces" name="num_spaces" value="10" min="1" max="50">
+    
+    <input type="hidden" id="submit_generate" name="submit_generate" value="0">
+    <button type="submit" name="bulk_generate">Generate Spaces Now</button>
+</form>
+
+SYNTAX EXPLANATION:
+
+onsubmit="confirmGenerateSpaces(event)"
+  - onsubmit = HTML event attribute (triggers when form submitted)
+  - confirmGenerateSpaces(event) = JavaScript function to call
+  - event = event object (contains form submission info)
+  - Purpose: Show confirmation before generating (prevents accidents)
+
+<input type="text" id="prefix" name="prefix" required>
+  - id="prefix" = unique identifier for JavaScript/CSS
+  - name="prefix" = field name for PHP
+  - Both can be same or different
+  - id used by: document.getElementById('prefix')
+  - name used by: $_POST['prefix']
+
+<input type="number" id="num_spaces" name="num_spaces" value="10" min="1" max="50">
+  - type="number" = numeric input with spinner controls
+  - value="10" = default/initial value
+  - min="1" = minimum allowed value
+  - max="50" = maximum allowed value
+  - Browser validates these constraints
+
+<input type="hidden" id="submit_generate" name="submit_generate" value="0">
+  - type="hidden" = invisible field (user cannot see/edit)
+  - value="0" = initial value
+  - JavaScript changes to "1" after confirmation
+  - Purpose: Ensure form only submits after user confirms
+
+*** PHP PROCESSING SECTION ***
+
+if (isset($_POST['submit_generate']) && $_POST['submit_generate'] == 1) {
+    $count = (int)$_POST['num_spaces'];
+    $prefix = mysqli_real_escape_string($conn, $_POST['prefix']);
+    $generated_count = 0;
+
+    // Get the actual server host for QR code generation
+    $server_host = $_SERVER['HTTP_HOST'];
+    if ($server_host === 'localhost' || strpos($server_host, '127.0.0.1') === 0) {
+        if (!empty($_SERVER['SERVER_ADDR']) && $_SERVER['SERVER_ADDR'] !== '127.0.0.1') {
+            $server_host = $_SERVER['SERVER_ADDR'];
+        } else {
+            $server_host = gethostbyname(gethostname());
+            if ($server_host === gethostname()) {
+                $server_host = 'localhost';
+            }
+        }
+    }
+
+    for ($i = 1; $i <= $count; $i++) {
+        $space_num = $prefix . str_pad($i, 2, '0', STR_PAD_LEFT);
+        
+        $qr_content = "http://" . $server_host . "/fkpark/Module2/qr_space_info.php?area_id=" . $area_id . "&space=" . urlencode($space_num);
+        
+        $encoded_text = urlencode($qr_content);
+        $qr_size = 400;
+        $qr_image_url = "https://api.qrserver.com/v1/create-qr-code/?size={$qr_size}x{$qr_size}&data={$encoded_text}";
+        
+        $qr_filename = preg_replace('/[^a-zA-Z0-9_-]/', '', $space_num);
+        $qr_filepath = $qr_codes_dir . $qr_filename . '.png';
+        
+        $image_data = @file_get_contents($qr_image_url);
+        if ($image_data !== false && strlen($image_data) > 100) {
+            file_put_contents($qr_filepath, $image_data);
+            $qr_code_path = "../qr_codes/" . $qr_filename . ".png";
+        } else {
+            $qr_code_path = $qr_image_url;
+        }
+
+        $sql = "INSERT INTO parking_space (Area_id, Space_num, Space_qrCode, Current_status) 
+                VALUES ('$area_id', '$space_num', '$qr_code_path', 'Available')";
+        
+        if (mysqli_query($conn, $sql)) {
+            $generated_count++;
+        }
+    }
+}
+
+DETAILED SYNTAX EXPLANATION:
+
+1. FORM VALIDATION CHECK
+if (isset($_POST['submit_generate']) && $_POST['submit_generate'] == 1)
+  - && = AND operator (both conditions must be true)
+  - First condition: checks if form was submitted
+  - Second condition: checks if hidden field was set to "1" by JavaScript
+  - Purpose: Only process if user confirmed generation
+
+2. GET FORM VALUES
+$count = (int)$_POST['num_spaces'];
+  - $_POST['num_spaces'] = gets value from form
+  - (int) = type casting to integer
+  - Converts "10" (string) to 10 (number)
+  - Safety measure: ensures we have a number, not text
+
+$prefix = mysqli_real_escape_string($conn, $_POST['prefix']);
+  - Gets prefix from form (e.g., "A", "B", "Block1")
+  - Escapes for SQL safety
+
+$generated_count = 0;
+  - Initialize counter at zero
+  - Will increment for each successful space creation
+
+3. DETECT SERVER IP ADDRESS
+$server_host = $_SERVER['HTTP_HOST'];
+  - $_SERVER = superglobal array with server/request info
+  - $_SERVER['HTTP_HOST'] = hostname/IP user typed in browser
+  - Examples: "localhost", "172.20.10.3", "example.com"
+  - This becomes part of QR code URL
+
+if ($server_host === 'localhost' || strpos($server_host, '127.0.0.1') === 0)
+  - === = strict equality (checks value AND type)
+  - || = OR operator (if either condition true)
+  - strpos($server_host, '127.0.0.1') = finds position of '127.0.0.1' in string
+    * Returns 0 if found at start
+    * Returns false if not found
+  - === 0 = checks if found at position 0 (start of string)
+  - Purpose: Detect if accessed via localhost or 127.0.0.1
+
+if (!empty($_SERVER['SERVER_ADDR']) && $_SERVER['SERVER_ADDR'] !== '127.0.0.1')
+  - !empty() = checks if variable exists and is not empty
+  - $_SERVER['SERVER_ADDR'] = server's actual IP address
+  - !== '127.0.0.1' = not equal to localhost IP
+  - If true: use server's real IP instead of localhost
+
+$server_host = $_SERVER['SERVER_ADDR'];
+  - Replaces localhost with actual IP (e.g., 172.20.10.3)
+  - Purpose: QR codes work on phones via WiFi
+
+else { $server_host = gethostbyname(gethostname()); }
+  - gethostname() = gets computer hostname
+  - gethostbyname() = converts hostname to IP address
+  - Fallback method if SERVER_ADDR not available
+
+if ($server_host === gethostname()) { $server_host = 'localhost'; }
+  - If conversion failed (returns same hostname)
+  - Fall back to 'localhost'
+
+WHY THIS IS IMPORTANT:
+  - QR codes must contain IP address phones can reach
+  - "localhost" only works on same computer
+  - "172.20.10.3" works on same WiFi network
+  - This code automatically detects correct address
+
+4. GENERATE EACH SPACE IN LOOP
+for ($i = 1; $i <= $count; $i++)
+  - for = loop keyword
+  - $i = 1 = start at 1 (first space)
+  - $i <= $count = continue while i is less than or equal to count
+  - $i++ = add 1 to i after each iteration
+  - Example: if $count = 10, loops 10 times (i = 1, 2, 3, ..., 10)
+
+$space_num = $prefix . str_pad($i, 2, '0', STR_PAD_LEFT);
+  - $prefix = "A" (from form)
+  - . = concatenation operator
+  - str_pad($i, 2, '0', STR_PAD_LEFT) = pads number with zeros
+    * $i = current number (1, 2, 3, ...)
+    * 2 = total length should be 2 characters
+    * '0' = character to pad with
+    * STR_PAD_LEFT = pad on left side
+  - Examples:
+    * str_pad(1, 2, '0', STR_PAD_LEFT) = "01"
+    * str_pad(10, 2, '0', STR_PAD_LEFT) = "10"
+    * str_pad(5, 3, '0', STR_PAD_LEFT) = "005"
+  - Result: "A" . "01" = "A01"
+
+5. BUILD QR CODE URL
+$qr_content = "http://" . $server_host . "/fkpark/Module2/qr_space_info.php?area_id=" . $area_id . "&space=" . urlencode($space_num);
+  - Multiple string concatenations with .
+  - "http://" = protocol
+  - $server_host = "172.20.10.3" (detected IP)
+  - "/fkpark/Module2/qr_space_info.php" = path to info page
+  - "?area_id=" = start of URL parameters
+  - $area_id = area ID number (e.g., 1)
+  - "&space=" = additional parameter
+  - urlencode($space_num) = encodes space number for URL
+  - Final example: "http://172.20.10.3/fkpark/Module2/qr_space_info.php?area_id=1&space=A01"
+  - THIS URL IS WHAT GETS ENCODED IN THE QR CODE
+
+6. GENERATE QR CODE IMAGE URL
+$encoded_text = urlencode($qr_content);
+  - Takes the URL above and encodes for use in API request
+  - Special characters like :, /, ?, & get encoded
+  - Example: "http://..." becomes "http%3A%2F%2F..."
+
+$qr_size = 400;
+  - QR code dimensions: 400x400 pixels
+
+$qr_image_url = "https://api.qrserver.com/v1/create-qr-code/?size={$qr_size}x{$qr_size}&data={$encoded_text}";
+  - {$qr_size} = variable interpolation (embeds value in string)
+  - {$encoded_text} = embeds encoded URL
+  - Final URL calls Google QR Server API
+  - Example: https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=http%3A%2F%2F...
+  - ACCESSING THIS URL GENERATES THE QR CODE IMAGE
+
+7. PREPARE FILE PATH
+$qr_filename = preg_replace('/[^a-zA-Z0-9_-]/', '', $space_num);
+  - preg_replace() = regular expression find/replace
+  - '/[^a-zA-Z0-9_-]/' = pattern (anything NOT alphanumeric, underscore, or dash)
+  - '' = replacement (empty string = remove)
+  - $space_num = "A-01"
+  - Result: "A01" (dash removed)
+  - Purpose: Create safe filename (no special characters)
+
+$qr_filepath = $qr_codes_dir . $qr_filename . '.png';
+  - $qr_codes_dir = "C:\xampp\htdocs\FkPark\qr_codes\"
+  - $qr_filename = "A01"
+  - '.png' = file extension
+  - Result: "C:\xampp\htdocs\FkPark\qr_codes\A01.png"
+  - This is where image will be saved on server
+
+8. DOWNLOAD QR CODE IMAGE
+$image_data = @file_get_contents($qr_image_url);
+  - @ = suppress error messages
+  - file_get_contents($qr_image_url) = downloads file from URL
+  - $qr_image_url = Google API URL that generates QR code
+  - $image_data = contains binary image data (PNG file content)
+  - If download fails: $image_data = false
+
+if ($image_data !== false && strlen($image_data) > 100)
+  - !== false = strict check (download succeeded)
+  - strlen($image_data) = length of downloaded data in bytes
+  - > 100 = must be longer than 100 bytes
+  - Real images are thousands of bytes
+  - If only 100 bytes, probably error message, not image
+  - Both conditions must be true
+
+9. SAVE IMAGE TO FILE
+file_put_contents($qr_filepath, $image_data);
+  - Writes binary image data to file
+  - $qr_filepath = "C:\xampp\htdocs\FkPark\qr_codes\A01.png"
+  - $image_data = PNG image binary content
+  - Creates new file or overwrites existing
+  - Result: QR code image saved on server disk
+
+$qr_code_path = "../qr_codes/" . $qr_filename . ".png";
+  - Creates relative path for database storage
+  - "../qr_codes/A01.png"
+  - This path is stored in database
+  - Later used to display/access the image
+
+else { $qr_code_path = $qr_image_url; }
+  - If download failed, store API URL instead
+  - Fallback: generate QR dynamically when needed
+  - Less efficient but ensures QR code always available
+
+10. INSERT SPACE INTO DATABASE
+$sql = "INSERT INTO parking_space (Area_id, Space_num, Space_qrCode, Current_status) 
+        VALUES ('$area_id', '$space_num', '$qr_code_path', 'Available')";
+  - INSERT INTO parking_space = adds new row to table
+  - Columns:
+    * Area_id = which parking area (e.g., 1)
+    * Space_num = space name (e.g., "A01")
+    * Space_qrCode = path to QR image (e.g., "../qr_codes/A01.png")
+    * Current_status = initial status (always "Available")
+  - VALUES clause provides the actual values
+  - Example: INSERT INTO parking_space (Area_id, Space_num, Space_qrCode, Current_status) 
+             VALUES ('1', 'A01', '../qr_codes/A01.png', 'Available')
+
+if (mysqli_query($conn, $sql)) { $generated_count++; }
+  - Executes SQL query
+  - If successful, increment counter
+  - $generated_count++ = adds 1 to counter
+  - Tracks how many spaces successfully created
+
+RESULT: 
+  - 10 parking spaces created (A01 through A10)
+  - 10 QR code images downloaded and saved
+  - 10 rows inserted into database
+  - Each space has associated QR code
+
+================================================================================
+STEP 3: DATABASE STORAGE STRUCTURE
+================================================================================
+
+TABLE: parking_space
+
+Columns:
+  Space_id      INT AUTO_INCREMENT PRIMARY KEY
+  Area_id       INT (foreign key to parking_area)
+  Space_num     VARCHAR(50)
+  Space_qrCode  TEXT
+  Current_status ENUM('Available', 'Occupied', 'Maintenance')
+
+Example Row After Generation:
+  Space_id: 247
+  Area_id: 1
+  Space_num: A01
+  Space_qrCode: ../qr_codes/A01.png
+  Current_status: Available
+
+SYNTAX EXPLANATION:
+
+Space_id INT AUTO_INCREMENT PRIMARY KEY
+  - INT = integer data type
+  - AUTO_INCREMENT = database automatically assigns next number
+  - PRIMARY KEY = unique identifier for this row
+  - Example: first space gets 1, second gets 2, etc.
+
+Area_id INT
+  - References parking_area table
+  - Links space to its area
+  - FOREIGN KEY relationship
+
+Space_num VARCHAR(50)
+  - VARCHAR = variable length string
+  - (50) = maximum 50 characters
+  - Stores space name like "A01", "Block1-05"
+
+Space_qrCode TEXT
+  - TEXT = long string (up to 65,535 characters)
+  - Stores file path: "../qr_codes/A01.png"
+  - Or API URL if file storage failed
+
+Current_status ENUM('Available', 'Occupied', 'Maintenance')
+  - ENUM = enumerated type (limited choices)
+  - Value must be one of: 'Available', 'Occupied', or 'Maintenance'
+  - Cannot be anything else
+  - Enforced by database
+
+================================================================================
+STEP 4: ADMIN VIEWS QR CODE FOR PRINTING
+================================================================================
+
+FILE: qr_display.php
+
+*** PHP QUERY SECTION ***
+
+$space_id = isset($_GET['space_id']) ? (int)$_GET['space_id'] : null;
+
+$space_query = mysqli_query($conn, "SELECT s.*, a.Area_id, a.Area_name 
+                                    FROM parking_space s 
+                                    JOIN parking_area a ON s.Area_id = a.Area_id 
+                                    WHERE s.Space_id = '$space_id'
+                                    LIMIT 1");
+
+$space = mysqli_fetch_assoc($space_query);
+
+$server_host = $_SERVER['HTTP_HOST'];
+if ($server_host === 'localhost' || strpos($server_host, '127.0.0.1') === 0) {
+    if (!empty($_SERVER['SERVER_ADDR']) && $_SERVER['SERVER_ADDR'] !== '127.0.0.1') {
+        $server_host = $_SERVER['SERVER_ADDR'];
+    }
+}
+
+$qr_content = $protocol . $server_host . "/fkpark/Module2/qr_space_info.php?area_id=" . $space['Area_id'] . "&space=" . urlencode($space['Space_num']);
+
+$encoded_text = urlencode($qr_content);
+$qr_size = 500;
+$qr_image_url = "https://api.qrserver.com/v1/create-qr-code/?size={$qr_size}x{$qr_size}&data={$encoded_text}";
+
+SYNTAX EXPLANATION:
+
+$space_id = isset($_GET['space_id']) ? (int)$_GET['space_id'] : null;
+  - TERNARY OPERATOR: condition ? value_if_true : value_if_false
+  - isset($_GET['space_id']) = checks if space_id in URL
+  - (int)$_GET['space_id'] = if exists, convert to integer
+  - null = if doesn't exist, use null
+  - Example URL: qr_display.php?space_id=247
+  - Result: $space_id = 247
+
+SELECT s.*, a.Area_id, a.Area_name 
+FROM parking_space s 
+JOIN parking_area a ON s.Area_id = a.Area_id 
+WHERE s.Space_id = '$space_id'
+  - SELECT = SQL query to get data
+  - s.* = all columns from parking_space table (aliased as 's')
+  - a.Area_id, a.Area_name = specific columns from parking_area (aliased as 'a')
+  - FROM parking_space s = main table with alias 's'
+  - JOIN parking_area a = combine with parking_area table (alias 'a')
+  - ON s.Area_id = a.Area_id = join condition (matching area IDs)
+  - WHERE s.Space_id = '$space_id' = filter for specific space
+  - LIMIT 1 = return only 1 row
+  - INNER JOIN: both tables must have matching row
+  - Result: Space data + Area name in single query
+
+$space = mysqli_fetch_assoc($space_query);
+  - mysqli_fetch_assoc() = converts database row to associative array
+  - Array keys = column names
+  - $space['Space_num'] = space number (e.g., "A01")
+  - $space['Area_name'] = area name (e.g., "North Lot")
+  - $space['Space_qrCode'] = QR code path
+
+$qr_content = ... (same as generation step)
+  - Builds URL dynamically based on current server IP
+  - Uses CURRENT $_SERVER['HTTP_HOST'], not stored value
+  - WHY: If IP changed, QR code still works with new IP
+  - Dynamic generation ensures QR always has correct IP
+
+$qr_size = 500;
+  - Larger size (500x500) for better print quality
+  - Generation used 400, display uses 500
+  - Bigger = clearer when printed
+
+*** HTML DISPLAY SECTION ***
+
+<div class="qr-container">
+    <h2>QR Code for Space: <?php echo htmlspecialchars($space['Space_num']); ?></h2>
+    <p>Area: <?php echo htmlspecialchars($space['Area_name']); ?></p>
+    
+    <div class="qr-code-box">
+        <img src="<?php echo $qr_image_url; ?>" alt="QR Code">
+    </div>
+    
+    <p class="qr-url">Scan to view: <?php echo htmlspecialchars($qr_content); ?></p>
+    
+    <button onclick="window.print()">Print QR Code</button>
+</div>
+
+SYNTAX EXPLANATION:
+
+<?php echo htmlspecialchars($space['Space_num']); ?>
+  - <?php ... ?> = short PHP tags for echo
+  - echo = outputs text to HTML
+  - htmlspecialchars() = converts special HTML characters
+    * < becomes &lt;
+    * > becomes &gt;
+    * & becomes &amp;
+  - Prevents XSS (cross-site scripting) attacks
+  - $space['Space_num'] = gets value from array
+
+<img src="<?php echo $qr_image_url; ?>">
+  - <img> = HTML image tag
+  - src = image source URL
+  - $qr_image_url = Google API URL that generates QR code
+  - Browser loads image from that URL
+  - QR code appears on page
+
+<button onclick="window.print()">
+  - onclick = JavaScript event when button clicked
+  - window.print() = opens browser print dialog
+  - User can print QR code on paper
+
+RESULT: Admin sees QR code image with space info, can print it
+
+================================================================================
+STEP 5: STUDENT SCANS QR CODE
+================================================================================
+
+PHYSICAL PROCESS:
+
+1. Admin prints QR code and places it on parking space (e.g., on pole)
+2. Student walks to parking space
+3. Student opens phone camera
+4. Student points camera at QR code
+5. Phone detects QR code
+6. Phone shows notification: "Open http://172.20.10.3/fkpark/..."
+7. Student taps notification
+8. Browser opens the URL
+
+TECHNICAL PROCESS:
+
+QR Code contains: http://172.20.10.3/fkpark/Module2/qr_space_info.php?area_id=1&space=A01
+
+Phone camera:
+  - Decodes QR code
+  - Extracts URL
+  - Opens browser with that URL
+
+Browser:
+  - Connects to 172.20.10.3 (laptop server)
+  - Requests: /fkpark/Module2/qr_space_info.php?area_id=1&space=A01
+  - XAMPP Apache receives request
+  - PHP processes qr_space_info.php
+  - Sends HTML response
+  - Browser displays page
+
+NETWORK REQUIREMENTS:
+  - Phone must be on SAME WiFi/hotspot as laptop
+  - Phone must be able to reach IP 172.20.10.3
+  - Laptop firewall must allow incoming connections
+  - XAMPP Apache must be running
+
+================================================================================
+STEP 6: QR INFO PAGE DISPLAYS SPACE STATUS
+================================================================================
+
+FILE: qr_space_info.php
+
+*** PHP QUERY SECTION ***
+
+$space_num = isset($_GET['space']) ? mysqli_real_escape_string($conn, $_GET['space']) : null;
+$area_id = isset($_GET['area_id']) ? (int)$_GET['area_id'] : null;
+
+if (!$space_num || !$area_id) {
+    die("Error: Invalid space information.");
+}
+
+$space_query = mysqli_query($conn, "SELECT s.*, a.Area_name, a.Category 
+                                    FROM parking_space s 
+                                    JOIN parking_area a ON s.Area_id = a.Area_id 
+                                    WHERE s.Space_num = '$space_num' AND s.Area_id = '$area_id'
+                                    LIMIT 1");
+
+$space = mysqli_fetch_assoc($space_query);
+
+$usage_query = mysqli_query($conn, "SELECT pu.*, u.full_name, v.license_plate, ps.Space_num
+                                    FROM parking_usage pu
+                                    LEFT JOIN users u ON pu.user_id = u.user_id
+                                    LEFT JOIN vehicle v ON pu.user_id = v.user_id
+                                    LEFT JOIN parking_space ps ON pu.Space_id = ps.Space_id
+                                    WHERE pu.Space_id = '{$space['Space_id']}'
+                                    ORDER BY pu.entry_time DESC
+                                    LIMIT 5");
+
+SYNTAX EXPLANATION:
+
+$space_num = isset($_GET['space']) ? mysqli_real_escape_string(...) : null;
+  - Gets 'space' parameter from URL
+  - URL: qr_space_info.php?space=A01
+  - $_GET['space'] = "A01"
+  - Escapes for SQL safety
+  - If not present, assigns null
+
+$area_id = isset($_GET['area_id']) ? (int)$_GET['area_id'] : null;
+  - Gets 'area_id' parameter
+  - Converts to integer
+  - URL: qr_space_info.php?area_id=1
+  - $_GET['area_id'] = "1" (string)
+  - (int)$_GET['area_id'] = 1 (integer)
+
+if (!$space_num || !$area_id) { die("Error: Invalid space information."); }
+  - ! = NOT operator (negation)
+  - !$space_num = if $space_num is empty/null/false
+  - || = OR operator
+  - die() = stops script and shows error message
+  - Validation: both parameters required
+
+INNER JOIN QUERY:
+SELECT s.*, a.Area_name, a.Category 
+FROM parking_space s 
+JOIN parking_area a ON s.Area_id = a.Area_id 
+WHERE s.Space_num = '$space_num' AND s.Area_id = '$area_id'
+  - Gets space info WITH area details
+  - WHERE has TWO conditions:
+    * s.Space_num = '$space_num' (e.g., "A01")
+    * AND s.Area_id = '$area_id' (e.g., 1)
+  - AND = both must be true
+  - Ensures correct space in correct area
+  - Result: One row with all space + area data
+
+MULTIPLE LEFT JOIN QUERY:
+SELECT pu.*, u.full_name, v.license_plate, ps.Space_num
+FROM parking_usage pu
+LEFT JOIN users u ON pu.user_id = u.user_id
+LEFT JOIN vehicle v ON pu.user_id = v.user_id
+LEFT JOIN parking_space ps ON pu.Space_id = ps.Space_id
+WHERE pu.Space_id = '{$space['Space_id']}'
+ORDER BY pu.entry_time DESC
+LIMIT 5
+  - Gets parking usage HISTORY for this space
+  - FROM parking_usage pu = main table (usage records)
+  - LEFT JOIN users u = adds user info
+    * LEFT = keeps all usage records even if user deleted
+    * ON pu.user_id = u.user_id = join condition
+  - LEFT JOIN vehicle v = adds vehicle info
+    * Matches by user_id
+  - LEFT JOIN parking_space ps = adds space details
+    * Matches by Space_id
+  - WHERE pu.Space_id = ... = filter for this specific space
+  - ORDER BY pu.entry_time DESC = newest first
+    * DESC = descending order
+    * Most recent parking shown at top
+  - LIMIT 5 = show only last 5 records
+  - Result: Last 5 people who parked here with names and license plates
+
+*** HTML DISPLAY SECTION ***
+
+<div class="container">
+    <h1>Parking Space <?php echo htmlspecialchars($space['Space_num']); ?></h1>
+    
+    <div class="space-info-box">
+        <p><strong>Area:</strong> <?php echo htmlspecialchars($space['Area_name']); ?></p>
+        <p><strong>Category:</strong> <?php echo htmlspecialchars($space['Category']); ?></p>
+        <p><strong>Status:</strong> 
+            <span class="status-badge status-<?php echo strtolower($status); ?>">
+                <?php echo $status_text; ?>
+            </span>
+        </p>
+    </div>
+    
+    <h3>Recent Parking History</h3>
+    <table>
+        <tr>
+            <th>User</th>
+            <th>License Plate</th>
+            <th>Entry Time</th>
+        </tr>
+        <?php foreach ($usage_records as $record): ?>
+        <tr>
+            <td><?php echo htmlspecialchars($record['full_name']); ?></td>
+            <td><?php echo htmlspecialchars($record['license_plate']); ?></td>
+            <td><?php echo date('M d, Y H:i', strtotime($record['entry_time'])); ?></td>
+        </tr>
+        <?php endforeach; ?>
+    </table>
+</div>
+
+SYNTAX EXPLANATION:
+
+<span class="status-badge status-<?php echo strtolower($status); ?>">
+  - Dynamic class name based on status
+  - strtolower($status) = converts to lowercase
+  - If $status = "Available", result: class="status-badge status-available"
+  - CSS styles each status differently:
+    * .status-available { background: green; }
+    * .status-occupied { background: red; }
+    * .status-maintenance { background: yellow; }
+
+<?php foreach ($usage_records as $record): ?>
+  - foreach = loop through array
+  - $usage_records = array of parking history rows
+  - $record = current row in loop
+  - Alternative syntax: foreach (...): ... endforeach;
+  - Same as: foreach (...) { ... }
+  - Used in HTML templates for cleaner code
+
+<?php echo date('M d, Y H:i', strtotime($record['entry_time'])); ?>
+  - strtotime($record['entry_time']) = converts string to timestamp
+  - Example: "2026-01-07 14:30:00" becomes 1736256600
+  - date('M d, Y H:i', ...) = formats timestamp
+    * M = short month name (Jan, Feb)
+    * d = day with leading zero (01-31)
+    * Y = 4-digit year (2026)
+    * H:i = hour:minute in 24-hour format (14:30)
+  - Result: "Jan 07, 2026 14:30"
+
+RESULT: Student sees:
+  - Space number and area
+  - Current status (Available/Occupied/Maintenance)
+  - Recent parking history with names and times
+
+================================================================================
+COMPLETE DATA FLOW SUMMARY
+================================================================================
+
+1. ADMIN CREATES AREA
+   admin_list_area.php → INSERT INTO parking_area → Database
+
+2. ADMIN GENERATES SPACES
+   admin_generates_spaces.php → Loops 10 times:
+     → Builds URL with server IP
+     → Calls Google QR API
+     → Downloads QR image
+     → Saves to /qr_codes/A01.png
+     → INSERT INTO parking_space
+   Result: 10 spaces + 10 QR codes
+
+3. QR CODE STORED
+   Database: Space_qrCode = "../qr_codes/A01.png"
+   File System: C:\xampp\htdocs\FkPark\qr_codes\A01.png
+
+4. ADMIN VIEWS QR
+   qr_display.php:
+     → SELECT space data
+     → Generate QR dynamically with current IP
+     → Display for printing
+
+5. STUDENT SCANS
+   Phone camera → Detects QR → Extracts URL → Opens browser
+
+6. INFO PAGE LOADS
+   qr_space_info.php:
+     → SELECT space + area (INNER JOIN)
+     → SELECT usage history (MULTIPLE LEFT JOINs)
+     → Display status + recent parking
+
+================================================================================
+KEY SYNTAX PATTERNS USED
+================================================================================
+
+1. SUPERGLOBAL ARRAYS
+   $_GET['param'] = URL parameters
+   $_POST['field'] = Form data
+   $_SERVER['HTTP_HOST'] = Server info
+   $_SESSION['user_id'] = Session data
+
+2. DATABASE OPERATIONS
+   mysqli_query($conn, $sql) = Execute query
+   mysqli_fetch_assoc($result) = Get row as array
+   mysqli_real_escape_string($conn, $input) = Escape for safety
+   mysqli_insert_id($conn) = Get last inserted ID
+
+3. STRING OPERATIONS
+   . = Concatenation
+   "{$variable}" = Interpolation
+   urlencode($text) = URL encoding
+   htmlspecialchars($text) = HTML encoding
+   str_pad($num, 2, '0', STR_PAD_LEFT) = Padding
+
+4. CONTROL STRUCTURES
+   if (condition) { } = Conditional
+   for ($i = 1; $i <= 10; $i++) { } = Loop
+   foreach ($array as $item) { } = Array loop
+   condition ? true_value : false_value = Ternary
+
+5. FILE OPERATIONS
+   file_get_contents($url) = Download
+   file_put_contents($path, $data) = Save
+   is_dir($path) = Check directory
+   mkdir($path, 0755, true) = Create directory
+
+6. SQL JOINS
+   INNER JOIN = Both tables must match
+   LEFT JOIN = Keep all left rows, match right if available
+   ON table1.id = table2.id = Join condition
+
+================================================================================
+END OF COMPLETE QR CODE WORKFLOW DOCUMENTATION
+================================================================================

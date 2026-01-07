@@ -19,7 +19,6 @@ if (!$user) { die("User not found."); }
 if (isset($_POST['update'])) {
     $name = mysqli_real_escape_string($conn, $_POST['full_name']);
     $uname = mysqli_real_escape_string($conn, $_POST['username']);
-    $role = $_POST['user_type'];
 
     $update_sql = "UPDATE users SET full_name='$name', username='$uname' WHERE user_id='$id'";
     
