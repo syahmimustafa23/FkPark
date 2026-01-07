@@ -21,6 +21,7 @@ $result = mysqli_query($conn, $sql);
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.0"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="styles.css">
     <title>Student Dashboard  | FKPark</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }

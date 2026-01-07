@@ -14,23 +14,44 @@ if ($_SESSION['role'] !== 'security') {
 
 $username = htmlspecialchars($_SESSION['username']);
 $user_id = $_SESSION['user_id'];
-
-// 1. Fetch areas for the dropdown
+date_default_timezone_set('Asia/Kuala_Lumpur'); // Set to Malaysia time
 $areas_query = mysqli_query($conn, "SELECT * FROM parking_area");
 
+// Get selected area from filter, default to the first one found if not set
 $selected_area = $_GET['area_id'] ?? null;
-$spaces_query = null;
 
+$spaces_query = null;
+// Top of student_view.php
+// Top of student_view.php
 if ($selected_area) {
-    // We use a Subquery to find the LATEST active booking ID for each space
-    $sql = "SELECT s.*, 
-            (SELECT Usage_id FROM parking_usage 
-             WHERE Space_id = s.Space_id 
-             AND status IN ('Reserved', 'Occupied') 
-             ORDER BY Usage_id DESC LIMIT 1) as active_booking_id
-            FROM parking_space s 
-            WHERE s.Area_id = '$selected_area' 
-            ORDER BY s.Space_num";
+    $today = date('Y-m-d');
+    $current_time = date('H:i'); // 24-hour format: e.g., "18:08"
+
+    $sql = "SELECT s.*,
+
+        /* Latest booking (Reserved or Occupied) */
+        (SELECT Usage_id
+         FROM parking_usage
+         WHERE Space_id = s.Space_id
+         AND status IN ('Reserved', 'Occupied')
+         ORDER BY Usage_id DESC
+         LIMIT 1) AS active_booking_id,
+
+        /* Live reservation (time-based) */
+        (SELECT status
+         FROM parking_usage
+         WHERE Space_id = s.Space_id
+         AND usage_date = '$today'
+         AND status = 'Reserved'
+         AND '$current_time' >= DATE_FORMAT(entry_time, '%H:%i')
+         AND '$current_time' < DATE_FORMAT(end_time, '%H:%i')
+         LIMIT 1) AS active_reservation
+
+        FROM parking_space s
+        WHERE s.Area_id = '$selected_area'
+        ORDER BY s.Space_num";
+
+    
     $spaces_query = mysqli_query($conn, $sql);
 }
 
@@ -190,41 +211,43 @@ h2 {
 
         <?php if ($selected_area): ?>
             <div class="parking-grid">
-                <?php 
-                if ($spaces_query && mysqli_num_rows($spaces_query) > 0):
-                   while($s = mysqli_fetch_assoc($spaces_query)): 
-    // Define text color globally for the cards
-    $text_color = '#ffffff'; 
+               <?php 
+if ($spaces_query && mysqli_num_rows($spaces_query) > 0):
+    while ($s = mysqli_fetch_assoc($spaces_query)):
 
-    if ($s['Current_status'] == 'Available') {
-        $color = '#28a745'; // Green
-        $status_label = "Available";
-    } elseif ($s['Current_status'] == '') {
-        $color = '#ffc107'; // Yellow
-        $status_label = "Reserved";
-    } elseif ($s['Current_status'] == 'Occupied') {
-        $color = '#dc3545'; // Red
-        $status_label = "Occupied";
-    } else {
-        $color = '#6c757d'; // Grey for Maintenance
-        $status_label = "Maintenance";
-    }
+        $text_color = '#ffffff';
 
-    // Determine what the QR code should show
-    if ($s['active_booking_id']) {
-        // Points to the occupant's ticket for Admin verification
-        $qr_link = "http://localhost/fkpark/Module 3/view_ticket.php?id=" . $s['active_booking_id'];
-    } else {
-        // Points to the check-in page for physical printing
-        $qr_link = $s['Space_qrCode']; 
-    }
-    $google_qr_api = "https://chart.googleapis.com/chart?chs=100x100&cht=qr&chl=" . urlencode($qr_link);
+        if ($s['Current_status'] == 'Maintenance') {
+            $color = '#6c757d';
+            $status_label = "Maintenance";
+        } 
+        elseif ($s['Current_status'] == 'Occupied') {
+            $color = '#dc3545';
+            $status_label = "Occupied";
+        } 
+        elseif ($s['active_reservation'] == 'Reserved') {
+            $color = '#ffc107';
+            $status_label = "Reserved";
+        } 
+        else {
+            $color = '#28a745';
+            $status_label = "Available";
+        }
+
+        if (!empty($s['active_booking_id'])) {
+            $qr_link = "../Module 3/view_ticket.php?id=" . $s['active_booking_id'];
+        } else {
+            $qr_link = $s['Space_qrCode'];
+        }
+
+        $google_qr_api = "https://chart.googleapis.com/chart?chs=100x100&cht=qr&chl=" . urlencode($qr_link);
 ?>
+
                         
 
                     <div class="space-card" data-space-name="<?php echo htmlspecialchars($s['Space_num']); ?>" data-status="<?php echo htmlspecialchars($status_label); ?>" style="background: <?php echo $color; ?>; color: <?php echo $text_color; ?>;">
-                        <strong><?php echo $s['Space_num']; ?></strong>
-                        <small><?php echo $status_label; ?></small>
+                        <strong><?php echo $s['Space_num']; ?></strong><br>
+            <small><?php echo $status_label; ?></small>
                         <img src="<?php echo $google_qr_api; ?>" alt="QR Code">
                         <?php if ($s['active_booking_id']): ?>
     <a href="../Module 3/view_ticket.php?id=<?php echo $s['active_booking_id']; ?>" 

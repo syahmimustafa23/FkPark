@@ -57,7 +57,9 @@ if (mysqli_num_rows($active_check) > 0) {
 
 <!DOCTYPE html>
 <html>
-<head><title>Start Parking | FKPark</title></head>
+<head>
+<link rel="stylesheet" type="text/css" href="styles.css">    
+<title>Start Parking | FKPark</title></head>
 <body style="font-family: Arial; padding: 40px; background: #f4f4f4;">
     <div style="max-width: 400px; margin: auto; background: white; padding: 20px; border-radius: 8px;">
         <h2>Confirm Your Parking</h2>

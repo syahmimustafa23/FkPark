@@ -1,5 +1,6 @@
 <?php
 require_once '../config.php';
+requireLogin();
 $id = mysqli_real_escape_string($conn, $_GET['id']);
 
 // JOIN with the users table to get the name and username
