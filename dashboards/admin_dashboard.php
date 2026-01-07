@@ -128,6 +128,7 @@ $user_id = $_SESSION['user_id'];
         <a href="../Module2/admin_manage_spaces.php">Manage Space</a>
         <a href="../Module2/admin_view.php">Parking Availability</a>
         <a href="../Module 3/admin_parking_report.php">Parking Report</a>
+        <a href="../Module 3/reserve_report.php">Reserve Report</a>
         <a href="../Module1/admin_list_users.php">Manage User</a>
     </div>
    

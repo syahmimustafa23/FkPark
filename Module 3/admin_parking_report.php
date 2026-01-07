@@ -152,9 +152,10 @@ $live_res = mysqli_fetch_assoc(mysqli_query($conn, $chart_sql));
 <script>
 const ctx = document.getElementById('parkingChart').getContext('2d');
 new Chart(ctx, {
-    type: 'bar',
+    type: 'pie', // Changed from 'bar'
     data: {
-        labels: ['Actual Parking', 'Reservations'], // Updated Labels
+        // Added 'Cancelled' to labels to match the 3 data points provided below
+        labels: ['Actual Parking', 'Reservations', 'Cancelled'], 
         datasets: [{
             label: 'Total Usage Records',
             data: [
@@ -162,20 +163,27 @@ new Chart(ctx, {
                 <?php echo $count_reserved; ?>, 
                 <?php echo $count_cancelled; ?>
             ],
-            backgroundColor: ['#dc3545', '#ffc107', '#6c757d'], // Red, Yellow, Grey
-            barThickness: 80
+            backgroundColor: [
+                '#dc3545', // Red (Parked)
+                '#ffc107', // Yellow (Reserved)
+                '#6c757d'  // Grey (Cancelled)
+            ],
+            hoverOffset: 4
         }]
     },
     options: {
         responsive: true,
         maintainAspectRatio: false,
-        scales: { 
-            y: { 
-                beginAtZero: true, 
-                ticks: { stepSize: 1 },
-                title: { display: true, text: 'Number of Records' }
-            } 
+        plugins: {
+            legend: {
+                position: 'bottom', // Positions legend below the chart
+            },
+            title: {
+                display: true,
+                text: 'Parking Usage Distribution'
+            }
         }
+        // Scales removed because pie charts don't use axes
     }
 });
 </script>
